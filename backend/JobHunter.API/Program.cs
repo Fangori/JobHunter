@@ -19,6 +19,9 @@ builder.Services.AddScoped<IThamSoService, ThamSoService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJobService, JobService>();
+builder.Services.AddScoped<ICloudinaryFileService, CloudinaryFileService>();
+builder.Services.AddScoped<ICvService, CvService>();
+builder.Services.AddScoped<IApplicationService, ApplicationService>();
 
 builder.Services.AddCors(options =>
 {

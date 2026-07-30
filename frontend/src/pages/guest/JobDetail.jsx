@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
-// ApplyModal duoc noi vao Phase 3 khi ApplicationService/CV san sang
+import ApplyModal from "../candidate/ApplyModal";
 
 export default function JobDetail() {
   const { id } = useParams();
@@ -65,8 +65,9 @@ export default function JobDetail() {
             Ứng tuyển ngay
           </button>
         )}
-        {showApply && <p className="success-text">Chức năng Ứng tuyển sẽ hoàn thiện ở Phase 3.</p>}
       </div>
+
+      {showApply && <ApplyModal maTin={job.maTin} onClose={() => setShowApply(false)} />}
     </div>
   );
 }

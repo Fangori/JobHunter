@@ -7,6 +7,7 @@ import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import PostJob from './pages/employer/PostJob'
 import ApproveJobs from './pages/admin/ApproveJobs'
+import ManageCv from './pages/candidate/ManageCv'
 import './App.css'
 
 function App() {
@@ -23,6 +24,9 @@ function App() {
         } />
         <Route path="/admin/pending-jobs" element={
           <ProtectedRoute role="Admin"><ApproveJobs /></ProtectedRoute>
+        } />
+        <Route path="/candidate/cvs" element={
+          <ProtectedRoute role="UngVien"><ManageCv /></ProtectedRoute>
         } />
       </Routes>
     </>
