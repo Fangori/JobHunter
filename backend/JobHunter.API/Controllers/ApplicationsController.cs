@@ -52,3 +52,45 @@ public class ApplicationsController : ControllerBase
     [HttpGet("mine")]
     public async Task<IActionResult> Mine() => Ok(await _applicationService.LayCuaToiAsync(CurrentMaTK));
 }
+
+[ApiController]
+[Route("api/applications")]
+[Authorize(Roles = "NhaTuyenDung")]
+public class ApplicationsEmployerController : ControllerBase
+{
+    private readonly IApplicationService _applicationService;
+
+    public ApplicationsEmployerController(IApplicationService applicationService)
+    {
+        _applicationService = applicationService;
+    }
+
+    private int CurrentMaTK => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    [HttpGet("{id:int}/detail")]
+    public async Task<IActionResult> Detail(int id)
+    {
+        try
+        {
+            return Ok(await _applicationService.LayChiTietAsync(CurrentMaTK, id));
+        }
+        catch (BusinessRuleException ex)
+        {
+            return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
+        }
+    }
+
+    [HttpPut("{id:int}/status")]
+    public async Task<IActionResult> UpdateStatus(int id, CapNhatTrangThaiRequest request)
+    {
+        try
+        {
+            await _applicationService.CapNhatTrangThaiAsync(CurrentMaTK, id, request.TrangThaiMoi, request.GhiChuNoiBo);
+            return Ok(new { message = "Cập nhật trạng thái thành công." }); // MS08
+        }
+        catch (BusinessRuleException ex)
+        {
+            return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
+        }
+    }
+}

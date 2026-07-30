@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
+import ApplicantDetail from "./ApplicantDetail";
 
 const TRINH_DO_OPTIONS = ["TrungCap", "CaoDang", "DaiHoc", "SauDaiHoc"];
 const TRINH_DO_LABEL = { TrungCap: "Trung cấp", CaoDang: "Cao đẳng", DaiHoc: "Đại học", SauDaiHoc: "Sau đại học" };
+const TRANG_THAI_LABEL = { DaNop: "Đã nộp", DangXemXet: "Đang xem xét", PhongVan: "Phỏng vấn", TuChoi: "Từ chối", Nhan: "Nhận", DaHuy: "Đã hủy" };
 
 export default function Applicants() {
   const { id } = useParams();
@@ -12,6 +14,7 @@ export default function Applicants() {
   const [skills, setSkills] = useState([]);
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMaDon, setSelectedMaDon] = useState(null);
 
   // 3 tieu chi loc dung BM14
   const [selectedSkills, setSelectedSkills] = useState([]);
@@ -57,6 +60,8 @@ export default function Applicants() {
     setMinNamKinhNghiem("");
     loadDefault();
   };
+
+  const skillNames = Object.fromEntries(skills.map((s) => [s.maKyNang, s.tenKyNang]));
 
   return (
     <div className="page-container">
@@ -111,15 +116,21 @@ export default function Applicants() {
                   <th style={{ padding: 8 }}>Kỹ năng khớp</th>
                   <th style={{ padding: 8 }}>Tỉ lệ phù hợp</th>
                   <th style={{ padding: 8 }}>Kinh nghiệm</th>
+                  <th style={{ padding: 8 }}>Trạng thái</th>
                 </tr>
               </thead>
               <tbody>
                 {list.map((a) => (
-                  <tr key={a.maDon} style={{ borderBottom: "1px solid var(--border)" }}>
+                  <tr
+                    key={a.maDon}
+                    style={{ borderBottom: "1px solid var(--border)", cursor: "pointer" }}
+                    onClick={() => setSelectedMaDon(a.maDon)}
+                  >
                     <td style={{ padding: 8 }}>{a.hoTen}<br /><span style={{ color: "var(--text-muted)", fontSize: 13 }}>{a.tenCV}</span></td>
                     <td style={{ padding: 8 }}>{a.kyNangKhop.join(", ") || "—"}</td>
                     <td style={{ padding: 8, fontWeight: 700, color: "var(--indigo)" }}>{a.phanTramPhuHop}%</td>
                     <td style={{ padding: 8 }}>{a.soNamKinhNghiem} năm</td>
+                    <td style={{ padding: 8 }}>{TRANG_THAI_LABEL[a.trangThai] || a.trangThai}</td>
                   </tr>
                 ))}
               </tbody>
@@ -127,6 +138,15 @@ export default function Applicants() {
           )}
         </div>
       </div>
+
+      {selectedMaDon && (
+        <ApplicantDetail
+          maDon={selectedMaDon}
+          skillNames={skillNames}
+          onClose={() => setSelectedMaDon(null)}
+          onUpdated={filtering ? applyFilter : loadDefault}
+        />
+      )}
     </div>
   );
 }
