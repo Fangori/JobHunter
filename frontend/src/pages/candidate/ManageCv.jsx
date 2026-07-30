@@ -11,18 +11,24 @@ function emptyKinhNghiem() {
 function emptyHocVan() {
   return { truong: "", chuyenNganh: "", tuNam: "", denNam: "" };
 }
+function emptyForm() {
+  return { tenCv: "", viTriMongMuon: "", mucLuongMongMuon: "", trinhDoHocVan: "DaiHoc" };
+}
 
 export default function ManageCv() {
   const { auth } = useAuth();
   const [skills, setSkills] = useState([]);
   const [myCvs, setMyCvs] = useState([]);
+  const [trashCvs, setTrashCvs] = useState([]);
+  const [editingCvId, setEditingCvId] = useState(null); // null = dang tao moi
   const [selectedSkills, setSelectedSkills] = useState({}); // { maKyNang: mucDoThanhThao }
   const [kinhNghiem, setKinhNghiem] = useState([emptyKinhNghiem()]);
   const [hocVan, setHocVan] = useState([emptyHocVan()]);
-  const [form, setForm] = useState({ tenCv: "", viTriMongMuon: "", mucLuongMongMuon: "", trinhDoHocVan: "DaiHoc" });
+  const [form, setForm] = useState(emptyForm());
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [trashMsg, setTrashMsg] = useState("");
 
   const [uploadTenCv, setUploadTenCv] = useState("");
   const [uploadFile, setUploadFile] = useState(null);
@@ -30,10 +36,12 @@ export default function ManageCv() {
   const [uploadSuccess, setUploadSuccess] = useState("");
 
   const loadCvs = () => api.get("/cvs/mine", auth.token).then(setMyCvs);
+  const loadTrash = () => api.get("/cvs/mine?trangThai=DaAn", auth.token).then(setTrashCvs);
 
   useEffect(() => {
     api.get("/skills").then(setSkills);
     loadCvs();
+    loadTrash();
   }, []);
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
@@ -45,6 +53,62 @@ export default function ManageCv() {
       else next[maKyNang] = "ThanhThao";
       return next;
     });
+  };
+
+  const resetForm = () => {
+    setEditingCvId(null);
+    setForm(emptyForm());
+    setSelectedSkills({});
+    setKinhNghiem([emptyKinhNghiem()]);
+    setHocVan([emptyHocVan()]);
+  };
+
+  const startEdit = async (maCv) => {
+    setError("");
+    setSuccess("");
+    try {
+      const detail = await api.get(`/cvs/${maCv}`, auth.token);
+      setEditingCvId(maCv);
+      setForm({
+        tenCv: detail.tenCV,
+        viTriMongMuon: detail.viTriMongMuon || "",
+        mucLuongMongMuon: detail.mucLuongMongMuon || "",
+        trinhDoHocVan: detail.trinhDoHocVan || "DaiHoc",
+      });
+      const skillMap = {};
+      detail.kyNang.forEach((k) => (skillMap[k.maKyNang] = k.mucDoThanhThao || "ThanhThao"));
+      setSelectedSkills(skillMap);
+      setKinhNghiem(detail.kinhNghiem.length > 0 ? detail.kinhNghiem : [emptyKinhNghiem()]);
+      setHocVan(detail.hocVan.length > 0 ? detail.hocVan : [emptyHocVan()]);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Có lỗi xảy ra.");
+    }
+  };
+
+  const handleDelete = async (maCv) => {
+    if (!window.confirm("Bạn có chắc muốn xóa CV này?")) return;
+    setError("");
+    setSuccess("");
+    try {
+      const result = await api.del(`/cvs/${maCv}`, auth.token);
+      setSuccess(result.message); // MS38 hoac MS39 (BR13)
+      if (editingCvId === maCv) resetForm();
+      await Promise.all([loadCvs(), loadTrash()]);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Có lỗi xảy ra.");
+    }
+  };
+
+  const handleRestore = async (maCv) => {
+    setTrashMsg("");
+    try {
+      const result = await api.post(`/cvs/${maCv}/restore`, undefined, auth.token);
+      setTrashMsg(result.message); // MS40
+      await Promise.all([loadCvs(), loadTrash()]);
+    } catch (err) {
+      setTrashMsg(err instanceof ApiError ? err.message : "Có lỗi xảy ra.");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -59,8 +123,14 @@ export default function ManageCv() {
         kinhNghiem: kinhNghiem.filter((k) => k.congTy && k.tuNgay),
         hocVan: hocVan.filter((h) => h.truong),
       };
-      await api.post("/cvs/online", body, auth.token);
-      setSuccess("Tạo CV thành công."); // MS03
+      if (editingCvId) {
+        const result = await api.put(`/cvs/${editingCvId}`, body, auth.token);
+        setSuccess(result.message); // MS37
+      } else {
+        await api.post("/cvs/online", body, auth.token);
+        setSuccess("Tạo CV thành công."); // MS03
+      }
+      resetForm();
       await loadCvs();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Có lỗi xảy ra."); // MS04 tra ve tu server neu thieu field
@@ -102,9 +172,39 @@ export default function ManageCv() {
         <div className="card" style={{ marginBottom: 24 }}>
           <h3>CV của tôi</h3>
           {myCvs.map((cv) => (
-            <div key={cv.maCV} style={{ padding: "8px 0", borderBottom: "1px solid var(--border)" }}>
-              <strong>{cv.tenCV}</strong> — {cv.loaiCV === "TrucTuyen" ? "Trực tuyến" : "Upload"}
-              {cv.viTriMongMuon && <span> · {cv.viTriMongMuon}</span>}
+            <div key={cv.maCV} style={{ padding: "8px 0", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <strong>{cv.tenCV}</strong> — {cv.loaiCV === "TrucTuyen" ? "Trực tuyến" : "Upload"}
+                {cv.viTriMongMuon && <span> · {cv.viTriMongMuon}</span>}
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {cv.loaiCV === "TrucTuyen" && (
+                  <button type="button" className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={() => startEdit(cv.maCV)}>
+                    Sửa
+                  </button>
+                )}
+                <button type="button" className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={() => handleDelete(cv.maCV)}>
+                  Xóa
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {(trashCvs.length > 0 || trashMsg) && (
+        <div className="card" style={{ marginBottom: 24 }}>
+          <h3>Thùng rác CV</h3>
+          {trashMsg && <p className={trashMsg.includes("thành công") ? "success-text" : "error-text"}>{trashMsg}</p>}
+          {trashCvs.length === 0 && <p style={{ color: "var(--text-muted)" }}>Thùng rác trống.</p>}
+          {trashCvs.map((cv) => (
+            <div key={cv.maCV} style={{ padding: "8px 0", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <strong>{cv.tenCV}</strong> — {cv.loaiCV === "TrucTuyen" ? "Trực tuyến" : "Upload"}
+              </div>
+              <button type="button" className="btn btn-primary" style={{ height: 32, padding: "0 12px" }} onClick={() => handleRestore(cv.maCV)}>
+                Phục hồi
+              </button>
             </div>
           ))}
         </div>
@@ -112,7 +212,7 @@ export default function ManageCv() {
 
       <div style={{ display: "flex", gap: 24 }}>
         <div className="card" style={{ flex: 1 }}>
-          <h3>Tạo CV trực tuyến</h3>
+          <h3>{editingCvId ? "Sửa CV" : "Tạo CV trực tuyến"}</h3>
           <form onSubmit={handleSubmit}>
             <div className="field">
               <label>Tên CV</label>
@@ -184,9 +284,16 @@ export default function ManageCv() {
 
             {error && <p className="error-text">{error}</p>}
             {success && <p className="success-text">{success}</p>}
-            <button className="btn btn-primary" style={{ width: "100%" }} disabled={loading} type="submit">
-              {loading ? "Đang lưu..." : "Lưu"}
-            </button>
+            <div style={{ display: "flex", gap: 8 }}>
+              {editingCvId && (
+                <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={resetForm}>
+                  Hủy sửa
+                </button>
+              )}
+              <button className="btn btn-primary" style={{ flex: 1 }} disabled={loading} type="submit">
+                {loading ? "Đang lưu..." : editingCvId ? "Cập nhật" : "Lưu"}
+              </button>
+            </div>
           </form>
         </div>
 

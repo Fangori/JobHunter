@@ -47,3 +47,12 @@ public class CvSummaryDto
     public string TrangThai { get; set; } = null!;
     public string? DuongDanFile { get; set; }
 }
+
+// UC22 - doc chi tiet 1 CV de preload form sua
+public class CvDetailDto : CvSummaryDto
+{
+    public string? MucLuongMongMuon { get; set; }
+    public List<CvKyNangDto> KyNang { get; set; } = new();
+    public List<CvKinhNghiemDto> KinhNghiem { get; set; } = new();
+    public List<CvHocVanDto> HocVan { get; set; } = new();
+}
