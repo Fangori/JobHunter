@@ -10,16 +10,15 @@
   nen luon chay tuan tu tu 0). Bo qua = chay full toi Phase 4.
 
 .PARAMETER BaseUrl
-  Goc API, mac dinh http://localhost:5000/api - SUA LAI theo dung port
-  thuc te trong backend/JobHunter.API/Properties/launchSettings.json
-  sau khi scaffold xong Phase 0.
+  Goc API, mac dinh http://localhost:5147/api (dung port thuc te trong
+  backend/JobHunter.API/Properties/launchSettings.json sau Phase 0).
 
 .EXAMPLE
   .\scripts\smoke-test.ps1 -Phase 1
 #>
 param(
     [int]$Phase = 4,
-    [string]$BaseUrl = "http://localhost:5000/api"
+    [string]$BaseUrl = "http://localhost:5147/api"
 )
 
 $ErrorActionPreference = "Stop"

@@ -17,3 +17,33 @@ INSERT INTO THAM_SO (MaThamSo, GiaTri, GhiChu) VALUES
 ('TS7', '1',  N'So ngay toi thieu tu luc dang tin den han nop ho so'),
 ('TS8', '1',  N'So don ung tuyen toi da CUA 1 UNG VIEN cho 1 tin (dang hoat dong)');
 GO
+
+-- ====================================================================
+-- SEED: Tai khoan Admin dau tien (43 UC khong co UC dang ky Admin,
+-- phai co san tu dau). Hash BCrypt cua "Admin@123" (cost=11).
+-- ====================================================================
+INSERT INTO TAI_KHOAN (Email, MatKhau, VaiTro, DaXacThuc, TrangThai, SoLanDangNhapSai, NgayTao) VALUES
+(N'admin@jobhunter.local', '$2a$11$Q.MmKNxfSUCOzm0PXVakDOJ05OjB3D/vFDHPpW81wczTVMIOCwDGW', 'Admin', 1, 'HoatDong', 0, SYSDATETIME());
+GO
+
+-- ====================================================================
+-- SEED: DANH_MUC_KY_NANG (huong tech stack, dung de dang tin/tao CV/
+-- loc ung vien demo hom nay)
+-- ====================================================================
+INSERT INTO DANH_MUC_KY_NANG (TenKyNang, NhomNganh, TrangThai) VALUES
+(N'C#', N'Ngon ngu lap trinh', 'HoatDong'),
+(N'Java', N'Ngon ngu lap trinh', 'HoatDong'),
+(N'Python', N'Ngon ngu lap trinh', 'HoatDong'),
+(N'JavaScript', N'Ngon ngu lap trinh', 'HoatDong'),
+(N'TypeScript', N'Ngon ngu lap trinh', 'HoatDong'),
+(N'React', N'Frontend', 'HoatDong'),
+(N'Angular', N'Frontend', 'HoatDong'),
+(N'Node.js', N'Backend', 'HoatDong'),
+(N'ASP.NET Core', N'Backend', 'HoatDong'),
+(N'SQL Server', N'Database', 'HoatDong'),
+(N'MongoDB', N'Database', 'HoatDong'),
+(N'Docker', N'DevOps', 'HoatDong'),
+(N'Kubernetes', N'DevOps', 'HoatDong'),
+(N'Git', N'Cong cu', 'HoatDong'),
+(N'AWS', N'DevOps', 'HoatDong');
+GO
