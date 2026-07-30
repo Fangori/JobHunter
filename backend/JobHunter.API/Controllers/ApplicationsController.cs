@@ -34,4 +34,21 @@ public class ApplicationsController : ControllerBase
             return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
         }
     }
+
+    [HttpPost("{id:int}/cancel")]
+    public async Task<IActionResult> Cancel(int id)
+    {
+        try
+        {
+            await _applicationService.HuyDonAsync(CurrentMaTK, id);
+            return Ok(new { message = "Hủy đơn ứng tuyển thành công." });
+        }
+        catch (BusinessRuleException ex)
+        {
+            return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
+        }
+    }
+
+    [HttpGet("mine")]
+    public async Task<IActionResult> Mine() => Ok(await _applicationService.LayCuaToiAsync(CurrentMaTK));
 }

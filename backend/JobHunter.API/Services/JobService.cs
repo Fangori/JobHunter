@@ -10,11 +10,13 @@ public class JobService : IJobService
 {
     private readonly JobHunterDbContext _db;
     private readonly IThamSoService _thamSo;
+    private readonly INotificationService _notification;
 
-    public JobService(JobHunterDbContext db, IThamSoService thamSo)
+    public JobService(JobHunterDbContext db, IThamSoService thamSo, INotificationService notification)
     {
         _db = db;
         _thamSo = thamSo;
+        _notification = notification;
     }
 
     public async Task<TinTuyenDungSummaryDto> DangTinAsync(int maTkNtd, DangTinRequest request)
@@ -52,6 +54,14 @@ public class JobService : IJobService
         ntd.SoTinDangTuyen++;
 
         await _db.SaveChangesAsync();
+
+        // Thong bao cho tat ca Admin (UC25 "gui thong bao cho Admin")
+        var maAdmins = await _db.TaiKhoans.Where(x => x.VaiTro == "Admin").Select(x => x.MaTK).ToListAsync();
+        foreach (var maAdmin in maAdmins)
+        {
+            await _notification.TaoThongBaoAsync(maAdmin,
+                $"Tin \"{tin.TieuDe}\" của {ntd.TenCongTy} đang chờ duyệt.", "TinMoi", "/admin/pending-jobs");
+        }
 
         return await LayTomTatAsync(tin.MaTin);
     }
@@ -135,6 +145,9 @@ public class JobService : IJobService
             throw new BusinessRuleException(404, "Không tìm thấy tin tuyển dụng.");
         tin.TrangThai = "DaDuyet";
         await _db.SaveChangesAsync();
+
+        await _notification.TaoThongBaoAsync(tin.MaTK,
+            $"Tin \"{tin.TieuDe}\" đã được duyệt và hiển thị công khai.", "TinDaDuyet", $"/jobs/{tin.MaTin}");
     }
 
     public async Task TuChoiTinAsync(int maTin, string lyDo)
@@ -148,6 +161,9 @@ public class JobService : IJobService
         tin.TrangThai = "TuChoi";
         tin.LyDoTuChoi = lyDo;
         await _db.SaveChangesAsync();
+
+        await _notification.TaoThongBaoAsync(tin.MaTK,
+            $"Tin \"{tin.TieuDe}\" đã bị từ chối. Lý do: {lyDo}", "TinBiTuChoi", "/employer/my-jobs");
     }
 
     private async Task<TinTuyenDungSummaryDto> LayTomTatAsync(int maTin)

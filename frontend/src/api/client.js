@@ -30,4 +30,6 @@ export class ApiError extends Error {
 export const api = {
   get: (path, token) => request("GET", path, undefined, token),
   post: (path, body, token) => request("POST", path, body, token),
+  put: (path, body, token) => request("PUT", path, body, token),
+  del: (path, token) => request("DELETE", path, undefined, token),
 };

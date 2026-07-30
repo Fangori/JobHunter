@@ -81,4 +81,33 @@ public class ApplicationServiceTests
             service.UngTuyenAsync(maTkUv, new UngTuyenRequest { MaCv = maCv, MaTin = maTin }));
         Assert.Equal(400, ex.StatusCode);
     }
+
+    [Fact]
+    [Trait("Category", "BR10")]
+    public async Task HuyDon_DangTrangThaiDaNop_ThanhCong()
+    {
+        var (service, db, maTkUv, maTin, maCv) = await SetupAsync();
+        var don = await service.UngTuyenAsync(maTkUv, new UngTuyenRequest { MaCv = maCv, MaTin = maTin });
+
+        await service.HuyDonAsync(maTkUv, don.MaDon);
+
+        var donEntity = await db.DonUngTuyens.FindAsync(don.MaDon);
+        Assert.Equal("DaHuy", donEntity!.TrangThai);
+    }
+
+    [Fact]
+    [Trait("Category", "BR10")]
+    public async Task HuyDon_DaQuaPhongVan_ThatBai()
+    {
+        var (service, db, maTkUv, maTin, maCv) = await SetupAsync();
+        var don = await service.UngTuyenAsync(maTkUv, new UngTuyenRequest { MaCv = maCv, MaTin = maTin });
+
+        var donEntity = await db.DonUngTuyens.FindAsync(don.MaDon);
+        donEntity!.TrangThai = "PhongVan";
+        await db.SaveChangesAsync();
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() => service.HuyDonAsync(maTkUv, don.MaDon));
+        Assert.Equal(400, ex.StatusCode);
+        Assert.Equal("PhongVan", (await db.DonUngTuyens.FindAsync(don.MaDon))!.TrangThai);
+    }
 }

@@ -53,4 +53,37 @@ public class ApplicationService : IApplicationService
         await _db.SaveChangesAsync();
         return new DonUngTuyenResponse { MaDon = don.MaDon, TrangThai = don.TrangThai };
     }
+
+    public async Task HuyDonAsync(int maTkUv, int maDon)
+    {
+        var don = await _db.DonUngTuyens.Include(x => x.Cv).FirstOrDefaultAsync(x => x.MaDon == maDon);
+        if (don is null || don.Cv.MaTK != maTkUv)
+            throw new BusinessRuleException(404, "Không tìm thấy đơn ứng tuyển.");
+
+        // BR10: chi huy khi dang "DaNop"/"DangXemXet"
+        if (don.TrangThai != "DaNop" && don.TrangThai != "DangXemXet")
+            throw new BusinessRuleException(400, "Không thể hủy đơn đã qua bước phỏng vấn."); // MS34
+
+        don.TrangThai = "DaHuy";
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task<List<DonUngTuyenMineDto>> LayCuaToiAsync(int maTkUv)
+    {
+        return await _db.DonUngTuyens.AsNoTracking()
+            .Include(x => x.Cv)
+            .Include(x => x.TinTuyenDung).ThenInclude(t => t.NhaTuyenDung)
+            .Where(x => x.Cv.MaTK == maTkUv)
+            .OrderByDescending(x => x.NgayNop)
+            .Select(x => new DonUngTuyenMineDto
+            {
+                MaDon = x.MaDon,
+                MaTin = x.MaTin,
+                TieuDe = x.TinTuyenDung.TieuDe,
+                TenCongTy = x.TinTuyenDung.NhaTuyenDung.TenCongTy,
+                TrangThai = x.TrangThai,
+                NgayNop = x.NgayNop,
+            })
+            .ToListAsync();
+    }
 }

@@ -1,33 +1,51 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { api } from "../../api/client";
+import { useAuth } from "../../context/AuthContext";
+import JobCard from "../../components/JobCard";
 
 const TAG_GOI_Y = ["React", "Java", "Python", "SQL Server", "Docker", "Node.js"];
 
-function JobCard({ job }) {
-  return (
-    <Link to={`/jobs/${job.maTin}`} className="card" style={{ display: "block", textDecoration: "none", color: "inherit", marginBottom: 12 }}>
-      <h3 style={{ margin: "0 0 4px" }}>{job.tieuDe}</h3>
-      <p style={{ color: "var(--text-muted)", margin: "0 0 8px" }}>{job.tenCongTy}</p>
-      <p style={{ margin: 0, fontSize: 14 }}>
-        {job.diaDiem && <span>{job.diaDiem} · </span>}
-        {job.hinhThucLamViec && <span>{job.hinhThucLamViec} · </span>}
-        {job.mucLuong && <span>{job.mucLuong}</span>}
-      </p>
-    </Link>
-  );
-}
-
 export default function Home() {
+  const { auth } = useAuth();
   const [keyword, setKeyword] = useState("");
   const [diaDiem, setDiaDiem] = useState("");
   const [featured, setFeatured] = useState([]);
   const [results, setResults] = useState([]);
   const [searched, setSearched] = useState(false);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
 
   useEffect(() => {
     api.get("/jobs/featured?top=6").then(setFeatured).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (auth?.vaiTro === "UngVien") {
+      api.get("/favorites/mine", auth.token)
+        .then((list) => setFavoriteIds(new Set(list.map((j) => j.maTin))))
+        .catch(() => {});
+    } else {
+      setFavoriteIds(new Set());
+    }
+  }, [auth]);
+
+  const toggleFavorite = async (maTin) => {
+    const daLuu = favoriteIds.has(maTin);
+    try {
+      if (daLuu) {
+        await api.del(`/favorites/${maTin}`, auth.token);
+        setFavoriteIds((prev) => {
+          const next = new Set(prev);
+          next.delete(maTin);
+          return next;
+        });
+      } else {
+        await api.post(`/favorites/${maTin}`, undefined, auth.token);
+        setFavoriteIds((prev) => new Set(prev).add(maTin));
+      }
+    } catch {
+      // bo qua loi luu tin, khong chan luong duyet tin chinh
+    }
+  };
 
   const search = async (kw = keyword, dd = diaDiem) => {
     const params = new URLSearchParams();
@@ -47,6 +65,8 @@ export default function Home() {
     e.preventDefault();
     search();
   };
+
+  const canFavorite = auth?.vaiTro === "UngVien";
 
   return (
     <div className="page-container">
@@ -70,12 +90,26 @@ export default function Home() {
         <>
           <h2>Kết quả tìm kiếm ({results.length})</h2>
           {results.length === 0 && <p>Không tìm thấy việc làm phù hợp với điều kiện tìm kiếm.</p>}
-          {results.map((job) => <JobCard key={job.maTin} job={job} />)}
+          {results.map((job) => (
+            <JobCard
+              key={job.maTin}
+              job={job}
+              isFavorited={favoriteIds.has(job.maTin)}
+              onToggleFavorite={canFavorite ? toggleFavorite : undefined}
+            />
+          ))}
         </>
       ) : (
         <>
           <h2>Việc Làm Nổi Bật</h2>
-          {featured.map((job) => <JobCard key={job.maTin} job={job} />)}
+          {featured.map((job) => (
+            <JobCard
+              key={job.maTin}
+              job={job}
+              isFavorited={favoriteIds.has(job.maTin)}
+              onToggleFavorite={canFavorite ? toggleFavorite : undefined}
+            />
+          ))}
         </>
       )}
     </div>

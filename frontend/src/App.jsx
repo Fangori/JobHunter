@@ -15,6 +15,8 @@ import CompanyProfile from './pages/employer/CompanyProfile'
 import ApproveJobs from './pages/admin/ApproveJobs'
 import ManageCv from './pages/candidate/ManageCv'
 import Profile from './pages/candidate/Profile'
+import MyApplications from './pages/candidate/MyApplications'
+import Favorites from './pages/candidate/Favorites'
 import './App.css'
 
 function App() {
@@ -47,6 +49,12 @@ function App() {
         } />
         <Route path="/candidate/profile" element={
           <ProtectedRoute role="UngVien"><Profile /></ProtectedRoute>
+        } />
+        <Route path="/candidate/applications" element={
+          <ProtectedRoute role="UngVien"><MyApplications /></ProtectedRoute>
+        } />
+        <Route path="/candidate/favorites" element={
+          <ProtectedRoute role="UngVien"><Favorites /></ProtectedRoute>
         } />
       </Routes>
     </>

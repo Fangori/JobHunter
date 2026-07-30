@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api } from "../../api/client";
+import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import ApplyModal from "../candidate/ApplyModal";
 
@@ -9,6 +9,8 @@ export default function JobDetail() {
   const [job, setJob] = useState(null);
   const [skillNames, setSkillNames] = useState({});
   const [showApply, setShowApply] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favMsg, setFavMsg] = useState("");
   const { auth } = useAuth();
 
   useEffect(() => {
@@ -20,12 +22,49 @@ export default function JobDetail() {
     });
   }, [id]);
 
+  useEffect(() => {
+    if (auth?.vaiTro === "UngVien") {
+      api.get("/favorites/mine", auth.token)
+        .then((list) => setIsFavorited(list.some((j) => j.maTin === Number(id))))
+        .catch(() => {});
+    }
+  }, [id, auth]);
+
+  const toggleFavorite = async () => {
+    setFavMsg("");
+    try {
+      if (isFavorited) {
+        await api.del(`/favorites/${id}`, auth.token);
+        setIsFavorited(false);
+      } else {
+        await api.post(`/favorites/${id}`, undefined, auth.token);
+        setIsFavorited(true);
+        setFavMsg("Đã lưu tin vào danh sách yêu thích."); // MS27
+      }
+    } catch (err) {
+      setFavMsg(err instanceof ApiError ? err.message : "Có lỗi xảy ra.");
+    }
+  };
+
   if (!job) return <div className="page-container">Đang tải...</div>;
 
   return (
     <div className="page-container" style={{ maxWidth: 720 }}>
       <div className="card">
-        <h1 style={{ fontSize: 28 }}>{job.tieuDe}</h1>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <h1 style={{ fontSize: 28 }}>{job.tieuDe}</h1>
+          {auth?.vaiTro === "UngVien" && (
+            <button
+              type="button"
+              onClick={toggleFavorite}
+              title={isFavorited ? "Bỏ lưu tin" : "Lưu tin"}
+              style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 26, color: isFavorited ? "#e0245e" : "var(--text-muted)" }}
+            >
+              {isFavorited ? "♥" : "♡"}
+            </button>
+          )}
+        </div>
+        {favMsg && <p className={favMsg === "Đã lưu tin vào danh sách yêu thích." ? "success-text" : "error-text"}>{favMsg}</p>}
         <p style={{ color: "var(--text-muted)" }}>
           <Link to={`/companies/${job.maTkNtd}`}>{job.tenCongTy}</Link>
         </p>

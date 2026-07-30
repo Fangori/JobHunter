@@ -1,0 +1,78 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { api, ApiError } from "../../api/client";
+import { useAuth } from "../../context/AuthContext";
+
+const TRANG_THAI_LABEL = {
+  DaNop: "Đã nộp",
+  DangXemXet: "Đang xem xét",
+  PhongVan: "Phỏng vấn",
+  TuChoi: "Từ chối",
+  Nhan: "Nhận",
+  DaHuy: "Đã hủy",
+};
+
+const HUY_DUOC = ["DaNop", "DangXemXet"]; // BR10
+
+export default function MyApplications() {
+  const { auth } = useAuth();
+  const [applications, setApplications] = useState(null);
+  const [error, setError] = useState("");
+  const [busyId, setBusyId] = useState(null);
+
+  const load = () => api.get("/applications/mine", auth.token).then(setApplications);
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const handleCancel = async (maDon) => {
+    setError("");
+    setBusyId(maDon);
+    try {
+      await api.post(`/applications/${maDon}/cancel`, undefined, auth.token);
+      await load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Có lỗi xảy ra."); // MS34
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  if (!applications) return <div className="page-container">Đang tải...</div>;
+
+  return (
+    <div className="page-container" style={{ maxWidth: 720 }}>
+      <h1>Đơn ứng tuyển của tôi</h1>
+      {error && <p className="error-text">{error}</p>}
+      {applications.length === 0 && <p>Bạn chưa ứng tuyển vào tin nào.</p>}
+      {applications.map((don) => (
+        <div key={don.maDon} className="card" style={{ marginBottom: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div>
+              <Link to={`/jobs/${don.maTin}`}><strong>{don.tieuDe}</strong></Link>
+              <p style={{ color: "var(--text-muted)", margin: "4px 0" }}>{don.tenCongTy}</p>
+              <p style={{ margin: 0, fontSize: 14 }}>
+                Trạng thái: <strong>{TRANG_THAI_LABEL[don.trangThai] || don.trangThai}</strong>
+              </p>
+              <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)" }}>
+                Nộp lúc: {new Date(don.ngayNop).toLocaleString("vi-VN")}
+              </p>
+            </div>
+            {HUY_DUOC.includes(don.trangThai) && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ height: 36, padding: "0 16px", whiteSpace: "nowrap" }}
+                disabled={busyId === don.maDon}
+                onClick={() => handleCancel(don.maDon)}
+              >
+                {busyId === don.maDon ? "Đang hủy..." : "Hủy đơn"}
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

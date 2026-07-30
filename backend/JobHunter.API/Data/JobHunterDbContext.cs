@@ -23,6 +23,9 @@ public class JobHunterDbContext : DbContext
     public DbSet<DonUngTuyen> DonUngTuyens => Set<DonUngTuyen>();
     public DbSet<TokenXacThuc> TokenXacThucs => Set<TokenXacThuc>();
     public DbSet<DanhMucNganhNghe> DanhMucNganhNghes => Set<DanhMucNganhNghe>();
+    public DbSet<ThongBao> ThongBaos => Set<ThongBao>();
+    public DbSet<TinYeuThich> TinYeuThichs => Set<TinYeuThich>();
+    public DbSet<TheoDoiCongTy> TheoDoiCongTys => Set<TheoDoiCongTy>();
 
     // DbSet khac duoc them dan theo tung Phase khi entity tuong ung
     // duoc tao trong Models/, khop dung database/JobHunter_CreateTables.sql
@@ -137,6 +140,29 @@ public class JobHunterDbContext : DbContext
             e.HasKey(x => x.MaDon);
             e.HasOne(x => x.TinTuyenDung).WithMany().HasForeignKey(x => x.MaTin);
             e.HasOne(x => x.Cv).WithMany().HasForeignKey(x => x.MaCV);
+        });
+
+        modelBuilder.Entity<ThongBao>(e =>
+        {
+            e.ToTable("THONG_BAO");
+            e.HasKey(x => x.MaThongBao);
+            e.HasOne<TaiKhoan>().WithMany().HasForeignKey(x => x.MaTK);
+        });
+
+        modelBuilder.Entity<TinYeuThich>(e =>
+        {
+            e.ToTable("TIN_YEU_THICH");
+            e.HasKey(x => new { x.MaTK, x.MaTin });
+            e.HasOne<UngVien>().WithMany().HasForeignKey(x => x.MaTK);
+            e.HasOne<TinTuyenDung>().WithMany().HasForeignKey(x => x.MaTin);
+        });
+
+        modelBuilder.Entity<TheoDoiCongTy>(e =>
+        {
+            e.ToTable("THEO_DOI_CONG_TY");
+            e.HasKey(x => new { x.MaTK_UngVien, x.MaTK_NTD });
+            e.HasOne<UngVien>().WithMany().HasForeignKey(x => x.MaTK_UngVien);
+            e.HasOne<NhaTuyenDung>().WithMany().HasForeignKey(x => x.MaTK_NTD);
         });
     }
 }

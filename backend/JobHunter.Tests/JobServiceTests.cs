@@ -21,7 +21,7 @@ public class JobServiceTests
         db.NhaTuyenDungs.Add(new NhaTuyenDung { MaTK = taiKhoan.MaTK, TenCongTy = "Test Co", SoTinDangTuyen = 0 });
         await db.SaveChangesAsync();
 
-        var service = new JobService(db, new ThamSoService(db));
+        var service = new JobService(db, new ThamSoService(db), new NotificationService(db));
         return (service, taiKhoan.MaTK);
     }
 
