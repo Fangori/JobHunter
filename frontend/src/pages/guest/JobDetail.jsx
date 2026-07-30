@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import ApplyModal from "../candidate/ApplyModal";
@@ -64,6 +64,11 @@ export default function JobDetail() {
           <button className="btn btn-primary" style={{ marginTop: 24 }} onClick={() => setShowApply(true)}>
             Ứng tuyển ngay
           </button>
+        )}
+        {auth?.vaiTro === "NhaTuyenDung" && (
+          <Link to={`/employer/jobs/${job.maTin}/applicants`} className="btn btn-primary" style={{ marginTop: 24 }}>
+            Xem danh sách ứng viên
+          </Link>
         )}
       </div>
 

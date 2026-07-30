@@ -12,10 +12,12 @@ namespace JobHunter.API.Controllers;
 public class JobsController : ControllerBase
 {
     private readonly IJobService _jobService;
+    private readonly ICandidateMatchService _matchService;
 
-    public JobsController(IJobService jobService)
+    public JobsController(IJobService jobService, ICandidateMatchService matchService)
     {
         _jobService = jobService;
+        _matchService = matchService;
     }
 
     private int CurrentMaTK => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -89,6 +91,38 @@ public class JobsController : ControllerBase
         {
             await _jobService.TuChoiTinAsync(id, request.LyDo);
             return Ok(new { message = "Tin đã bị từ chối." }); // MS44
+        }
+        catch (BusinessRuleException ex)
+        {
+            return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
+        }
+    }
+
+    // UC29: xem danh sach ung vien binh thuong (khong loc)
+    [HttpGet("{id:int}/applicants")]
+    [Authorize(Roles = "NhaTuyenDung")]
+    public async Task<IActionResult> XemDanhSachUngVien(int id)
+    {
+        try
+        {
+            return Ok(await _matchService.XemDanhSachUngVienAsync(id, CurrentMaTK));
+        }
+        catch (BusinessRuleException ex)
+        {
+            return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
+        }
+    }
+
+    // UC30/31: loc ung vien dung 3 tieu chi BM14 + diem phu hop QD14
+    [HttpGet("{id:int}/applicants/filter")]
+    [Authorize(Roles = "NhaTuyenDung")]
+    public async Task<IActionResult> LocUngVien(int id, [FromQuery] List<int>? maKyNang, [FromQuery] int? minNamKinhNghiem, [FromQuery] List<string>? trinhDoHocVan)
+    {
+        try
+        {
+            // Tra ve mang thuan tuy (nhat quan voi cac endpoint khac); rong = MS07,
+            // frontend tu hien thi thong bao khi mang rong thay vi doi shape response.
+            return Ok(await _matchService.LocUngVienAsync(id, CurrentMaTK, maKyNang, minNamKinhNghiem, trinhDoHocVan));
         }
         catch (BusinessRuleException ex)
         {

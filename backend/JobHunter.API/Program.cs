@@ -22,6 +22,7 @@ builder.Services.AddScoped<IJobService, JobService>();
 builder.Services.AddScoped<ICloudinaryFileService, CloudinaryFileService>();
 builder.Services.AddScoped<ICvService, CvService>();
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
+builder.Services.AddScoped<ICandidateMatchService, CandidateMatchService>();
 
 builder.Services.AddCors(options =>
 {
