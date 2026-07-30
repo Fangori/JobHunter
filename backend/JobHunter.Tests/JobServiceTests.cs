@@ -56,4 +56,36 @@ public class JobServiceTests
         var result = await service.DangTinAsync(maTkNtd, request);
         Assert.Equal("ChoDuyet", result.TrangThai);
     }
+
+    [Fact]
+    [Trait("Category", "BR16")]
+    public async Task TuChoiTin_KhongCoLyDo_ThatBai()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Test", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() => service.TuChoiTinAsync(job.MaTin, ""));
+        Assert.Equal(400, ex.StatusCode);
+    }
+
+    [Fact]
+    [Trait("Category", "BR16")]
+    public async Task TuChoiTin_CoLyDo_ThanhCongVaLuuLyDo()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Test", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+
+        await service.TuChoiTinAsync(job.MaTin, "Khong phu hop tieu chuan dang tin");
+
+        var chiTiet = await service.XemChiTietAsync(job.MaTin);
+        Assert.Equal("TuChoi", chiTiet.TrangThai);
+    }
 }

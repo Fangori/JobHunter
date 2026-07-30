@@ -69,3 +69,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Cho WebApplicationFactory<Program> trong JobHunter.Tests truy cap duoc
+// (top-level statements tao class Program internal theo mac dinh).
+public partial class Program { }
