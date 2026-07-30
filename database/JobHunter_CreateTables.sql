@@ -115,7 +115,7 @@ GO
 CREATE TABLE NHA_TUYEN_DUNG (
     MaTK                INT PRIMARY KEY,
     TenCongTy           NVARCHAR(150) NOT NULL,
-    MaSoThue            NVARCHAR(15) NULL UNIQUE,     -- 10 hoac 13 chu so
+    MaSoThue            NVARCHAR(15) NULL,             -- 10 hoac 13 chu so; UNIQUE khai bao rieng ben duoi
     Logo                NVARCHAR(255) NULL,           -- URL Cloudinary
     MaNganhNghe         INT NULL,
     DiaChi              NVARCHAR(255) NULL,
@@ -128,6 +128,16 @@ CREATE TABLE NHA_TUYEN_DUNG (
     CONSTRAINT FK_NTD_TaiKhoan FOREIGN KEY (MaTK) REFERENCES TAI_KHOAN(MaTK),
     CONSTRAINT FK_NTD_NganhNghe FOREIGN KEY (MaNganhNghe) REFERENCES DANH_MUC_NGANH_NGHE(MaNganhNghe)
 );
+GO
+
+-- MaSoThue de trong (NULL) o hau het NTD vi BM02 (dang ky) KHONG thu
+-- thap truong nay - chi dien sau o UC08 (ngoai pham vi hom nay). SQL
+-- Server, KHAC voi nhieu RDBMS khac, chi cho phep DUY NHAT 1 dong NULL
+-- trong 1 cot co UNIQUE constraint thuong -> phai dung filtered unique
+-- index (WHERE MaSoThue IS NOT NULL) de cho phep nhieu NTD cung de
+-- trong MaSoThue, chi ep duy nhat khi DA co gia tri.
+SET QUOTED_IDENTIFIER ON;
+CREATE UNIQUE INDEX UQ_NhaTuyenDung_MaSoThue ON NHA_TUYEN_DUNG(MaSoThue) WHERE MaSoThue IS NOT NULL;
 GO
 
 -- --------------------------------------------------------------------
