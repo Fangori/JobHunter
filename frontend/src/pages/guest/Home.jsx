@@ -13,6 +13,7 @@ export default function Home() {
   const [results, setResults] = useState([]);
   const [searched, setSearched] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState(new Set());
+  const [recommended, setRecommended] = useState([]);
 
   useEffect(() => {
     api.get("/jobs/featured?top=6").then(setFeatured).catch(() => {});
@@ -23,8 +24,10 @@ export default function Home() {
       api.get("/favorites/mine", auth.token)
         .then((list) => setFavoriteIds(new Set(list.map((j) => j.maTin))))
         .catch(() => {});
+      api.get("/jobs/recommended", auth.token).then(setRecommended).catch(() => {});
     } else {
       setFavoriteIds(new Set());
+      setRecommended([]);
     }
   }, [auth]);
 
@@ -85,6 +88,21 @@ export default function Home() {
           </button>
         ))}
       </div>
+
+      {!searched && canFavorite && recommended.length > 0 && (
+        <>
+          <h2>Gợi ý cho bạn</h2>
+          {recommended.slice(0, 6).map((job) => (
+            <JobCard
+              key={job.maTin}
+              job={job}
+              isFavorited={favoriteIds.has(job.maTin)}
+              onToggleFavorite={toggleFavorite}
+              matchPercent={job.phanTramPhuHop}
+            />
+          ))}
+        </>
+      )}
 
       {searched ? (
         <>

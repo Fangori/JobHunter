@@ -30,6 +30,10 @@ public class JobsController : ControllerBase
     public async Task<IActionResult> XemNoiBat([FromQuery] int top = 6)
         => Ok(await _jobService.XemNoiBatAsync(top));
 
+    [HttpGet("recommended")]
+    [Authorize(Roles = "UngVien")]
+    public async Task<IActionResult> GoiY() => Ok(await _matchService.GoiYViecLamAsync(CurrentMaTK));
+
     [HttpGet("pending")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> XemDanhSachChoDuyet()

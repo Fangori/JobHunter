@@ -52,6 +52,62 @@ public class CandidateMatchService : ICandidateMatchService
         return ketQua.OrderByDescending(x => x.Dto.PhanTramPhuHop).Select(x => x.Dto).ToList();
     }
 
+    // UC14: tinh diem tren TUNG CV rieng, lay diem CAO NHAT giua cac CV cho
+    // moi tin (khong co khai niem "CV mac dinh") - chi goi y tin co diem > 0
+    public async Task<List<ViecLamGoiYDto>> GoiYViecLamAsync(int maTkUv)
+    {
+        var cvList = await _db.Cvs
+            .Where(x => x.MaTK == maTkUv && x.TrangThai == "HoatDong")
+            .Include(x => x.CvKyNangs)
+            .ToListAsync();
+        if (cvList.Count == 0) return new List<ViecLamGoiYDto>();
+
+        var jobs = await _db.TinTuyenDungs
+            .Include(x => x.NhaTuyenDung).ThenInclude(n => n.TaiKhoan)
+            .Include(x => x.TinKyNangs)
+            .Where(x => x.TrangThai == "DaDuyet" && x.NhaTuyenDung.TaiKhoan.TrangThai != "BiKhoa") // BR25
+            .ToListAsync();
+
+        var ketQua = new List<ViecLamGoiYDto>();
+        foreach (var job in jobs)
+        {
+            var kyNangTin = job.TinKyNangs.Select(k => k.MaKyNang).ToList();
+            if (kyNangTin.Count == 0) continue;
+
+            double diemCaoNhat = 0;
+            var maCvPhuHopNhat = 0;
+            foreach (var cv in cvList)
+            {
+                var soKhop = cv.CvKyNangs.Select(k => k.MaKyNang).Intersect(kyNangTin).Count();
+                var phanTram = Math.Round(soKhop * 100.0 / kyNangTin.Count, 1);
+                if (phanTram > diemCaoNhat)
+                {
+                    diemCaoNhat = phanTram;
+                    maCvPhuHopNhat = cv.MaCV;
+                }
+            }
+            if (diemCaoNhat <= 0) continue;
+
+            ketQua.Add(new ViecLamGoiYDto
+            {
+                MaTin = job.MaTin,
+                TieuDe = job.TieuDe,
+                MaTkNtd = job.MaTK,
+                TenCongTy = job.NhaTuyenDung.TenCongTy,
+                DiaDiem = job.DiaDiem,
+                MucLuong = job.MucLuong,
+                HinhThucLamViec = job.HinhThucLamViec,
+                NgayDang = job.NgayDang,
+                HanNopHoSo = job.HanNopHoSo,
+                TrangThai = job.TrangThai,
+                PhanTramPhuHop = diemCaoNhat,
+                MaCvPhuHopNhat = maCvPhuHopNhat,
+            });
+        }
+
+        return ketQua.OrderByDescending(x => x.PhanTramPhuHop).ThenByDescending(x => x.NgayDang).ToList();
+    }
+
     private async Task KiemTraChuTinAsync(int maTin, int maTkNtd)
     {
         var tin = await _db.TinTuyenDungs.FindAsync(maTin);
