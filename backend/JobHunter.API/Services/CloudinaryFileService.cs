@@ -32,6 +32,10 @@ public class CloudinaryFileService : ICloudinaryFileService
             PublicId = $"{publicIdPrefix}/{Guid.NewGuid()}_{file.FileName}",
         };
         var result = await _cloudinary.UploadAsync(uploadParams);
+        if (result.Error is not null)
+            throw new BusinessRuleException(500, $"Lỗi Cloudinary: {result.Error.Message}");
+        if (result.SecureUrl is null)
+            throw new BusinessRuleException(500, $"Cloudinary không trả về URL (status: {result.StatusCode}).");
         return result.SecureUrl.ToString();
     }
 }
