@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 
 export default function PostJob() {
   const { auth } = useAuth();
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEdit = !!id;
   const [skills, setSkills] = useState([]);
   const [selectedSkills, setSelectedSkills] = useState({}); // { maKyNang: mucDoUuTien }
   const [form, setForm] = useState({
@@ -15,10 +17,29 @@ export default function PostJob() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [dangTai, setDangTai] = useState(isEdit);
 
   useEffect(() => {
     api.get("/skills").then(setSkills);
-  }, []);
+    if (isEdit) {
+      api.get(`/jobs/${id}`).then((job) => {
+        setForm({
+          tieuDe: job.tieuDe,
+          moTaCongViec: job.moTaCongViec,
+          yeuCauUngVien: job.yeuCauUngVien || "",
+          quyenLoi: job.quyenLoi || "",
+          mucLuong: job.mucLuong || "",
+          diaDiem: job.diaDiem || "",
+          hinhThucLamViec: job.hinhThucLamViec || "FullTime",
+          soNamKinhNghiemYeuCau: job.soNamKinhNghiemYeuCau ?? "",
+          hanNopHoSo: job.hanNopHoSo,
+        });
+        const skillMap = {};
+        job.kyNangYeuCau.forEach((k) => (skillMap[k.maKyNang] = k.mucDoUuTien || "BatBuoc"));
+        setSelectedSkills(skillMap);
+      }).finally(() => setDangTai(false));
+    }
+  }, [id]);
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
@@ -48,9 +69,14 @@ export default function PostJob() {
           maKyNang: Number(maKyNang), mucDoUuTien,
         })),
       };
-      await api.post("/jobs", body, auth.token);
-      setSuccess("Đăng tin thành công, tin đang chờ Admin duyệt."); // MS05
-      setTimeout(() => navigate("/"), 1500);
+      if (isEdit) {
+        const result = await api.put(`/jobs/${id}`, body, auth.token);
+        setSuccess(result.message); // MS41 hoac thong bao chung
+      } else {
+        await api.post("/jobs", body, auth.token);
+        setSuccess("Đăng tin thành công, tin đang chờ Admin duyệt."); // MS05
+      }
+      setTimeout(() => navigate("/employer/my-jobs"), 1500);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Có lỗi xảy ra.");
     } finally {
@@ -58,10 +84,12 @@ export default function PostJob() {
     }
   };
 
+  if (dangTai) return <div className="page-container">Đang tải...</div>;
+
   return (
     <div className="page-container" style={{ maxWidth: 720 }}>
       <div className="card">
-        <h2>Đăng tin tuyển dụng</h2>
+        <h2>{isEdit ? "Sửa tin tuyển dụng" : "Đăng tin tuyển dụng"}</h2>
         <form onSubmit={handleSubmit}>
           <div className="field">
             <label>Tiêu đề tin</label>
@@ -132,7 +160,7 @@ export default function PostJob() {
           {error && <p className="error-text">{error}</p>}
           {success && <p className="success-text">{success}</p>}
           <button className="btn btn-primary" style={{ width: "100%" }} disabled={loading} type="submit">
-            {loading ? "Đang đăng..." : "Đăng tin"}
+            {loading ? "Đang lưu..." : isEdit ? "Cập nhật tin" : "Đăng tin"}
           </button>
         </form>
       </div>

@@ -62,3 +62,16 @@ public class DanhMucKyNangDto
     public int MaKyNang { get; set; }
     public string TenKyNang { get; set; } = null!;
 }
+
+// UC27/BR24 - gia han tin
+public class GiaHanRequest
+{
+    [Required] public DateOnly HanNopMoi { get; set; }
+}
+
+// UC26 - message phu thuoc co bi BR15 dua ve ChoDuyet hay khong, quyet dinh o Service (noi biet trang thai truoc khi sua)
+public class SuaTinResponse
+{
+    public TinTuyenDungSummaryDto Tin { get; set; } = null!;
+    public string Message { get; set; } = null!;
+}

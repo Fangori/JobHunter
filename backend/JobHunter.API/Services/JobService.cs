@@ -166,6 +166,89 @@ public class JobService : IJobService
             $"Tin \"{tin.TieuDe}\" đã bị từ chối. Lý do: {lyDo}", "TinBiTuChoi", "/employer/my-jobs");
     }
 
+    public async Task<List<TinTuyenDungSummaryDto>> LayDanhSachCuaToiAsync(int maTkNtd)
+    {
+        return await _db.TinTuyenDungs.Include(x => x.NhaTuyenDung)
+            .Where(x => x.MaTK == maTkNtd)
+            .OrderByDescending(x => x.NgayDang)
+            .Select(x => ToSummary(x))
+            .ToListAsync();
+    }
+
+    public async Task<SuaTinResponse> SuaTinAsync(int maTkNtd, int maTin, DangTinRequest request)
+    {
+        var tin = await _db.TinTuyenDungs.Include(x => x.TinKyNangs).FirstOrDefaultAsync(x => x.MaTin == maTin);
+        if (tin is null || tin.MaTK != maTkNtd)
+            throw new BusinessRuleException(404, "Không tìm thấy tin tuyển dụng.");
+        if (tin.TrangThai == "DaGo" || tin.TrangThai == "DaDong")
+            throw new BusinessRuleException(400, "Không thể sửa tin đã gỡ hoặc đã đóng.");
+
+        var soNgayToiThieu = await _thamSo.LayGiaTriIntAsync("TS7");
+        var ngayDangOnly = DateOnly.FromDateTime(tin.NgayDang);
+        if (request.HanNopHoSo < ngayDangOnly.AddDays(soNgayToiThieu))
+            throw new BusinessRuleException(400, "Hạn nộp hồ sơ phải sau ngày đăng tin ít nhất 1 ngày."); // MS06
+
+        tin.TieuDe = request.TieuDe;
+        tin.MoTaCongViec = request.MoTaCongViec;
+        tin.YeuCauUngVien = request.YeuCauUngVien;
+        tin.QuyenLoi = request.QuyenLoi;
+        tin.MucLuong = request.MucLuong;
+        tin.DiaDiem = request.DiaDiem;
+        tin.HinhThucLamViec = request.HinhThucLamViec;
+        tin.SoNamKinhNghiemYeuCau = request.SoNamKinhNghiemYeuCau;
+        tin.HanNopHoSo = request.HanNopHoSo;
+
+        _db.TinKyNangs.RemoveRange(tin.TinKyNangs);
+        foreach (var kn in request.KyNangYeuCau)
+            _db.TinKyNangs.Add(new TinKyNang { MaTin = tin.MaTin, MaKyNang = kn.MaKyNang, MucDoUuTien = kn.MucDoUuTien });
+
+        var daTungDuyet = tin.TrangThai == "DaDuyet";
+        if (daTungDuyet)
+            tin.TrangThai = "ChoDuyet"; // BR15
+
+        await _db.SaveChangesAsync();
+
+        if (daTungDuyet)
+            await _notification.TaoThongBaoAsync(tin.MaTK,
+                $"Tin \"{tin.TieuDe}\" đã được cập nhật và đang chờ duyệt lại.", "TinMoi", "/employer/my-jobs");
+
+        var message = daTungDuyet
+            ? "Cập nhật tin thành công. Tin sẽ được duyệt lại trước khi hiển thị công khai." // MS41, BR15
+            : "Cập nhật tin thành công.";
+        return new SuaTinResponse { Tin = await LayTomTatAsync(tin.MaTin), Message = message };
+    }
+
+    public async Task<TinTuyenDungSummaryDto> GiaHanAsync(int maTkNtd, int maTin, DateOnly hanNopMoi)
+    {
+        var tin = await _db.TinTuyenDungs.FindAsync(maTin);
+        if (tin is null || tin.MaTK != maTkNtd)
+            throw new BusinessRuleException(404, "Không tìm thấy tin tuyển dụng.");
+        if (tin.TrangThai != "DaDuyet")
+            throw new BusinessRuleException(400, "Chỉ có thể gia hạn tin đang hiển thị công khai.");
+
+        var soNgayToiThieu = await _thamSo.LayGiaTriIntAsync("TS7");
+        var homNay = DateOnly.FromDateTime(DateTime.UtcNow);
+        if (hanNopMoi < homNay.AddDays(soNgayToiThieu))
+            throw new BusinessRuleException(400, "Hạn nộp hồ sơ phải sau ngày đăng tin ít nhất 1 ngày."); // MS06, BR24
+
+        tin.HanNopHoSo = hanNopMoi;
+        await _db.SaveChangesAsync();
+        return await LayTomTatAsync(tin.MaTin);
+    }
+
+    public async Task<TinTuyenDungSummaryDto> DongTinAsync(int maTkNtd, int maTin)
+    {
+        var tin = await _db.TinTuyenDungs.FindAsync(maTin);
+        if (tin is null || tin.MaTK != maTkNtd)
+            throw new BusinessRuleException(404, "Không tìm thấy tin tuyển dụng.");
+        if (tin.TrangThai != "DaDuyet")
+            throw new BusinessRuleException(400, "Chỉ có thể đóng tin đang hiển thị công khai.");
+
+        tin.TrangThai = "DaDong";
+        await _db.SaveChangesAsync();
+        return await LayTomTatAsync(tin.MaTin);
+    }
+
     private async Task<TinTuyenDungSummaryDto> LayTomTatAsync(int maTin)
     {
         var tin = await _db.TinTuyenDungs.Include(x => x.NhaTuyenDung).FirstAsync(x => x.MaTin == maTin);

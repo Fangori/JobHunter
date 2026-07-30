@@ -12,6 +12,7 @@ import ResetPassword from './pages/auth/ResetPassword'
 import PostJob from './pages/employer/PostJob'
 import Applicants from './pages/employer/Applicants'
 import CompanyProfile from './pages/employer/CompanyProfile'
+import MyJobs from './pages/employer/MyJobs'
 import ApproveJobs from './pages/admin/ApproveJobs'
 import ManageCv from './pages/candidate/ManageCv'
 import Profile from './pages/candidate/Profile'
@@ -35,8 +36,14 @@ function App() {
         <Route path="/employer/post-job" element={
           <ProtectedRoute role="NhaTuyenDung"><PostJob /></ProtectedRoute>
         } />
+        <Route path="/employer/jobs/:id/edit" element={
+          <ProtectedRoute role="NhaTuyenDung"><PostJob /></ProtectedRoute>
+        } />
         <Route path="/employer/jobs/:id/applicants" element={
           <ProtectedRoute role="NhaTuyenDung"><Applicants /></ProtectedRoute>
+        } />
+        <Route path="/employer/my-jobs" element={
+          <ProtectedRoute role="NhaTuyenDung"><MyJobs /></ProtectedRoute>
         } />
         <Route path="/employer/profile" element={
           <ProtectedRoute role="NhaTuyenDung"><CompanyProfile /></ProtectedRoute>

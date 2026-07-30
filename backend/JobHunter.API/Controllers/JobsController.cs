@@ -68,6 +68,55 @@ public class JobsController : ControllerBase
         }
     }
 
+    [HttpGet("mine")]
+    [Authorize(Roles = "NhaTuyenDung")]
+    public async Task<IActionResult> Mine() => Ok(await _jobService.LayDanhSachCuaToiAsync(CurrentMaTK));
+
+    [HttpPut("{id:int}")]
+    [Authorize(Roles = "NhaTuyenDung")]
+    public async Task<IActionResult> SuaTin(int id, DangTinRequest request)
+    {
+        try
+        {
+            var result = await _jobService.SuaTinAsync(CurrentMaTK, id, request);
+            return Ok(result);
+        }
+        catch (BusinessRuleException ex)
+        {
+            return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
+        }
+    }
+
+    [HttpPost("{id:int}/extend")]
+    [Authorize(Roles = "NhaTuyenDung")]
+    public async Task<IActionResult> GiaHan(int id, GiaHanRequest request)
+    {
+        try
+        {
+            var result = await _jobService.GiaHanAsync(CurrentMaTK, id, request.HanNopMoi);
+            return Ok(new { tin = result, message = "Cập nhật trạng thái tin thành công." }); // MS42
+        }
+        catch (BusinessRuleException ex)
+        {
+            return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
+        }
+    }
+
+    [HttpPost("{id:int}/close")]
+    [Authorize(Roles = "NhaTuyenDung")]
+    public async Task<IActionResult> Dong(int id)
+    {
+        try
+        {
+            var result = await _jobService.DongTinAsync(CurrentMaTK, id);
+            return Ok(new { tin = result, message = "Cập nhật trạng thái tin thành công." }); // MS42
+        }
+        catch (BusinessRuleException ex)
+        {
+            return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
+        }
+    }
+
     [HttpPost("{id:int}/approve")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DuyetTin(int id)

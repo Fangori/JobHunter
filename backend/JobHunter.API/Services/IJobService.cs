@@ -12,4 +12,8 @@ public interface IJobService
     Task<PendingStatsResponse> ThongKeChoDuyetAsync();
     Task DuyetTinAsync(int maTin);
     Task TuChoiTinAsync(int maTin, string lyDo);
+    Task<List<TinTuyenDungSummaryDto>> LayDanhSachCuaToiAsync(int maTkNtd); // UC28
+    Task<SuaTinResponse> SuaTinAsync(int maTkNtd, int maTin, DangTinRequest request); // UC26, BR15
+    Task<TinTuyenDungSummaryDto> GiaHanAsync(int maTkNtd, int maTin, DateOnly hanNopMoi); // UC27, BR24
+    Task<TinTuyenDungSummaryDto> DongTinAsync(int maTkNtd, int maTin); // UC27
 }

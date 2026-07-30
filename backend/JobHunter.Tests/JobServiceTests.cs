@@ -88,4 +88,112 @@ public class JobServiceTests
         var chiTiet = await service.XemChiTietAsync(job.MaTin);
         Assert.Equal("TuChoi", chiTiet.TrangThai);
     }
+
+    [Fact]
+    [Trait("Category", "BR15")]
+    public async Task SuaTin_DaDuyet_TuDongVeChoDuyet()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Test", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+        await service.DuyetTinAsync(job.MaTin);
+
+        var result = await service.SuaTinAsync(maTkNtd, job.MaTin, new DangTinRequest
+        {
+            TieuDe = "Test Da Sua", MoTaCongViec = "mo ta moi",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(10)),
+        });
+
+        Assert.Equal("ChoDuyet", result.Tin.TrangThai);
+        Assert.Equal("Cập nhật tin thành công. Tin sẽ được duyệt lại trước khi hiển thị công khai.", result.Message);
+    }
+
+    [Fact]
+    [Trait("Category", "BR15")]
+    public async Task SuaTin_DangChoDuyet_KhongDoiTrangThaiVaThongBaoKhacMS41()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Test", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+
+        var result = await service.SuaTinAsync(maTkNtd, job.MaTin, new DangTinRequest
+        {
+            TieuDe = "Test Da Sua", MoTaCongViec = "mo ta moi",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(10)),
+        });
+
+        Assert.Equal("ChoDuyet", result.Tin.TrangThai);
+        Assert.Equal("Cập nhật tin thành công.", result.Message);
+    }
+
+    [Fact]
+    [Trait("Category", "BR24")]
+    public async Task GiaHan_HanMoiKhongHopLe_ThatBai()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Test", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+        await service.DuyetTinAsync(job.MaTin);
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() =>
+            service.GiaHanAsync(maTkNtd, job.MaTin, DateOnly.FromDateTime(DateTime.UtcNow)));
+        Assert.Equal(400, ex.StatusCode);
+    }
+
+    [Fact]
+    [Trait("Category", "BR24")]
+    public async Task GiaHan_HanMoiHopLe_ThanhCong()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Test", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+        await service.DuyetTinAsync(job.MaTin);
+
+        var hanMoi = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(30));
+        var result = await service.GiaHanAsync(maTkNtd, job.MaTin, hanMoi);
+        Assert.Equal(hanMoi, result.HanNopHoSo);
+    }
+
+    [Fact]
+    [Trait("Category", "UC27")]
+    public async Task DongTin_DangDaDuyet_ThanhCong()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Test", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+        await service.DuyetTinAsync(job.MaTin);
+
+        var result = await service.DongTinAsync(maTkNtd, job.MaTin);
+        Assert.Equal("DaDong", result.TrangThai);
+    }
+
+    [Fact]
+    [Trait("Category", "UC27")]
+    public async Task DongTin_ChuaDuocDuyet_ThatBai()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Test", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() => service.DongTinAsync(maTkNtd, job.MaTin));
+        Assert.Equal(400, ex.StatusCode);
+    }
 }
