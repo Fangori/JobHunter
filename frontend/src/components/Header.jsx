@@ -16,6 +16,8 @@ export default function Header() {
       <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
         {!auth && <Link to="/login">Đăng nhập</Link>}
         {!auth && <Link to="/register">Đăng ký</Link>}
+        {auth?.vaiTro === "NhaTuyenDung" && <Link to="/employer/post-job">Đăng tin</Link>}
+        {auth?.vaiTro === "Admin" && <Link to="/admin/pending-jobs">Duyệt tin</Link>}
         {auth && (
           <>
             <span>{auth.hoTenOrTenCongTy} ({auth.vaiTro})</span>

@@ -45,6 +45,7 @@ h1, h2, h3 {
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .btn-primary {

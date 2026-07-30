@@ -18,6 +18,7 @@ builder.Services.AddDbContext<JobHunter.API.Data.JobHunterDbContext>(options =>
 builder.Services.AddScoped<IThamSoService, ThamSoService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJobService, JobService>();
 
 builder.Services.AddCors(options =>
 {
