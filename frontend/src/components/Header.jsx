@@ -22,7 +22,7 @@ export default function Header() {
         {auth && (
           <>
             <span>{auth.hoTenOrTenCongTy} ({auth.vaiTro})</span>
-            <button className="btn btn-secondary" onClick={handleLogout} style={{ height: 36, color: "white", borderColor: "white" }}>
+            <button onClick={handleLogout} style={{ height: 36, padding: "0 16px", background: "transparent", color: "white", border: "1px solid white", borderRadius: "var(--radius)", cursor: "pointer", fontWeight: 600 }}>
               Đăng xuất
             </button>
           </>
