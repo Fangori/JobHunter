@@ -14,6 +14,12 @@ import Applicants from './pages/employer/Applicants'
 import CompanyProfile from './pages/employer/CompanyProfile'
 import MyJobs from './pages/employer/MyJobs'
 import ApproveJobs from './pages/admin/ApproveJobs'
+import AdminLayout from './pages/admin/AdminLayout'
+import RemovedJobs from './pages/admin/RemovedJobs'
+import AdminAccounts from './pages/admin/AdminAccounts'
+import AdminSkills from './pages/admin/AdminSkills'
+import AdminIndustries from './pages/admin/AdminIndustries'
+import AdminReports from './pages/admin/AdminReports'
 import ManageCv from './pages/candidate/ManageCv'
 import Profile from './pages/candidate/Profile'
 import MyApplications from './pages/candidate/MyApplications'
@@ -48,9 +54,17 @@ function App() {
         <Route path="/employer/profile" element={
           <ProtectedRoute role="NhaTuyenDung"><CompanyProfile /></ProtectedRoute>
         } />
-        <Route path="/admin/pending-jobs" element={
-          <ProtectedRoute role="Admin"><ApproveJobs /></ProtectedRoute>
-        } />
+        <Route path="/admin" element={
+          <ProtectedRoute role="Admin"><AdminLayout /></ProtectedRoute>
+        }>
+          <Route path="pending-jobs" element={<ApproveJobs />} />
+          <Route path="removed-jobs" element={<RemovedJobs />} />
+          <Route path="accounts/employers" element={<AdminAccounts vaiTro="NhaTuyenDung" />} />
+          <Route path="accounts/candidates" element={<AdminAccounts vaiTro="UngVien" />} />
+          <Route path="skills" element={<AdminSkills />} />
+          <Route path="industries" element={<AdminIndustries />} />
+          <Route path="reports" element={<AdminReports />} />
+        </Route>
         <Route path="/candidate/cvs" element={
           <ProtectedRoute role="UngVien"><ManageCv /></ProtectedRoute>
         } />

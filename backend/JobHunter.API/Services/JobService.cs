@@ -68,8 +68,8 @@ public class JobService : IJobService
 
     public async Task<List<TinTuyenDungSummaryDto>> XemDanhSachCongKhaiAsync(string? keyword, string? diaDiem)
     {
-        var query = _db.TinTuyenDungs.Include(x => x.NhaTuyenDung)
-            .Where(x => x.TrangThai == "DaDuyet");
+        var query = _db.TinTuyenDungs.Include(x => x.NhaTuyenDung).ThenInclude(n => n.TaiKhoan)
+            .Where(x => x.TrangThai == "DaDuyet" && x.NhaTuyenDung.TaiKhoan.TrangThai != "BiKhoa"); // BR25
 
         if (!string.IsNullOrWhiteSpace(keyword))
             query = query.Where(x => x.TieuDe.Contains(keyword));
@@ -83,8 +83,8 @@ public class JobService : IJobService
 
     public async Task<List<TinTuyenDungSummaryDto>> XemNoiBatAsync(int top)
     {
-        return await _db.TinTuyenDungs.Include(x => x.NhaTuyenDung)
-            .Where(x => x.TrangThai == "DaDuyet")
+        return await _db.TinTuyenDungs.Include(x => x.NhaTuyenDung).ThenInclude(n => n.TaiKhoan)
+            .Where(x => x.TrangThai == "DaDuyet" && x.NhaTuyenDung.TaiKhoan.TrangThai != "BiKhoa") // BR25
             .OrderByDescending(x => x.NgayDang)
             .Take(top)
             .Select(x => ToSummary(x))
@@ -247,6 +247,49 @@ public class JobService : IJobService
         tin.TrangThai = "DaDong";
         await _db.SaveChangesAsync();
         return await LayTomTatAsync(tin.MaTin);
+    }
+
+    public async Task GoTinAsync(int maTin, string lyDo)
+    {
+        if (string.IsNullOrWhiteSpace(lyDo))
+            throw new BusinessRuleException(400, "Vui lòng nhập lý do gỡ tin."); // MS54, BR17
+
+        var tin = await _db.TinTuyenDungs.FindAsync(maTin);
+        if (tin is null)
+            throw new BusinessRuleException(404, "Không tìm thấy tin tuyển dụng.");
+        if (tin.TrangThai != "DaDuyet")
+            throw new BusinessRuleException(400, "Chỉ có thể gỡ tin đang hiển thị công khai.");
+
+        tin.TrangThai = "DaGo";
+        tin.LyDoGo = lyDo;
+        await _db.SaveChangesAsync();
+
+        await _notification.TaoThongBaoAsync(tin.MaTK,
+            $"Tin \"{tin.TieuDe}\" đã bị gỡ. Lý do: {lyDo}", "TinBiGo", "/employer/my-jobs");
+    }
+
+    public async Task PhucHoiTinDaGoAsync(int maTin)
+    {
+        var tin = await _db.TinTuyenDungs.FindAsync(maTin);
+        if (tin is null)
+            throw new BusinessRuleException(404, "Không tìm thấy tin tuyển dụng.");
+        if (tin.TrangThai != "DaGo")
+            throw new BusinessRuleException(400, "Chỉ có thể phục hồi tin đã bị gỡ.");
+
+        tin.TrangThai = "DaDuyet";
+        await _db.SaveChangesAsync();
+
+        await _notification.TaoThongBaoAsync(tin.MaTK,
+            $"Tin \"{tin.TieuDe}\" đã được phục hồi.", "TinDuocPhucHoi", $"/jobs/{tin.MaTin}");
+    }
+
+    public async Task<List<TinTuyenDungSummaryDto>> XemDanhSachDaGoAsync()
+    {
+        return await _db.TinTuyenDungs.Include(x => x.NhaTuyenDung)
+            .Where(x => x.TrangThai == "DaGo")
+            .OrderByDescending(x => x.NgayDang)
+            .Select(x => ToSummary(x))
+            .ToListAsync();
     }
 
     private async Task<TinTuyenDungSummaryDto> LayTomTatAsync(int maTin)

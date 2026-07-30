@@ -123,6 +123,10 @@ public class AuthService : IAuthService
         if (!taiKhoan.DaXacThuc)
             throw new BusinessRuleException(403, "Tài khoản chưa xác thực email. Vui lòng kiểm tra email hoặc bấm gửi lại liên kết xác thực."); // MS10
 
+        // Admin khoa vinh vien (Phase 12) - khac hoan toan voi khoa tam QD03 o tren
+        if (taiKhoan.TrangThai == "BiKhoa")
+            throw new BusinessRuleException(403, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên."); // MS11
+
         taiKhoan.SoLanDangNhapSai = 0;
         taiKhoan.KhoaTamThoiDenLuc = null;
         await _db.SaveChangesAsync();

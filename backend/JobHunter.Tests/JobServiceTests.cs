@@ -196,4 +196,57 @@ public class JobServiceTests
         var ex = await Assert.ThrowsAsync<BusinessRuleException>(() => service.DongTinAsync(maTkNtd, job.MaTin));
         Assert.Equal(400, ex.StatusCode);
     }
+
+    [Fact]
+    [Trait("Category", "BR17")]
+    public async Task GoTin_KhongCoLyDo_ThatBai()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Test", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+        await service.DuyetTinAsync(job.MaTin);
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() => service.GoTinAsync(job.MaTin, ""));
+        Assert.Equal(400, ex.StatusCode);
+    }
+
+    [Fact]
+    [Trait("Category", "UC35")]
+    public async Task GoTin_CoLyDo_ThanhCongVaLuuLyDo()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Test", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+        await service.DuyetTinAsync(job.MaTin);
+
+        await service.GoTinAsync(job.MaTin, "Vi pham chinh sach");
+
+        var chiTiet = await service.XemChiTietAsync(job.MaTin);
+        Assert.Equal("DaGo", chiTiet.TrangThai);
+    }
+
+    [Fact]
+    [Trait("Category", "UC36")]
+    public async Task PhucHoiTinDaGo_ThanhCong()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Test", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+        await service.DuyetTinAsync(job.MaTin);
+        await service.GoTinAsync(job.MaTin, "Vi pham chinh sach");
+
+        await service.PhucHoiTinDaGoAsync(job.MaTin);
+
+        var chiTiet = await service.XemChiTietAsync(job.MaTin);
+        Assert.Equal("DaDuyet", chiTiet.TrangThai);
+    }
 }

@@ -2,6 +2,7 @@ using JobHunter.API.DTOs;
 using JobHunter.API.Exceptions;
 using JobHunter.API.Models;
 using JobHunter.API.Services;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace JobHunter.Tests;
@@ -116,6 +117,23 @@ public class AuthServiceTests
         var ex = await Assert.ThrowsAsync<BusinessRuleException>(() =>
             service.DangNhapAsync(new LoginRequest { Email = "g@test.local", MatKhau = "saimatkhau" }));
         Assert.Equal(401, ex.StatusCode);
+    }
+
+    [Fact]
+    [Trait("Category", "BR18")]
+    public async Task DangNhap_TaiKhoanBiAdminKhoaVinhVien_ThatBai()
+    {
+        var service = NewService(out var db);
+        await service.DangKyUngVienAsync(new DangKyUngVienRequest { HoTen = "A", Email = "h@test.local", MatKhau = "Test1234", XacNhanMatKhau = "Test1234" });
+        var taiKhoan = await db.TaiKhoans.FirstAsync(x => x.Email == "h@test.local");
+        taiKhoan.DaXacThuc = true;
+        taiKhoan.TrangThai = "BiKhoa";
+        taiKhoan.LyDoKhoa = "Vi pham dieu khoan";
+        await db.SaveChangesAsync();
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() =>
+            service.DangNhapAsync(new LoginRequest { Email = "h@test.local", MatKhau = "Test1234" }));
+        Assert.Equal(403, ex.StatusCode); // MS11
     }
 
     [Fact]

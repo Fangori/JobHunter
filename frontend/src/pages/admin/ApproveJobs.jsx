@@ -40,7 +40,7 @@ export default function ApproveJobs() {
   };
 
   return (
-    <div className="page-container">
+    <div>
       <h2>Duyệt tin tuyển dụng</h2>
 
       <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>

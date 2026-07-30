@@ -16,4 +16,7 @@ public interface IJobService
     Task<SuaTinResponse> SuaTinAsync(int maTkNtd, int maTin, DangTinRequest request); // UC26, BR15
     Task<TinTuyenDungSummaryDto> GiaHanAsync(int maTkNtd, int maTin, DateOnly hanNopMoi); // UC27, BR24
     Task<TinTuyenDungSummaryDto> DongTinAsync(int maTkNtd, int maTin); // UC27
+    Task GoTinAsync(int maTin, string lyDo); // UC35/BR17, MS45/MS54
+    Task PhucHoiTinDaGoAsync(int maTin); // UC36, MS46
+    Task<List<TinTuyenDungSummaryDto>> XemDanhSachDaGoAsync(); // UC35/36 danh sach quan tri
 }

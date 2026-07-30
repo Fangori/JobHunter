@@ -102,7 +102,7 @@ export default function Header() {
         {auth?.vaiTro === "NhaTuyenDung" && <Link to="/employer/post-job">Đăng tin</Link>}
         {auth?.vaiTro === "NhaTuyenDung" && <Link to="/employer/my-jobs">Tin của tôi</Link>}
         {auth?.vaiTro === "NhaTuyenDung" && <Link to="/employer/profile">Hồ sơ công ty</Link>}
-        {auth?.vaiTro === "Admin" && <Link to="/admin/pending-jobs">Duyệt tin</Link>}
+        {auth?.vaiTro === "Admin" && <Link to="/admin/pending-jobs">Quản trị</Link>}
         {auth?.vaiTro === "UngVien" && <Link to="/candidate/cvs">CV của tôi</Link>}
         {auth?.vaiTro === "UngVien" && <Link to="/candidate/applications">Đơn ứng tuyển</Link>}
         {auth?.vaiTro === "UngVien" && <Link to="/candidate/favorites">Tin đã lưu</Link>}

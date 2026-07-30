@@ -147,6 +147,40 @@ public class JobsController : ControllerBase
         }
     }
 
+    [HttpGet("removed")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> XemDanhSachDaGo() => Ok(await _jobService.XemDanhSachDaGoAsync());
+
+    [HttpPost("{id:int}/remove")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GoTin(int id, TuChoiTinRequest request)
+    {
+        try
+        {
+            await _jobService.GoTinAsync(id, request.LyDo);
+            return Ok(new { message = "Đã gỡ tin vi phạm." }); // MS45
+        }
+        catch (BusinessRuleException ex)
+        {
+            return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
+        }
+    }
+
+    [HttpPost("{id:int}/restore-removed")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> PhucHoiTinDaGo(int id)
+    {
+        try
+        {
+            await _jobService.PhucHoiTinDaGoAsync(id);
+            return Ok(new { message = "Phục hồi tin thành công." }); // MS46
+        }
+        catch (BusinessRuleException ex)
+        {
+            return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
+        }
+    }
+
     // UC29: xem danh sach ung vien binh thuong (khong loc)
     [HttpGet("{id:int}/applicants")]
     [Authorize(Roles = "NhaTuyenDung")]
