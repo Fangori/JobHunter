@@ -21,6 +21,8 @@ public class JobHunterDbContext : DbContext
     public DbSet<CvKinhNghiem> CvKinhNghiems => Set<CvKinhNghiem>();
     public DbSet<CvHocVan> CvHocVans => Set<CvHocVan>();
     public DbSet<DonUngTuyen> DonUngTuyens => Set<DonUngTuyen>();
+    public DbSet<TokenXacThuc> TokenXacThucs => Set<TokenXacThuc>();
+    public DbSet<DanhMucNganhNghe> DanhMucNganhNghes => Set<DanhMucNganhNghe>();
 
     // DbSet khac duoc them dan theo tung Phase khi entity tuong ung
     // duoc tao trong Models/, khop dung database/JobHunter_CreateTables.sql
@@ -49,6 +51,22 @@ public class JobHunterDbContext : DbContext
             e.HasOne(x => x.TaiKhoan)
                 .WithOne(x => x.NhaTuyenDung)
                 .HasForeignKey<NhaTuyenDung>(x => x.MaTK);
+            e.HasOne<DanhMucNganhNghe>()
+                .WithMany()
+                .HasForeignKey(x => x.MaNganhNghe);
+        });
+
+        modelBuilder.Entity<DanhMucNganhNghe>(e =>
+        {
+            e.ToTable("DANH_MUC_NGANH_NGHE");
+            e.HasKey(x => x.MaNganhNghe);
+        });
+
+        modelBuilder.Entity<TokenXacThuc>(e =>
+        {
+            e.ToTable("TOKEN_XAC_THUC");
+            e.HasKey(x => x.MaToken);
+            e.HasOne<TaiKhoan>().WithMany().HasForeignKey(x => x.MaTK);
         });
 
         modelBuilder.Entity<ThamSo>(e =>

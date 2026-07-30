@@ -26,7 +26,9 @@ export default function JobDetail() {
     <div className="page-container" style={{ maxWidth: 720 }}>
       <div className="card">
         <h1 style={{ fontSize: 28 }}>{job.tieuDe}</h1>
-        <p style={{ color: "var(--text-muted)" }}>{job.tenCongTy}</p>
+        <p style={{ color: "var(--text-muted)" }}>
+          <Link to={`/companies/${job.maTkNtd}`}>{job.tenCongTy}</Link>
+        </p>
         <p>
           {job.diaDiem && <span>{job.diaDiem} · </span>}
           {job.hinhThucLamViec && <span>{job.hinhThucLamViec} · </span>}

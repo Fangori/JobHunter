@@ -17,6 +17,7 @@ public static class TestHelpers
             new ThamSo { MaThamSo = "TS1", GiaTri = "8" },
             new ThamSo { MaThamSo = "TS2", GiaTri = "5" },
             new ThamSo { MaThamSo = "TS3", GiaTri = "15" },
+            new ThamSo { MaThamSo = "TS4", GiaTri = "15" },
             new ThamSo { MaThamSo = "TS7", GiaTri = "1" }
         );
         db.SaveChanges();

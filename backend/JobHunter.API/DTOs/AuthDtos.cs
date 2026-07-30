@@ -26,7 +26,8 @@ public class DangKyNhaTuyenDungRequest
 public class DangKyResponse
 {
     public int MaTK { get; set; }
-    public string Message { get; set; } = "Đăng ký thành công."; // MS12 (đã sửa, không gửi email thật hôm nay)
+    // MS12 nguyen van (Phase 7: UC03 that, khong con auto-verify nhu Phase 1)
+    public string Message { get; set; } = "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.";
 }
 
 public class ErrorResponse
@@ -45,4 +46,31 @@ public class LoginResponse
     public string Token { get; set; } = null!;
     public string VaiTro { get; set; } = null!;
     public string HoTenOrTenCongTy { get; set; } = null!;
+}
+
+public class VerifyEmailRequest
+{
+    [Required] public string Token { get; set; } = null!;
+}
+
+public class ResendVerificationRequest
+{
+    [Required, EmailAddress] public string Email { get; set; } = null!;
+}
+
+public class ForgotPasswordRequest
+{
+    [Required, EmailAddress] public string Email { get; set; } = null!;
+}
+
+public class ResetPasswordRequest
+{
+    [Required] public string Token { get; set; } = null!;
+    [Required] public string MatKhauMoi { get; set; } = null!;
+    [Required] public string XacNhanMatKhauMoi { get; set; } = null!;
+}
+
+public class MessageResponse
+{
+    public string Message { get; set; } = null!;
 }

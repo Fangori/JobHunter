@@ -27,6 +27,7 @@ public class TinTuyenDungSummaryDto
 {
     public int MaTin { get; set; }
     public string TieuDe { get; set; } = null!;
+    public int MaTkNtd { get; set; }
     public string TenCongTy { get; set; } = null!;
     public string? DiaDiem { get; set; }
     public string? MucLuong { get; set; }

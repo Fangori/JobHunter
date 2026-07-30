@@ -39,6 +39,19 @@ public class IntegrationTests : IClassFixture<CustomWebApplicationFactory>
         });
         Assert.Equal(HttpStatusCode.Created, regNtd.StatusCode);
 
+        // Phase 7: dang ky xong chua xac thuc email (DaXacThuc=false), khong
+        // dang nhap duoc. Danh dau da xac thuc thang qua DB o day vi muc dich
+        // cua test nay la kiem tra toan bo pipeline dang tin/duyet/ung tuyen,
+        // KHONG phai re-test luong UC03 (da co rieng o AuthServiceTests +
+        // test_phase7.py qua console mock).
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<JobHunterDbContext>();
+            var taiKhoan = await db.TaiKhoans.FirstAsync(x => x.Email == $"it_ntd_{rand}@test.local");
+            taiKhoan.DaXacThuc = true;
+            await db.SaveChangesAsync();
+        }
+
         var loginNtd = await client.PostAsJsonAsync("/api/auth/login", new { email = $"it_ntd_{rand}@test.local", matKhau = "Test1234" });
         Assert.Equal(HttpStatusCode.OK, loginNtd.StatusCode);
         var ntdToken = (await loginNtd.Content.ReadFromJsonAsync<LoginResponseDto>(JsonOpts))!.Token;

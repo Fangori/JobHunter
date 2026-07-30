@@ -94,6 +94,7 @@ public class JobService : IJobService
         {
             MaTin = tin.MaTin,
             TieuDe = tin.TieuDe,
+            MaTkNtd = tin.MaTK,
             TenCongTy = tin.NhaTuyenDung.TenCongTy,
             DiaDiem = tin.DiaDiem,
             MucLuong = tin.MucLuong,
@@ -159,6 +160,7 @@ public class JobService : IJobService
     {
         MaTin = x.MaTin,
         TieuDe = x.TieuDe,
+        MaTkNtd = x.MaTK,
         TenCongTy = x.NhaTuyenDung.TenCongTy,
         DiaDiem = x.DiaDiem,
         MucLuong = x.MucLuong,

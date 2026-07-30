@@ -69,7 +69,7 @@ export default function Home() {
       {searched ? (
         <>
           <h2>Kết quả tìm kiếm ({results.length})</h2>
-          {results.length === 0 && <p>Không tìm thấy tin tuyển dụng phù hợp.</p>}
+          {results.length === 0 && <p>Không tìm thấy việc làm phù hợp với điều kiện tìm kiếm.</p>}
           {results.map((job) => <JobCard key={job.maTin} job={job} />)}
         </>
       ) : (

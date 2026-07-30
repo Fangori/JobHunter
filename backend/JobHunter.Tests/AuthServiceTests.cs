@@ -91,4 +91,64 @@ public class AuthServiceTests
             service.DangNhapAsync(new LoginRequest { Email = "e@test.local", MatKhau = "Test1234" }));
         Assert.Equal(403, ex.StatusCode);
     }
+
+    [Fact]
+    [Trait("Category", "UC03")]
+    public async Task DangNhap_ChuaXacThucEmail_ThatBai()
+    {
+        var service = NewService(out _);
+        await service.DangKyUngVienAsync(new DangKyUngVienRequest { HoTen = "A", Email = "f@test.local", MatKhau = "Test1234", XacNhanMatKhau = "Test1234" });
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() =>
+            service.DangNhapAsync(new LoginRequest { Email = "f@test.local", MatKhau = "Test1234" }));
+        Assert.Equal(403, ex.StatusCode); // MS10
+    }
+
+    [Fact]
+    [Trait("Category", "UC03")]
+    public async Task DangNhap_SaiMatKhauVaChuaXacThuc_UuTienBaoSaiMatKhau()
+    {
+        var service = NewService(out _);
+        await service.DangKyUngVienAsync(new DangKyUngVienRequest { HoTen = "A", Email = "g@test.local", MatKhau = "Test1234", XacNhanMatKhau = "Test1234" });
+
+        // Chua xac thuc VA sai mat khau -> phai bao sai mat khau (MS01,401),
+        // KHONG duoc lo MS10 (403) truoc khi biet mat khau dung hay sai
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() =>
+            service.DangNhapAsync(new LoginRequest { Email = "g@test.local", MatKhau = "saimatkhau" }));
+        Assert.Equal(401, ex.StatusCode);
+    }
+
+    [Fact]
+    [Trait("Category", "BR08")]
+    public async Task XacThucEmail_TokenHetHan_ThatBai()
+    {
+        var service = NewService(out var db);
+        await service.DangKyUngVienAsync(new DangKyUngVienRequest { HoTen = "A", Email = "h@test.local", MatKhau = "Test1234", XacNhanMatKhau = "Test1234" });
+
+        var taiKhoan = db.TaiKhoans.Single(x => x.Email == "h@test.local");
+        var token = db.TokenXacThucs.Single(x => x.MaTK == taiKhoan.MaTK && x.LoaiToken == "XacThucEmail");
+        token.ThoiHanHetHan = DateTime.UtcNow.AddMinutes(-1); // gia lap qua han
+        await db.SaveChangesAsync();
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() => service.VerifyEmailAsync(token.MaToken.ToString()));
+        Assert.Equal(400, ex.StatusCode); // MS19
+    }
+
+    [Fact]
+    [Trait("Category", "BR08")]
+    public async Task DatLaiMatKhau_TokenQua15Phut_ThatBai()
+    {
+        var service = NewService(out var db);
+        await service.DangKyUngVienAsync(new DangKyUngVienRequest { HoTen = "A", Email = "i@test.local", MatKhau = "Test1234", XacNhanMatKhau = "Test1234" });
+        await service.ForgotPasswordAsync("i@test.local");
+
+        var taiKhoan = db.TaiKhoans.Single(x => x.Email == "i@test.local");
+        var token = db.TokenXacThucs.Single(x => x.MaTK == taiKhoan.MaTK && x.LoaiToken == "DatLaiMatKhau");
+        token.ThoiHanHetHan = DateTime.UtcNow.AddMinutes(-1); // qua 15 phut (BR08)
+        await db.SaveChangesAsync();
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() =>
+            service.ResetPasswordAsync(token.MaToken.ToString(), "NewPass123", "NewPass123"));
+        Assert.Equal(400, ex.StatusCode); // MS23
+    }
 }

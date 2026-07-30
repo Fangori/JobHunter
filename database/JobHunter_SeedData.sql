@@ -47,3 +47,18 @@ INSERT INTO DANH_MUC_KY_NANG (TenKyNang, NhomNganh, TrangThai) VALUES
 (N'Git', N'Cong cu', 'HoatDong'),
 (N'AWS', N'DevOps', 'HoatDong');
 GO
+
+-- ====================================================================
+-- SEED: DANH_MUC_NGANH_NGHE (Phase 7 - can cho BM08 "Linh vuc hoat
+-- dong" luc NTD cap nhat ho so cong ty)
+-- ====================================================================
+INSERT INTO DANH_MUC_NGANH_NGHE (TenNganhNghe, TrangThai) VALUES
+(N'Công nghệ thông tin', 'HoatDong'),
+(N'Tài chính - Ngân hàng', 'HoatDong'),
+(N'Thương mại điện tử', 'HoatDong'),
+(N'Giáo dục', 'HoatDong'),
+(N'Y tế', 'HoatDong'),
+(N'Sản xuất', 'HoatDong'),
+(N'Bán lẻ', 'HoatDong'),
+(N'Marketing', 'HoatDong');
+GO
