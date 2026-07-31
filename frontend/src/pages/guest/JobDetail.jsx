@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { MapPin, Briefcase, Wallet, CalendarDays, Heart } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import ApplyModal from "../candidate/ApplyModal";
@@ -49,31 +50,44 @@ export default function JobDetail() {
   if (!job) return <div className="page-container">Đang tải...</div>;
 
   return (
-    <div className="page-container" style={{ maxWidth: 720 }}>
+    <div className="page-container" style={{ maxWidth: 760 }}>
       <div className="card">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <h1 style={{ fontSize: 28 }}>{job.tieuDe}</h1>
-          {auth?.vaiTro === "UngVien" && (
-            <button
-              type="button"
-              onClick={toggleFavorite}
-              title={isFavorited ? "Bỏ lưu tin" : "Lưu tin"}
-              style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 26, color: isFavorited ? "#e0245e" : "var(--text-muted)" }}
-            >
-              {isFavorited ? "♥" : "♡"}
-            </button>
-          )}
+        <div style={{ display: "flex", gap: 16, justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 14 }}>
+            <div style={{
+              flexShrink: 0, width: 56, height: 56, borderRadius: "var(--radius)", background: "var(--info-bg)",
+              color: "var(--indigo-dark)", display: "flex", alignItems: "center", justifyContent: "center",
+              fontWeight: 700, fontSize: 22,
+            }}>
+              {job.tenCongTy?.[0]?.toUpperCase() || "?"}
+            </div>
+            <div>
+              <h1 style={{ fontSize: 26, margin: "0 0 4px" }}>{job.tieuDe}</h1>
+              <Link to={`/companies/${job.maTkNtd}`} style={{ color: "var(--text-muted)" }}>{job.tenCongTy}</Link>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {job.mucLuong && <span style={{ fontWeight: 700, color: "var(--indigo)", fontSize: 18 }}>{job.mucLuong}</span>}
+            {auth?.vaiTro === "UngVien" && (
+              <button
+                type="button"
+                onClick={toggleFavorite}
+                title={isFavorited ? "Bỏ lưu tin" : "Lưu tin"}
+                style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "transparent", cursor: "pointer", display: "flex", padding: 8, color: isFavorited ? "#e0245e" : "var(--text-muted)" }}
+              >
+                <Heart size={20} fill={isFavorited ? "#e0245e" : "none"} />
+              </button>
+            )}
+          </div>
         </div>
         {favMsg && <p className={favMsg === "Đã lưu tin vào danh sách yêu thích." ? "success-text" : "error-text"}>{favMsg}</p>}
-        <p style={{ color: "var(--text-muted)" }}>
-          <Link to={`/companies/${job.maTkNtd}`}>{job.tenCongTy}</Link>
-        </p>
-        <p>
-          {job.diaDiem && <span>{job.diaDiem} · </span>}
-          {job.hinhThucLamViec && <span>{job.hinhThucLamViec} · </span>}
-          {job.mucLuong && <span>{job.mucLuong}</span>}
-        </p>
-        <p>Hạn nộp hồ sơ: {job.hanNopHoSo}</p>
+
+        <div style={{ display: "flex", gap: 20, flexWrap: "wrap", margin: "16px 0", fontSize: 14, color: "var(--text-muted)" }}>
+          {job.diaDiem && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><MapPin size={16} /> {job.diaDiem}</span>}
+          {job.hinhThucLamViec && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Briefcase size={16} /> {job.hinhThucLamViec}</span>}
+          {job.mucLuong && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Wallet size={16} /> {job.mucLuong}</span>}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><CalendarDays size={16} /> Hạn nộp: {job.hanNopHoSo}</span>
+        </div>
 
         <h3>Mô tả công việc</h3>
         <p style={{ whiteSpace: "pre-wrap" }}>{job.moTaCongViec}</p>
@@ -94,7 +108,7 @@ export default function JobDetail() {
         <h3>Kỹ năng yêu cầu</h3>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {job.kyNangYeuCau.map((k) => (
-            <span key={k.maKyNang} className="btn btn-secondary" style={{ height: 32, padding: "0 12px", cursor: "default" }}>
+            <span key={k.maKyNang} className="badge badge-info">
               {skillNames[k.maKyNang] || k.maKyNang}
               {k.mucDoUuTien === "BatBuoc" ? " (Bắt buộc)" : k.mucDoUuTien === "UuTien" ? " (Ưu tiên)" : ""}
             </span>

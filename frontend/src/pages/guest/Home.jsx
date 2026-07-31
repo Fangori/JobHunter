@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Search, MapPin } from "lucide-react";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import JobCard from "../../components/JobCard";
@@ -74,10 +75,19 @@ export default function Home() {
   return (
     <div className="page-container">
       <h1 style={{ textAlign: "center" }}>Khám phá Sự nghiệp tương lai của bạn</h1>
+      <p style={{ textAlign: "center", color: "var(--text-muted)", maxWidth: 560, margin: "0 auto 24px" }}>
+        Hàng ngàn cơ hội việc làm từ các công ty hàng đầu đang chờ đón bạn. Bắt đầu hành trình ngay hôm nay.
+      </p>
 
       <form onSubmit={handleSubmit} className="card" style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-        <input placeholder="Từ khoá (vị trí, kỹ năng...)" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
-        <input placeholder="Địa điểm" value={diaDiem} onChange={(e) => setDiaDiem(e.target.value)} />
+        <div className="input-icon-wrap" style={{ flex: 1 }}>
+          <Search size={18} />
+          <input placeholder="Từ khoá (vị trí, kỹ năng...)" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+        </div>
+        <div className="input-icon-wrap" style={{ flex: 1 }}>
+          <MapPin size={18} />
+          <input placeholder="Địa điểm" value={diaDiem} onChange={(e) => setDiaDiem(e.target.value)} />
+        </div>
         <button className="btn btn-primary" type="submit">Tìm Việc Ngay</button>
       </form>
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { MapPin, Globe, Users, Plus, Check } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 
@@ -43,25 +44,35 @@ export default function CompanyDetail() {
   return (
     <div className="page-container" style={{ maxWidth: 720 }}>
       <div className="card">
-        {company.logo && <img src={company.logo} alt="Logo" style={{ width: 80, height: 80, objectFit: "contain", marginBottom: 12 }} />}
+        {company.logo ? (
+          <img src={company.logo} alt="Logo" style={{ width: 80, height: 80, objectFit: "contain", borderRadius: "var(--radius)", marginBottom: 12 }} />
+        ) : (
+          <div style={{
+            width: 80, height: 80, borderRadius: "var(--radius)", background: "var(--info-bg)", color: "var(--indigo-dark)",
+            display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 28, marginBottom: 12,
+          }}>
+            {company.tenCongTy?.[0]?.toUpperCase() || "?"}
+          </div>
+        )}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <h1 style={{ fontSize: 26 }}>{company.tenCongTy}</h1>
           {auth?.vaiTro === "UngVien" && (
             <button
               type="button"
               className={isFollowing ? "btn btn-secondary" : "btn btn-primary"}
-              style={{ height: 36, padding: "0 16px", whiteSpace: "nowrap" }}
+              style={{ height: 36, padding: "0 16px", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6 }}
               onClick={toggleFollow}
             >
+              {isFollowing ? <Check size={16} /> : <Plus size={16} />}
               {isFollowing ? "Đang theo dõi" : "Theo dõi"}
             </button>
           )}
         </div>
         {followMsg && <p className={followMsg.startsWith("Đã theo dõi") ? "success-text" : "error-text"}>{followMsg}</p>}
-        <p style={{ color: "var(--text-muted)" }}>
-          {company.diaChi && <span>{company.diaChi} · </span>}
-          {company.quyMo && <span>Quy mô {company.quyMo} · </span>}
-          {company.website && <a href={company.website} target="_blank" rel="noreferrer">{company.website}</a>}
+        <p style={{ color: "var(--text-muted)", display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
+          {company.diaChi && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><MapPin size={16} /> {company.diaChi}</span>}
+          {company.quyMo && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Users size={16} /> Quy mô {company.quyMo}</span>}
+          {company.website && <a href={company.website} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Globe size={16} /> {company.website}</a>}
         </p>
         {company.gioiThieuCongTy && <p style={{ whiteSpace: "pre-wrap" }}>{company.gioiThieuCongTy}</p>}
 
