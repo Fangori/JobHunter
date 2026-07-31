@@ -9,7 +9,14 @@
   --border: #e2e4ea;
   --danger: #d64545;
   --success: #1f9d55;
+  --warning: #b7791f;
+  --warning-bg: #fdf3d8;
+  --danger-bg: #fbe4e4;
+  --success-bg: #e3f6ea;
+  --info-bg: #e6eafc;
   --radius: 8px;
+  --radius-lg: 14px;
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 12px rgba(16, 24, 40, 0.06);
 
   font-family: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
   color: var(--text);
@@ -97,8 +104,42 @@ label {
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
   padding: 24px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-info { background: var(--info-bg); color: var(--indigo-dark); }
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-warning { background: var(--warning-bg); color: var(--warning); }
+.badge-danger { background: var(--danger-bg); color: var(--danger); }
+.badge-neutral { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+
+.input-icon-wrap {
+  position: relative;
+}
+.input-icon-wrap svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.input-icon-wrap input,
+.input-icon-wrap select {
+  padding-left: 42px;
 }
 
 .error-text {

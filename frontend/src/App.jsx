@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import Header from './components/Header'
+import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/guest/Home'
 import JobDetail from './pages/guest/JobDetail'
@@ -28,8 +29,9 @@ import './App.css'
 
 function App() {
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Header />
+      <div style={{ flex: 1 }}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/jobs/:id" element={<JobDetail />} />
@@ -78,7 +80,9 @@ function App() {
           <ProtectedRoute role="UngVien"><Favorites /></ProtectedRoute>
         } />
       </Routes>
-    </>
+      </div>
+      <Footer />
+    </div>
   )
 }
 

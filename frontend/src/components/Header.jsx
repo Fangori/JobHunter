@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Bell, Briefcase, CircleUserRound, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 
@@ -42,10 +43,10 @@ function NotificationBell() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        style={{ position: "relative", border: "none", background: "transparent", color: "white", cursor: "pointer", fontSize: 20, padding: "0 4px" }}
+        style={{ position: "relative", display: "flex", alignItems: "center", border: "none", background: "transparent", color: "white", cursor: "pointer", padding: "0 4px" }}
         title="Thông báo"
       >
-        🔔
+        <Bell size={20} />
         {unreadCount > 0 && (
           <span style={{
             position: "absolute", top: -4, right: -6, background: "#e0245e", color: "white",
@@ -95,7 +96,9 @@ export default function Header() {
 
   return (
     <header className="app-header">
-      <Link to="/" className="brand">JobHunter</Link>
+      <Link to="/" className="brand" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Briefcase size={22} /> JobHunter
+      </Link>
       <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
         {!auth && <Link to="/login">Đăng nhập</Link>}
         {!auth && <Link to="/register">Đăng ký</Link>}
@@ -110,9 +113,12 @@ export default function Header() {
         {auth && <NotificationBell />}
         {auth && (
           <>
-            <span>{auth.hoTenOrTenCongTy} ({auth.vaiTro})</span>
-            <button onClick={handleLogout} style={{ height: 36, padding: "0 16px", background: "transparent", color: "white", border: "1px solid white", borderRadius: "var(--radius)", cursor: "pointer", fontWeight: 600 }}>
-              Đăng xuất
+            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <CircleUserRound size={20} />
+              {auth.hoTenOrTenCongTy} ({auth.vaiTro})
+            </span>
+            <button onClick={handleLogout} style={{ display: "flex", alignItems: "center", gap: 6, height: 36, padding: "0 16px", background: "transparent", color: "white", border: "1px solid white", borderRadius: "var(--radius)", cursor: "pointer", fontWeight: 600 }}>
+              <LogOut size={16} /> Đăng xuất
             </button>
           </>
         )}
