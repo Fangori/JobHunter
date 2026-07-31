@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { User, Lock, Mail, Phone, Building2, MapPin, Briefcase } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 
 function CandidateForm() {
@@ -33,23 +33,38 @@ function CandidateForm() {
     <form onSubmit={handleSubmit}>
       <div className="field">
         <label>Họ và Tên</label>
-        <input value={form.hoTen} onChange={set("hoTen")} required />
+        <div className="input-icon-wrap">
+          <User size={18} />
+          <input value={form.hoTen} onChange={set("hoTen")} required />
+        </div>
       </div>
       <div className="field">
         <label>Mật khẩu</label>
-        <input type="password" value={form.matKhau} onChange={set("matKhau")} required />
+        <div className="input-icon-wrap">
+          <Lock size={18} />
+          <input type="password" value={form.matKhau} onChange={set("matKhau")} required />
+        </div>
       </div>
       <div className="field">
         <label>Email</label>
-        <input type="email" value={form.email} onChange={set("email")} required />
+        <div className="input-icon-wrap">
+          <Mail size={18} />
+          <input type="email" value={form.email} onChange={set("email")} required />
+        </div>
       </div>
       <div className="field">
         <label>Xác nhận mật khẩu</label>
-        <input type="password" value={form.xacNhanMatKhau} onChange={set("xacNhanMatKhau")} required />
+        <div className="input-icon-wrap">
+          <Lock size={18} />
+          <input type="password" value={form.xacNhanMatKhau} onChange={set("xacNhanMatKhau")} required />
+        </div>
       </div>
       <div className="field">
         <label>Số điện thoại</label>
-        <input value={form.sdt} onChange={set("sdt")} />
+        <div className="input-icon-wrap">
+          <Phone size={18} />
+          <input value={form.sdt} onChange={set("sdt")} />
+        </div>
       </div>
       {error && <p className="error-text">{error}</p>}
       {success && <p className="success-text">{success}</p>}
@@ -91,27 +106,45 @@ function EmployerForm() {
     <form onSubmit={handleSubmit}>
       <div className="field">
         <label>Tên công ty</label>
-        <input value={form.tenCongTy} onChange={set("tenCongTy")} required />
+        <div className="input-icon-wrap">
+          <Building2 size={18} />
+          <input value={form.tenCongTy} onChange={set("tenCongTy")} required />
+        </div>
       </div>
       <div className="field">
         <label>Địa chỉ công ty</label>
-        <input value={form.diaChi} onChange={set("diaChi")} required />
+        <div className="input-icon-wrap">
+          <MapPin size={18} />
+          <input value={form.diaChi} onChange={set("diaChi")} required />
+        </div>
       </div>
       <div className="field">
         <label>Email công ty</label>
-        <input type="email" value={form.email} onChange={set("email")} required />
+        <div className="input-icon-wrap">
+          <Mail size={18} />
+          <input type="email" value={form.email} onChange={set("email")} required />
+        </div>
       </div>
       <div className="field">
         <label>Mật khẩu</label>
-        <input type="password" value={form.matKhau} onChange={set("matKhau")} required />
+        <div className="input-icon-wrap">
+          <Lock size={18} />
+          <input type="password" value={form.matKhau} onChange={set("matKhau")} required />
+        </div>
       </div>
       <div className="field">
         <label>Số điện thoại</label>
-        <input value={form.sdt} onChange={set("sdt")} />
+        <div className="input-icon-wrap">
+          <Phone size={18} />
+          <input value={form.sdt} onChange={set("sdt")} />
+        </div>
       </div>
       <div className="field">
         <label>Xác nhận mật khẩu</label>
-        <input type="password" value={form.xacNhanMatKhau} onChange={set("xacNhanMatKhau")} required />
+        <div className="input-icon-wrap">
+          <Lock size={18} />
+          <input type="password" value={form.xacNhanMatKhau} onChange={set("xacNhanMatKhau")} required />
+        </div>
       </div>
       {error && <p className="error-text">{error}</p>}
       {success && <p className="success-text">{success}</p>}
@@ -126,18 +159,25 @@ export default function Register() {
   const [tab, setTab] = useState("candidate");
 
   return (
-    <div className="page-container auth-card-wrapper">
-      <div className="card">
-        <h2>Đăng ký tài khoản</h2>
-        <div className="tabs">
-          <button className={tab === "candidate" ? "active" : ""} onClick={() => setTab("candidate")} type="button">
-            Ứng viên
-          </button>
-          <button className={tab === "employer" ? "active" : ""} onClick={() => setTab("employer")} type="button">
-            Nhà tuyển dụng
-          </button>
+    <div className="auth-split">
+      <div className="auth-split-panel">
+        <Briefcase size={40} style={{ marginBottom: 16 }} />
+        <h2>Bắt đầu hành trình sự nghiệp</h2>
+        <p>Tham gia nền tảng kết nối ứng viên và nhà tuyển dụng hàng đầu.</p>
+      </div>
+      <div className="auth-split-form">
+        <div className="card">
+          <h2>Đăng ký tài khoản</h2>
+          <div className="tabs">
+            <button className={tab === "candidate" ? "active" : ""} onClick={() => setTab("candidate")} type="button">
+              Ứng viên
+            </button>
+            <button className={tab === "employer" ? "active" : ""} onClick={() => setTab("employer")} type="button">
+              Nhà tuyển dụng
+            </button>
+          </div>
+          {tab === "candidate" ? <CandidateForm /> : <EmployerForm />}
         </div>
-        {tab === "candidate" ? <CandidateForm /> : <EmployerForm />}
       </div>
     </div>
   );

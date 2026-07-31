@@ -9,6 +9,45 @@
   margin: 60px auto;
 }
 
+.auth-split {
+  display: flex;
+  min-height: calc(100vh - 68px);
+  align-items: stretch;
+}
+.auth-split-panel {
+  flex: 1;
+  background: linear-gradient(135deg, var(--navy), var(--indigo));
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px;
+}
+.auth-split-panel h2 {
+  color: white;
+  font-size: 30px;
+  margin: 0 0 12px;
+}
+.auth-split-panel p {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+  max-width: 340px;
+}
+.auth-split-form {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+.auth-split-form .card {
+  max-width: 420px;
+  width: 100%;
+}
+@media (max-width: 860px) {
+  .auth-split-panel { display: none; }
+}
+
 .tabs {
   display: flex;
   margin-bottom: 20px;

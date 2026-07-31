@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Mail, Lock, Briefcase } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 
@@ -43,32 +44,48 @@ export default function Login() {
   };
 
   return (
-    <div className="page-container auth-card-wrapper">
-      <div className="card">
-        <h2>Đăng nhập</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="field">
-            <label>Email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </div>
-          <div className="field">
-            <label>Mật khẩu</label>
-            <input type="password" value={matKhau} onChange={(e) => setMatKhau(e.target.value)} required />
-          </div>
-          {error && <p className="error-text">{error}</p>}
-          {chuaXacThuc && (
-            <button type="button" className="btn btn-secondary" style={{ width: "100%", marginBottom: 12 }} onClick={handleResend}>
-              Gửi lại liên kết xác thực
+    <div className="auth-split">
+      <div className="auth-split-panel">
+        <Briefcase size={40} style={{ marginBottom: 16 }} />
+        <h2>Chào mừng trở lại JobHunter</h2>
+        <p>Tiếp tục hành trình tìm việc hoặc tìm ứng viên phù hợp ngay hôm nay.</p>
+      </div>
+      <div className="auth-split-form">
+        <div className="card">
+          <h2>Đăng nhập</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="field">
+              <label>Email</label>
+              <div className="input-icon-wrap">
+                <Mail size={18} />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              </div>
+            </div>
+            <div className="field">
+              <label>Mật khẩu</label>
+              <div className="input-icon-wrap">
+                <Lock size={18} />
+                <input type="password" value={matKhau} onChange={(e) => setMatKhau(e.target.value)} required />
+              </div>
+            </div>
+            {error && <p className="error-text">{error}</p>}
+            {chuaXacThuc && (
+              <button type="button" className="btn btn-secondary" style={{ width: "100%", marginBottom: 12 }} onClick={handleResend}>
+                Gửi lại liên kết xác thực
+              </button>
+            )}
+            {resendMsg && <p className="success-text">{resendMsg}</p>}
+            <button className="btn btn-primary" style={{ width: "100%" }} disabled={loading} type="submit">
+              {loading ? "Đang đăng nhập..." : "Đăng Nhập"}
             </button>
-          )}
-          {resendMsg && <p className="success-text">{resendMsg}</p>}
-          <button className="btn btn-primary" style={{ width: "100%" }} disabled={loading} type="submit">
-            {loading ? "Đang đăng nhập..." : "Đăng Nhập"}
-          </button>
-        </form>
-        <p style={{ marginTop: 12, textAlign: "center" }}>
-          <Link to="/forgot-password">Quên mật khẩu?</Link>
-        </p>
+          </form>
+          <p style={{ marginTop: 12, textAlign: "center" }}>
+            <Link to="/forgot-password">Quên mật khẩu?</Link>
+          </p>
+          <p style={{ marginTop: 4, textAlign: "center" }}>
+            Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
