@@ -12,6 +12,15 @@ const TRANG_THAI_LABEL = {
   DaHuy: "Đã hủy",
 };
 
+const TRANG_THAI_BADGE = {
+  DaNop: "badge-info",
+  DangXemXet: "badge-warning",
+  PhongVan: "badge-warning",
+  TuChoi: "badge-danger",
+  Nhan: "badge-success",
+  DaHuy: "badge-neutral",
+};
+
 const HUY_DUOC = ["DaNop", "DangXemXet"]; // BR10
 
 export default function MyApplications() {
@@ -52,8 +61,10 @@ export default function MyApplications() {
             <div>
               <Link to={`/jobs/${don.maTin}`}><strong>{don.tieuDe}</strong></Link>
               <p style={{ color: "var(--text-muted)", margin: "4px 0" }}>{don.tenCongTy}</p>
-              <p style={{ margin: 0, fontSize: 14 }}>
-                Trạng thái: <strong>{TRANG_THAI_LABEL[don.trangThai] || don.trangThai}</strong>
+              <p style={{ margin: "4px 0" }}>
+                <span className={`badge ${TRANG_THAI_BADGE[don.trangThai] || "badge-neutral"}`}>
+                  {TRANG_THAI_LABEL[don.trangThai] || don.trangThai}
+                </span>
               </p>
               <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)" }}>
                 Nộp lúc: {new Date(don.ngayNop).toLocaleString("vi-VN")}

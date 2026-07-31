@@ -7,6 +7,7 @@ import ApplicantDetail from "./ApplicantDetail";
 const TRINH_DO_OPTIONS = ["TrungCap", "CaoDang", "DaiHoc", "SauDaiHoc"];
 const TRINH_DO_LABEL = { TrungCap: "Trung cấp", CaoDang: "Cao đẳng", DaiHoc: "Đại học", SauDaiHoc: "Sau đại học" };
 const TRANG_THAI_LABEL = { DaNop: "Đã nộp", DangXemXet: "Đang xem xét", PhongVan: "Phỏng vấn", TuChoi: "Từ chối", Nhan: "Nhận", DaHuy: "Đã hủy" };
+const TRANG_THAI_BADGE = { DaNop: "badge-info", DangXemXet: "badge-warning", PhongVan: "badge-warning", TuChoi: "badge-danger", Nhan: "badge-success", DaHuy: "badge-neutral" };
 
 export default function Applicants() {
   const { id } = useParams();
@@ -130,7 +131,11 @@ export default function Applicants() {
                     <td style={{ padding: 8 }}>{a.kyNangKhop.join(", ") || "—"}</td>
                     <td style={{ padding: 8, fontWeight: 700, color: "var(--indigo)" }}>{a.phanTramPhuHop}%</td>
                     <td style={{ padding: 8 }}>{a.soNamKinhNghiem} năm</td>
-                    <td style={{ padding: 8 }}>{TRANG_THAI_LABEL[a.trangThai] || a.trangThai}</td>
+                    <td style={{ padding: 8 }}>
+                      <span className={`badge ${TRANG_THAI_BADGE[a.trangThai] || "badge-neutral"}`}>
+                        {TRANG_THAI_LABEL[a.trangThai] || a.trangThai}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>

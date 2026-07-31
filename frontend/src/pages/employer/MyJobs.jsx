@@ -11,6 +11,14 @@ const TRANG_THAI_LABEL = {
   DaDong: "Đã đóng",
 };
 
+const TRANG_THAI_BADGE = {
+  ChoDuyet: "badge-warning",
+  DaDuyet: "badge-success",
+  TuChoi: "badge-danger",
+  DaGo: "badge-danger",
+  DaDong: "badge-neutral",
+};
+
 export default function MyJobs() {
   const { auth } = useAuth();
   const [jobs, setJobs] = useState(null);
@@ -81,7 +89,7 @@ export default function MyJobs() {
             <div>
               <strong>{job.tieuDe}</strong>
               <p style={{ margin: "4px 0", fontSize: 14 }}>
-                Trạng thái: <strong>{TRANG_THAI_LABEL[job.trangThai] || job.trangThai}</strong>
+                Trạng thái: <span className={`badge ${TRANG_THAI_BADGE[job.trangThai] || "badge-neutral"}`}>{TRANG_THAI_LABEL[job.trangThai] || job.trangThai}</span>
                 {" · "}Hạn nộp: {job.hanNopHoSo}
               </p>
             </div>

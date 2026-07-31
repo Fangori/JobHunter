@@ -1,4 +1,12 @@
 import { Link } from "react-router-dom";
+import { Heart, MapPin, Wallet, Clock } from "lucide-react";
+
+function thoiGianTruoc(ngayDang) {
+  const giay = Math.floor((Date.now() - new Date(ngayDang).getTime()) / 1000);
+  if (giay < 3600) return `${Math.max(1, Math.floor(giay / 60))} phút trước`;
+  if (giay < 86400) return `${Math.floor(giay / 3600)} giờ trước`;
+  return `${Math.floor(giay / 86400)} ngày trước`;
+}
 
 export default function JobCard({ job, isFavorited, onToggleFavorite, matchPercent }) {
   return (
@@ -25,20 +33,30 @@ export default function JobCard({ job, isFavorited, onToggleFavorite, matchPerce
           title={isFavorited ? "Bỏ lưu tin" : "Lưu tin"}
           style={{
             position: "absolute", top: 12, right: 12, border: "none", background: "transparent",
-            cursor: "pointer", fontSize: 22, lineHeight: 1, color: isFavorited ? "#e0245e" : "var(--text-muted)",
+            cursor: "pointer", display: "flex", color: isFavorited ? "#e0245e" : "var(--text-muted)",
           }}
         >
-          {isFavorited ? "♥" : "♡"}
+          <Heart size={20} fill={isFavorited ? "#e0245e" : "none"} />
         </button>
       )}
-      <Link to={`/jobs/${job.maTin}`} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
-        <h3 style={{ margin: "0 0 4px", paddingRight: (onToggleFavorite ? 28 : 0) + (matchPercent != null ? 90 : 0) }}>{job.tieuDe}</h3>
-        <p style={{ color: "var(--text-muted)", margin: "0 0 8px" }}>{job.tenCongTy}</p>
-        <p style={{ margin: 0, fontSize: 14 }}>
-          {job.diaDiem && <span>{job.diaDiem} · </span>}
-          {job.hinhThucLamViec && <span>{job.hinhThucLamViec} · </span>}
-          {job.mucLuong && <span>{job.mucLuong}</span>}
-        </p>
+      <Link to={`/jobs/${job.maTin}`} style={{ display: "flex", gap: 14, textDecoration: "none", color: "inherit" }}>
+        <div style={{
+          flexShrink: 0, width: 48, height: 48, borderRadius: "var(--radius)", background: "var(--info-bg)",
+          color: "var(--indigo-dark)", display: "flex", alignItems: "center", justifyContent: "center",
+          fontWeight: 700, fontSize: 18,
+        }}>
+          {job.tenCongTy?.[0]?.toUpperCase() || "?"}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h3 style={{ margin: "0 0 4px", paddingRight: (onToggleFavorite ? 28 : 0) + (matchPercent != null ? 90 : 0) }}>{job.tieuDe}</h3>
+          <p style={{ color: "var(--text-muted)", margin: "0 0 8px" }}>{job.tenCongTy}</p>
+          <p style={{ margin: 0, fontSize: 14, color: "var(--text-muted)", display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
+            {job.diaDiem && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><MapPin size={14} /> {job.diaDiem}</span>}
+            {job.mucLuong && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Wallet size={14} /> {job.mucLuong}</span>}
+            {job.hinhThucLamViec && <span>{job.hinhThucLamViec}</span>}
+            {job.ngayDang && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Clock size={14} /> {thoiGianTruoc(job.ngayDang)}</span>}
+          </p>
+        </div>
       </Link>
     </div>
   );
