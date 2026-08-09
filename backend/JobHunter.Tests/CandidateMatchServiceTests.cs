@@ -164,4 +164,16 @@ public class CandidateMatchServiceTests
 
         Assert.Empty(goiY); // 0% -> khong goi y
     }
+
+    [Fact]
+    [Trait("Category", "BR04")]
+    public async Task TinhDiemPhuHop_TinKhongYeuCauKyNangNao_TraVe100PhanTram()
+    {
+        var (service, _, maTin, maCv) = await SetupAsync(
+            Array.Empty<(int, string?)>(),
+            Array.Empty<int>());
+
+        var ketQua = await service.TinhDiemPhuHopAsync(maCv, maTin);
+        Assert.Equal(100.0, ketQua);
+    }
 }

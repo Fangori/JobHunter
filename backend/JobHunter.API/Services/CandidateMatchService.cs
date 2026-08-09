@@ -19,7 +19,7 @@ public class CandidateMatchService : ICandidateMatchService
     public async Task<double> TinhDiemPhuHopAsync(int maCv, int maTin)
     {
         var kyNangTin = await _db.TinKyNangs.Where(x => x.MaTin == maTin).Select(x => x.MaKyNang).ToListAsync();
-        if (kyNangTin.Count == 0) return 0;
+        if (kyNangTin.Count == 0) return 100; // BR04: tin khong yeu cau ky nang nao -> mac dinh 100%
 
         var kyNangCv = await _db.CvKyNangs.Where(x => x.MaCV == maCv).Select(x => x.MaKyNang).ToListAsync();
         var soKhop = kyNangCv.Intersect(kyNangTin).Count();
