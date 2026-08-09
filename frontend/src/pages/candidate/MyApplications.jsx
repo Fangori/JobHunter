@@ -23,12 +23,21 @@ const TRANG_THAI_BADGE = {
 
 const HUY_DUOC = ["DaNop", "DangXemXet"]; // BR10
 
+const FILTER_TABS = [
+  { key: "all", label: "Tất cả", match: () => true },
+  { key: "cho_xu_ly", label: "Chờ xử lý", match: (s) => s === "DaNop" || s === "DangXemXet" },
+  { key: "phong_van", label: "Phỏng vấn", match: (s) => s === "PhongVan" },
+  { key: "da_nhan", label: "Đã nhận", match: (s) => s === "Nhan" },
+  { key: "tu_choi", label: "Từ chối", match: (s) => s === "TuChoi" },
+];
+
 export default function MyApplications() {
   const { auth } = useAuth();
   const [applications, setApplications] = useState(null);
   const [error, setError] = useState("");
   const [loadError, setLoadError] = useState(false);
   const [busyId, setBusyId] = useState(null);
+  const [filter, setFilter] = useState("all");
 
   const load = () => {
     setLoadError(false);
@@ -69,9 +78,32 @@ export default function MyApplications() {
       <div className="dashboard-header-band">
         <h1>Đơn ứng tuyển của tôi</h1>
       </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
+        <div className="card" style={{ textAlign: "center" }}>
+          <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: "var(--navy)" }}>{applications.length}</p>
+          <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>Tổng số</p>
+        </div>
+        <div className="card" style={{ textAlign: "center" }}>
+          <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: "var(--navy)" }}>{applications.filter((d) => d.trangThai === "PhongVan").length}</p>
+          <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>Đang phỏng vấn</p>
+        </div>
+        <div className="card" style={{ textAlign: "center" }}>
+          <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: "var(--navy)" }}>{applications.filter((d) => d.trangThai === "DaNop" || d.trangThai === "DangXemXet").length}</p>
+          <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>Chờ xử lý</p>
+        </div>
+      </div>
+      <div className="tabs">
+        {FILTER_TABS.map((t) => (
+          <button key={t.key} type="button" className={filter === t.key ? "active" : ""} onClick={() => setFilter(t.key)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
       {error && <p className="error-text">{error}</p>}
       {applications.length === 0 && <p>Bạn chưa ứng tuyển vào tin nào.</p>}
-      {applications.map((don) => (
+      {applications
+        .filter((don) => FILTER_TABS.find((t) => t.key === filter).match(don.trangThai))
+        .map((don) => (
         <div key={don.maDon} className="card" style={{ marginBottom: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
