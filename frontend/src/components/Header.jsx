@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, Briefcase, CircleUserRound, LogOut } from "lucide-react";
+import { Bell, Briefcase, CircleUserRound, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
+import { roleLabel } from "../utils/roleLabel";
 
 function NotificationBell() {
   const { auth } = useAuth();
@@ -85,14 +86,85 @@ function NotificationBell() {
   );
 }
 
-export default function Header() {
+const ROLE_MENU_LINKS = {
+  UngVien: [
+    { to: "/candidate/cvs", label: "CV của tôi" },
+    { to: "/candidate/applications", label: "Đơn ứng tuyển" },
+    { to: "/candidate/favorites", label: "Tin đã lưu" },
+    { to: "/candidate/profile", label: "Hồ sơ cá nhân" },
+  ],
+  NhaTuyenDung: [
+    { to: "/employer/my-jobs", label: "Tin của tôi" },
+    { to: "/employer/profile", label: "Hồ sơ công ty" },
+  ],
+  Admin: [
+    { to: "/admin/pending-jobs", label: "Quản trị" },
+  ],
+};
+
+function AccountMenu() {
   const { auth, logout } = useAuth();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef(null);
+
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
     navigate("/");
   };
+
+  const menuLinks = ROLE_MENU_LINKS[auth.vaiTro] || [];
+
+  return (
+    <div ref={boxRef} style={{ position: "relative" }}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        style={{ display: "flex", alignItems: "center", gap: 6, border: "none", background: "transparent", color: "white", cursor: "pointer", padding: "4px 6px", fontSize: 15 }}
+      >
+        <CircleUserRound size={20} />
+        {auth.hoTenOrTenCongTy} ({roleLabel(auth.vaiTro)})
+        <ChevronDown size={16} />
+      </button>
+      {open && (
+        <div className="card" style={{
+          position: "absolute", right: 0, top: 32, width: 220, zIndex: 200,
+          background: "white", color: "var(--text)", padding: 8,
+        }}>
+          {menuLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              onClick={() => setOpen(false)}
+              style={{ display: "block", padding: "8px 10px", borderRadius: 8, color: "var(--text)", textDecoration: "none" }}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <div style={{ borderTop: "1px solid var(--border)", margin: "6px 0" }} />
+          <button
+            type="button"
+            onClick={handleLogout}
+            style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "8px 10px", background: "transparent", border: "none", color: "var(--danger)", cursor: "pointer", fontWeight: 600, borderRadius: 8 }}
+          >
+            <LogOut size={16} /> Đăng xuất
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function Header() {
+  const { auth } = useAuth();
 
   return (
     <header className="app-header">
@@ -103,25 +175,8 @@ export default function Header() {
         {!auth && <Link to="/login">Đăng nhập</Link>}
         {!auth && <Link to="/register">Đăng ký</Link>}
         {auth?.vaiTro === "NhaTuyenDung" && <Link to="/employer/post-job">Đăng tin</Link>}
-        {auth?.vaiTro === "NhaTuyenDung" && <Link to="/employer/my-jobs">Tin của tôi</Link>}
-        {auth?.vaiTro === "NhaTuyenDung" && <Link to="/employer/profile">Hồ sơ công ty</Link>}
-        {auth?.vaiTro === "Admin" && <Link to="/admin/pending-jobs">Quản trị</Link>}
-        {auth?.vaiTro === "UngVien" && <Link to="/candidate/cvs">CV của tôi</Link>}
-        {auth?.vaiTro === "UngVien" && <Link to="/candidate/applications">Đơn ứng tuyển</Link>}
-        {auth?.vaiTro === "UngVien" && <Link to="/candidate/favorites">Tin đã lưu</Link>}
-        {auth?.vaiTro === "UngVien" && <Link to="/candidate/profile">Hồ sơ cá nhân</Link>}
         {auth && <NotificationBell />}
-        {auth && (
-          <>
-            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <CircleUserRound size={20} />
-              {auth.hoTenOrTenCongTy} ({auth.vaiTro})
-            </span>
-            <button onClick={handleLogout} style={{ display: "flex", alignItems: "center", gap: 6, height: 36, padding: "0 16px", background: "transparent", color: "white", border: "1px solid white", borderRadius: "var(--radius)", cursor: "pointer", fontWeight: 600 }}>
-              <LogOut size={16} /> Đăng xuất
-            </button>
-          </>
-        )}
+        {auth && <AccountMenu />}
       </nav>
     </header>
   );
