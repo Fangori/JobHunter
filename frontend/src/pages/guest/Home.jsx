@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Search, MapPin } from "lucide-react";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
@@ -15,6 +16,7 @@ export default function Home() {
   const [searched, setSearched] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [recommended, setRecommended] = useState([]);
+  const [coCv, setCoCv] = useState(true);
 
   useEffect(() => {
     api.get("/jobs/featured?top=6").then(setFeatured).catch(() => {});
@@ -25,10 +27,16 @@ export default function Home() {
       api.get("/favorites/mine", auth.token)
         .then((list) => setFavoriteIds(new Set(list.map((j) => j.maTin))))
         .catch(() => {});
-      api.get("/jobs/recommended", auth.token).then(setRecommended).catch(() => {});
+      api.get("/jobs/recommended", auth.token)
+        .then((data) => {
+          setCoCv(data.coCv);
+          setRecommended(data.goiY);
+        })
+        .catch(() => {});
     } else {
       setFavoriteIds(new Set());
       setRecommended([]);
+      setCoCv(true);
     }
   }, [auth]);
 
@@ -99,7 +107,16 @@ export default function Home() {
         ))}
       </div>
 
-      {!searched && canFavorite && recommended.length > 0 && (
+      {!searched && canFavorite && !coCv && (
+        <div className="card" style={{ marginBottom: 32 }}>
+          <p style={{ margin: 0 }}>
+            Bạn cần tạo CV trước để nhận gợi ý việc làm phù hợp.{" "}
+            <Link to="/candidate/cvs">Tạo CV ngay</Link>
+          </p>
+        </div>
+      )}
+
+      {!searched && canFavorite && coCv && recommended.length > 0 && (
         <>
           <h2>Gợi ý cho bạn</h2>
           {recommended.slice(0, 6).map((job) => (
