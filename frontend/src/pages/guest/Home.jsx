@@ -29,8 +29,8 @@ export default function Home() {
         .catch(() => {});
       api.get("/jobs/recommended", auth.token)
         .then((data) => {
-          setCoCv(data.coCv);
-          setRecommended(data.goiY);
+          setCoCv(data.coCv !== false);
+          setRecommended(data.goiY ?? []);
         })
         .catch(() => {});
     } else {
