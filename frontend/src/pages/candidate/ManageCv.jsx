@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
+import FileUpload from "../../components/FileUpload";
 
 const TRINH_DO_OPTIONS = ["TrungCap", "CaoDang", "DaiHoc", "SauDaiHoc"];
 const TRINH_DO_LABEL = { TrungCap: "Trung cấp", CaoDang: "Cao đẳng", DaiHoc: "Đại học", SauDaiHoc: "Sau đại học" };
@@ -171,44 +172,48 @@ export default function ManageCv() {
       </div>
 
       {myCvs.length > 0 && (
-        <div className="card" style={{ marginBottom: 24 }}>
+        <div style={{ marginBottom: 24 }}>
           <h3>CV của tôi</h3>
-          {myCvs.map((cv) => (
-            <div key={cv.maCV} style={{ padding: "8px 0", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <strong>{cv.tenCV}</strong> — {cv.loaiCV === "TrucTuyen" ? "Trực tuyến" : "Upload"}
-                {cv.viTriMongMuon && <span> · {cv.viTriMongMuon}</span>}
-              </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                {cv.loaiCV === "TrucTuyen" && (
-                  <button type="button" className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={() => startEdit(cv.maCV)}>
-                    Sửa
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
+            {myCvs.map((cv) => (
+              <div key={cv.maCV} className="card">
+                <span className={`badge ${cv.loaiCV === "TrucTuyen" ? "badge-info" : "badge-neutral"}`}>
+                  {cv.loaiCV === "TrucTuyen" ? "Trực tuyến" : "Tải lên"}
+                </span>
+                <p style={{ fontWeight: 600, margin: "10px 0 4px" }}>{cv.tenCV}</p>
+                {cv.viTriMongMuon && <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>{cv.viTriMongMuon}</p>}
+                <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                  {cv.loaiCV === "TrucTuyen" && (
+                    <button type="button" className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={() => startEdit(cv.maCV)}>
+                      Sửa
+                    </button>
+                  )}
+                  <button type="button" className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={() => handleDelete(cv.maCV)}>
+                    Xóa
                   </button>
-                )}
-                <button type="button" className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={() => handleDelete(cv.maCV)}>
-                  Xóa
-                </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
       {(trashCvs.length > 0 || trashMsg) && (
-        <div className="card" style={{ marginBottom: 24 }}>
+        <div style={{ marginBottom: 24 }}>
           <h3>Thùng rác CV</h3>
           {trashMsg && <p className={trashMsg.includes("thành công") ? "success-text" : "error-text"}>{trashMsg}</p>}
           {trashCvs.length === 0 && <p style={{ color: "var(--text-muted)" }}>Thùng rác trống.</p>}
-          {trashCvs.map((cv) => (
-            <div key={cv.maCV} style={{ padding: "8px 0", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <strong>{cv.tenCV}</strong> — {cv.loaiCV === "TrucTuyen" ? "Trực tuyến" : "Upload"}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
+            {trashCvs.map((cv) => (
+              <div key={cv.maCV} className="card">
+                <span className="badge badge-neutral">Đã lưu trữ</span>
+                <p style={{ fontWeight: 600, margin: "10px 0 12px" }}>{cv.tenCV}</p>
+                <button type="button" className="btn btn-primary" style={{ height: 32, padding: "0 12px" }} onClick={() => handleRestore(cv.maCV)}>
+                  Phục hồi
+                </button>
               </div>
-              <button type="button" className="btn btn-primary" style={{ height: 32, padding: "0 12px" }} onClick={() => handleRestore(cv.maCV)}>
-                Phục hồi
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
@@ -299,9 +304,9 @@ export default function ManageCv() {
           </form>
         </div>
 
-        <div className="card" style={{ flex: 1, alignSelf: "flex-start" }}>
-          <h3>Xem trước</h3>
-          <h2 style={{ marginBottom: 0 }}>{form.tenCv || "(Tên CV)"}</h2>
+        <div className="card" style={{ flex: 1, alignSelf: "flex-start", border: "1px solid var(--border)" }}>
+          <h3 style={{ color: "var(--text-muted)", fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5 }}>Xem trước</h3>
+          <h2 style={{ marginBottom: 0, fontSize: 24 }}>{(form.tenCv || "(Tên CV)").toUpperCase()}</h2>
           <p style={{ color: "var(--text-muted)" }}>{form.viTriMongMuon || "Vị trí mong muốn"}</p>
           <p>{form.mucLuongMongMuon}</p>
           <p>Trình độ: {TRINH_DO_LABEL[form.trinhDoHocVan]}</p>
@@ -321,10 +326,13 @@ export default function ManageCv() {
             <label>Tên CV</label>
             <input value={uploadTenCv} onChange={(e) => setUploadTenCv(e.target.value)} required />
           </div>
-          <div className="field">
-            <label>File CV (.pdf/.doc/.docx, tối đa 10MB)</label>
-            <input type="file" accept=".pdf,.doc,.docx" onChange={(e) => setUploadFile(e.target.files[0])} required />
-          </div>
+          <FileUpload
+            label="File CV (.pdf/.doc/.docx, tối đa 10MB)"
+            accept=".pdf,.doc,.docx"
+            variant="document"
+            value={uploadFile}
+            onChange={setUploadFile}
+          />
           {uploadError && <p className="error-text">{uploadError}</p>}
           {uploadSuccess && <p className="success-text">{uploadSuccess}</p>}
           <button className="btn btn-primary" type="submit">Tải lên CV mới</button>
