@@ -145,7 +145,7 @@ public class CandidateMatchService : ICandidateMatchService
         {
             var maKyNangCv = don.Cv.CvKyNangs.Select(k => k.MaKyNang).ToList();
             var soKhop = maKyNangCv.Intersect(kyNangTin).Count();
-            var phanTram = kyNangTin.Count == 0 ? 0 : Math.Round(soKhop * 100.0 / kyNangTin.Count, 1);
+            var phanTram = kyNangTin.Count == 0 ? 100 : Math.Round(soKhop * 100.0 / kyNangTin.Count, 1); // BR04
             var soNam = TinhSoNamKinhNghiem(don.Cv.CvKinhNghiems);
             var kyNangKhopTen = maKyNangCv.Intersect(kyNangTin).Select(id => tenKyNangMap.GetValueOrDefault(id, id.ToString())).ToList();
 

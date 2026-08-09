@@ -176,4 +176,35 @@ public class CandidateMatchServiceTests
         var ketQua = await service.TinhDiemPhuHopAsync(maCv, maTin);
         Assert.Equal(100.0, ketQua);
     }
+
+    [Fact]
+    [Trait("Category", "BR04")]
+    public async Task XemDanhSachUngVien_TinKhongYeuCauKyNangNao_TraVe100PhanTram()
+    {
+        var db = TestHelpers.NewInMemoryDb();
+        var taiKhoanNtd = new TaiKhoan { Email = "ntd-br04-2@t.local", MatKhau = "x", VaiTro = "NhaTuyenDung", DaXacThuc = true, TrangThai = "HoatDong", NgayTao = DateTime.UtcNow };
+        var taiKhoanUv = new TaiKhoan { Email = "uv-br04-2@t.local", MatKhau = "x", VaiTro = "UngVien", DaXacThuc = true, TrangThai = "HoatDong", NgayTao = DateTime.UtcNow };
+        db.TaiKhoans.AddRange(taiKhoanNtd, taiKhoanUv);
+        await db.SaveChangesAsync();
+        db.NhaTuyenDungs.Add(new NhaTuyenDung { MaTK = taiKhoanNtd.MaTK, TenCongTy = "Co", SoTinDangTuyen = 0 });
+        db.UngViens.Add(new UngVien { MaTK = taiKhoanUv.MaTK, HoTen = "UV", SoCV = 0 });
+        await db.SaveChangesAsync();
+
+        // Tin khong co TinKyNang nao (mau so = 0)
+        var tin = new TinTuyenDung { MaTK = taiKhoanNtd.MaTK, TieuDe = "Job khong yeu cau ky nang", MoTaCongViec = "mo ta", NgayDang = DateTime.UtcNow, HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)), TrangThai = "DaDuyet", SoDonUngTuyen = 0 };
+        db.TinTuyenDungs.Add(tin);
+
+        var cv = new Cv { MaTK = taiKhoanUv.MaTK, TenCV = "CV1", LoaiCV = "TrucTuyen", TrangThai = "HoatDong", NgayTao = DateTime.UtcNow };
+        db.Cvs.Add(cv);
+        await db.SaveChangesAsync();
+
+        db.DonUngTuyens.Add(new DonUngTuyen { MaTin = tin.MaTin, MaCV = cv.MaCV, NgayNop = DateTime.UtcNow, TrangThai = "DaNop" });
+        await db.SaveChangesAsync();
+
+        var service = new CandidateMatchService(db);
+        var ketQua = await service.XemDanhSachUngVienAsync(tin.MaTin, taiKhoanNtd.MaTK);
+
+        var uv = Assert.Single(ketQua);
+        Assert.Equal(100.0, uv.PhanTramPhuHop);
+    }
 }
