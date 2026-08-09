@@ -27,9 +27,13 @@ export default function MyApplications() {
   const { auth } = useAuth();
   const [applications, setApplications] = useState(null);
   const [error, setError] = useState("");
+  const [loadError, setLoadError] = useState(false);
   const [busyId, setBusyId] = useState(null);
 
-  const load = () => api.get("/applications/mine", auth.token).then(setApplications);
+  const load = () => {
+    setLoadError(false);
+    api.get("/applications/mine", auth.token).then(setApplications).catch(() => setLoadError(true));
+  };
 
   useEffect(() => {
     load();
@@ -47,6 +51,16 @@ export default function MyApplications() {
       setBusyId(null);
     }
   };
+
+  if (loadError) {
+    return (
+      <div className="page-container" style={{ maxWidth: 720 }}>
+        <h1>Đơn ứng tuyển của tôi</h1>
+        <p className="error-text">Không tải được dữ liệu.</p>
+        <button type="button" className="btn btn-secondary" onClick={load}>Thử lại</button>
+      </div>
+    );
+  }
 
   if (!applications) return <div className="page-container">Đang tải...</div>;
 
