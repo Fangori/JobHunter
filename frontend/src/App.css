@@ -70,3 +70,20 @@
   color: var(--indigo);
   border-bottom-color: var(--indigo);
 }
+
+.dashboard-header-band {
+  background: linear-gradient(135deg, var(--navy), var(--indigo));
+  border-radius: var(--radius-lg);
+  padding: 24px 32px;
+  margin-bottom: 24px;
+  color: white;
+}
+.dashboard-header-band h1,
+.dashboard-header-band h2 {
+  color: white;
+  margin: 0;
+}
+.dashboard-header-band p {
+  color: rgba(255, 255, 255, 0.85);
+  margin: 4px 0 0;
+}

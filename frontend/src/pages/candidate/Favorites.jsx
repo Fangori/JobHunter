@@ -36,8 +36,10 @@ export default function Favorites() {
 
   return (
     <div className="page-container" style={{ maxWidth: 720 }}>
-      <h1>Tin đã lưu</h1>
-      <p style={{ color: "var(--text-muted)", marginTop: -8 }}>Các tin bạn đã lưu để xem lại sau.</p>
+      <div className="dashboard-header-band">
+        <h1>Tin đã lưu</h1>
+        <p>Các tin bạn đã lưu để xem lại sau.</p>
+      </div>
       {jobs.length === 0 && <p>Bạn chưa lưu tin nào.</p>}
       {jobs.map((job) => (
         <JobCard key={job.maTin} job={job} isFavorited onToggleFavorite={toggleFavorite} />

@@ -166,7 +166,9 @@ export default function ManageCv() {
 
   return (
     <div className="page-container">
-      <h2>Quản lý CV</h2>
+      <div className="dashboard-header-band">
+        <h2>Quản lý CV</h2>
+      </div>
 
       {myCvs.length > 0 && (
         <div className="card" style={{ marginBottom: 24 }}>

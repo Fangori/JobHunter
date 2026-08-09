@@ -66,7 +66,9 @@ export default function MyApplications() {
 
   return (
     <div className="page-container" style={{ maxWidth: 720 }}>
-      <h1>Đơn ứng tuyển của tôi</h1>
+      <div className="dashboard-header-band">
+        <h1>Đơn ứng tuyển của tôi</h1>
+      </div>
       {error && <p className="error-text">{error}</p>}
       {applications.length === 0 && <p>Bạn chưa ứng tuyển vào tin nào.</p>}
       {applications.map((don) => (

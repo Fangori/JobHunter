@@ -62,8 +62,10 @@ export default function Profile() {
 
   return (
     <div className="page-container" style={{ maxWidth: 520 }}>
-      <div className="card">
+      <div className="dashboard-header-band">
         <h2>Thông tin cá nhân</h2>
+      </div>
+      <div className="card">
         {dangTai && <p>Đang tải...</p>}
         {!dangTai && (
         <>
