@@ -1,15 +1,22 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FileText, Upload } from "lucide-react";
 
 export default function FileUpload({ label, accept, value, onChange, variant = "document", existingUrl }) {
   const inputRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
+  useEffect(() => {
+    if (variant !== "avatar" || !value) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(value);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [value, variant]);
+
   const handleChange = (e) => {
     const file = e.target.files[0];
-    if (file && variant === "avatar") {
-      setPreviewUrl(URL.createObjectURL(file));
-    }
     onChange(file);
   };
 

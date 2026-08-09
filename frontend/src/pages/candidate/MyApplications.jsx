@@ -73,6 +73,9 @@ export default function MyApplications() {
 
   if (!applications) return <div className="page-container">Đang tải...</div>;
 
+  const activeTab = FILTER_TABS.find((t) => t.key === filter);
+  const visible = applications.filter((don) => activeTab.match(don.trangThai));
+
   return (
     <div className="page-container" style={{ maxWidth: 720 }}>
       <div className="dashboard-header-band">
@@ -100,10 +103,10 @@ export default function MyApplications() {
         ))}
       </div>
       {error && <p className="error-text">{error}</p>}
-      {applications.length === 0 && <p>Bạn chưa ứng tuyển vào tin nào.</p>}
-      {applications
-        .filter((don) => FILTER_TABS.find((t) => t.key === filter).match(don.trangThai))
-        .map((don) => (
+      {visible.length === 0 && (
+        <p>{applications.length === 0 ? "Bạn chưa ứng tuyển vào tin nào." : "Không có đơn nào ở trạng thái này."}</p>
+      )}
+      {visible.map((don) => (
         <div key={don.maDon} className="card" style={{ marginBottom: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>

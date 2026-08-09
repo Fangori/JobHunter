@@ -144,7 +144,7 @@ export default function ManageCv() {
     e.preventDefault();
     setUploadError("");
     setUploadSuccess("");
-    if (!uploadFile) return;
+    if (!uploadFile) { setUploadError("Vui lòng chọn file CV."); return; }
     try {
       const fd = new FormData();
       fd.append("tenCv", uploadTenCv);
