@@ -19,3 +19,11 @@ public class ViecLamGoiYDto : TinTuyenDungSummaryDto
     public double PhanTramPhuHop { get; set; }
     public int MaCvPhuHopNhat { get; set; }
 }
+
+// UC14 - bao ca co CV hay chua, de phan biet MS28 ("chua co CV nao") voi
+// truong hop co CV nhung khong co tin nao phu hop (im lang, khong phai loi)
+public class GoiYViecLamResultDto
+{
+    public bool CoCv { get; set; }
+    public List<ViecLamGoiYDto> GoiY { get; set; } = new();
+}

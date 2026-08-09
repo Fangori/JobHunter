@@ -54,13 +54,13 @@ public class CandidateMatchService : ICandidateMatchService
 
     // UC14: tinh diem tren TUNG CV rieng, lay diem CAO NHAT giua cac CV cho
     // moi tin (khong co khai niem "CV mac dinh") - chi goi y tin co diem > 0
-    public async Task<List<ViecLamGoiYDto>> GoiYViecLamAsync(int maTkUv)
+    public async Task<GoiYViecLamResultDto> GoiYViecLamAsync(int maTkUv)
     {
         var cvList = await _db.Cvs
             .Where(x => x.MaTK == maTkUv && x.TrangThai == "HoatDong")
             .Include(x => x.CvKyNangs)
             .ToListAsync();
-        if (cvList.Count == 0) return new List<ViecLamGoiYDto>();
+        if (cvList.Count == 0) return new GoiYViecLamResultDto { CoCv = false, GoiY = new List<ViecLamGoiYDto>() };
 
         var jobs = await _db.TinTuyenDungs
             .Include(x => x.NhaTuyenDung).ThenInclude(n => n.TaiKhoan)
@@ -72,21 +72,32 @@ public class CandidateMatchService : ICandidateMatchService
         foreach (var job in jobs)
         {
             var kyNangTin = job.TinKyNangs.Select(k => k.MaKyNang).ToList();
-            if (kyNangTin.Count == 0) continue;
 
-            double diemCaoNhat = 0;
-            var maCvPhuHopNhat = 0;
-            foreach (var cv in cvList)
+            double diemCaoNhat;
+            int maCvPhuHopNhat;
+            if (kyNangTin.Count == 0)
             {
-                var soKhop = cv.CvKyNangs.Select(k => k.MaKyNang).Intersect(kyNangTin).Count();
-                var phanTram = Math.Round(soKhop * 100.0 / kyNangTin.Count, 1);
-                if (phanTram > diemCaoNhat)
-                {
-                    diemCaoNhat = phanTram;
-                    maCvPhuHopNhat = cv.MaCV;
-                }
+                // BR04: tin khong yeu cau ky nang nao -> mac dinh 100% cho moi CV,
+                // lay CV dau tien lam CV phu hop nhat (khong CV nao "hop" hon CV nao)
+                diemCaoNhat = 100;
+                maCvPhuHopNhat = cvList[0].MaCV;
             }
-            if (diemCaoNhat <= 0) continue;
+            else
+            {
+                diemCaoNhat = 0;
+                maCvPhuHopNhat = 0;
+                foreach (var cv in cvList)
+                {
+                    var soKhop = cv.CvKyNangs.Select(k => k.MaKyNang).Intersect(kyNangTin).Count();
+                    var phanTram = Math.Round(soKhop * 100.0 / kyNangTin.Count, 1);
+                    if (phanTram > diemCaoNhat)
+                    {
+                        diemCaoNhat = phanTram;
+                        maCvPhuHopNhat = cv.MaCV;
+                    }
+                }
+                if (diemCaoNhat <= 0) continue;
+            }
 
             ketQua.Add(new ViecLamGoiYDto
             {
@@ -105,7 +116,11 @@ public class CandidateMatchService : ICandidateMatchService
             });
         }
 
-        return ketQua.OrderByDescending(x => x.PhanTramPhuHop).ThenByDescending(x => x.NgayDang).ToList();
+        return new GoiYViecLamResultDto
+        {
+            CoCv = true,
+            GoiY = ketQua.OrderByDescending(x => x.PhanTramPhuHop).ThenByDescending(x => x.NgayDang).ToList(),
+        };
     }
 
     private async Task KiemTraChuTinAsync(int maTin, int maTkNtd)

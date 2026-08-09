@@ -114,12 +114,12 @@ public class CandidateMatchServiceTests
     {
         var (service, _, maTkUv, tin1, tin2) = await SetupGoiYAsync();
 
-        var goiY = await service.GoiYViecLamAsync(maTkUv);
+        var ketQua = await service.GoiYViecLamAsync(maTkUv);
 
-        var job1 = goiY.Single(x => x.MaTin == tin1.MaTin);
+        var job1 = ketQua.GoiY.Single(x => x.MaTin == tin1.MaTin);
         Assert.Equal(100.0, job1.PhanTramPhuHop); // CV A khop het 2/2
 
-        var job2 = goiY.Single(x => x.MaTin == tin2.MaTin);
+        var job2 = ketQua.GoiY.Single(x => x.MaTin == tin2.MaTin);
         Assert.Equal(50.0, job2.PhanTramPhuHop); // CV B khop 1/2
     }
 
@@ -129,10 +129,10 @@ public class CandidateMatchServiceTests
     {
         var (service, _, maTkUv, tin1, tin2) = await SetupGoiYAsync();
 
-        var goiY = await service.GoiYViecLamAsync(maTkUv);
+        var ketQua = await service.GoiYViecLamAsync(maTkUv);
 
-        Assert.Equal(tin1.MaTin, goiY[0].MaTin); // 100% dung truoc 50%
-        Assert.Equal(tin2.MaTin, goiY[1].MaTin);
+        Assert.Equal(tin1.MaTin, ketQua.GoiY[0].MaTin); // 100% dung truoc 50%
+        Assert.Equal(tin2.MaTin, ketQua.GoiY[1].MaTin);
     }
 
     [Fact]
@@ -160,9 +160,10 @@ public class CandidateMatchServiceTests
         await db.SaveChangesAsync();
 
         var service = new CandidateMatchService(db);
-        var goiY = await service.GoiYViecLamAsync(taiKhoanUv.MaTK);
+        var ketQua = await service.GoiYViecLamAsync(taiKhoanUv.MaTK);
 
-        Assert.Empty(goiY); // 0% -> khong goi y
+        Assert.True(ketQua.CoCv);
+        Assert.Empty(ketQua.GoiY); // 0% -> khong goi y
     }
 
     [Fact]
@@ -206,5 +207,53 @@ public class CandidateMatchServiceTests
 
         var uv = Assert.Single(ketQua);
         Assert.Equal(100.0, uv.PhanTramPhuHop);
+    }
+
+    [Fact]
+    [Trait("Category", "BR04")]
+    public async Task GoiYViecLam_TinKhongYeuCauKyNangNao_HienThi100PhanTramKhongBiLoai()
+    {
+        var db = TestHelpers.NewInMemoryDb();
+        var taiKhoanNtd = new TaiKhoan { Email = "ntd-goiy@t.local", MatKhau = "x", VaiTro = "NhaTuyenDung", DaXacThuc = true, TrangThai = "HoatDong", NgayTao = DateTime.UtcNow };
+        var taiKhoanUv = new TaiKhoan { Email = "uv-goiy@t.local", MatKhau = "x", VaiTro = "UngVien", DaXacThuc = true, TrangThai = "HoatDong", NgayTao = DateTime.UtcNow };
+        db.TaiKhoans.AddRange(taiKhoanNtd, taiKhoanUv);
+        await db.SaveChangesAsync();
+        db.NhaTuyenDungs.Add(new NhaTuyenDung { MaTK = taiKhoanNtd.MaTK, TenCongTy = "Co", SoTinDangTuyen = 0 });
+        db.UngViens.Add(new UngVien { MaTK = taiKhoanUv.MaTK, HoTen = "UV", SoCV = 0 });
+        await db.SaveChangesAsync();
+
+        // Tin khong co TinKyNang nao (mau so = 0)
+        var tin = new TinTuyenDung { MaTK = taiKhoanNtd.MaTK, TieuDe = "Job khong yeu cau ky nang", MoTaCongViec = "mo ta", NgayDang = DateTime.UtcNow, HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)), TrangThai = "DaDuyet", SoDonUngTuyen = 0 };
+        db.TinTuyenDungs.Add(tin);
+
+        var cv = new Cv { MaTK = taiKhoanUv.MaTK, TenCV = "CV1", LoaiCV = "TrucTuyen", TrangThai = "HoatDong", NgayTao = DateTime.UtcNow };
+        db.Cvs.Add(cv);
+        await db.SaveChangesAsync();
+
+        var service = new CandidateMatchService(db);
+        var ketQua = await service.GoiYViecLamAsync(taiKhoanUv.MaTK);
+
+        Assert.True(ketQua.CoCv);
+        var job = Assert.Single(ketQua.GoiY);
+        Assert.Equal(100.0, job.PhanTramPhuHop);
+        Assert.Equal(cv.MaCV, job.MaCvPhuHopNhat);
+    }
+
+    [Fact]
+    [Trait("Category", "UC14")]
+    public async Task GoiYViecLam_ChuaCoCv_TraVeCoCvFalseVaGoiYRong()
+    {
+        var db = TestHelpers.NewInMemoryDb();
+        var taiKhoanUv = new TaiKhoan { Email = "uv-chuacocv@t.local", MatKhau = "x", VaiTro = "UngVien", DaXacThuc = true, TrangThai = "HoatDong", NgayTao = DateTime.UtcNow };
+        db.TaiKhoans.Add(taiKhoanUv);
+        await db.SaveChangesAsync();
+        db.UngViens.Add(new UngVien { MaTK = taiKhoanUv.MaTK, HoTen = "UV", SoCV = 0 });
+        await db.SaveChangesAsync();
+
+        var service = new CandidateMatchService(db);
+        var ketQua = await service.GoiYViecLamAsync(taiKhoanUv.MaTK);
+
+        Assert.False(ketQua.CoCv);
+        Assert.Empty(ketQua.GoiY);
     }
 }
