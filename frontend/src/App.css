@@ -16,7 +16,9 @@
 }
 .auth-split-panel {
   flex: 1;
-  background: linear-gradient(135deg, var(--navy), var(--indigo));
+  background: linear-gradient(135deg, rgba(26, 33, 64, 0.88), rgba(57, 73, 198, 0.88)), url("./assets/auth-office-laptop.jpg");
+  background-size: cover;
+  background-position: center;
   color: white;
   display: flex;
   flex-direction: column;
