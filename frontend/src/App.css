@@ -89,3 +89,9 @@
   color: rgba(255, 255, 255, 0.85);
   margin: 4px 0 0;
 }
+
+@media (max-width: 640px) {
+  .page-container div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}

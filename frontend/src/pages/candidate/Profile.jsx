@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
+import FileUpload from "../../components/FileUpload";
 
 const BASE_URL = "http://localhost:5147/api";
 
@@ -69,27 +70,32 @@ export default function Profile() {
         {dangTai && <p>Đang tải...</p>}
         {!dangTai && (
         <>
-        {anhHienTai && <img src={anhHienTai} alt="Ảnh đại diện" style={{ width: 96, height: 96, borderRadius: "50%", objectFit: "cover", marginBottom: 16 }} />}
         <form onSubmit={handleSubmit}>
-          <div className="field">
-            <label>Họ và tên</label>
-            <input value={form.hoTen} onChange={set("hoTen")} required />
-          </div>
-          <div className="field">
-            <label>Ngày sinh</label>
-            <input type="date" value={form.ngaySinh} onChange={set("ngaySinh")} />
-          </div>
-          <div className="field">
-            <label>Số điện thoại</label>
-            <input value={form.sdt} onChange={set("sdt")} />
-          </div>
-          <div className="field">
-            <label>Ảnh đại diện</label>
-            <input type="file" accept=".jpg,.jpeg,.png" onChange={(e) => setAnhDaiDien(e.target.files[0])} />
-          </div>
-          <div className="field">
-            <label>Địa chỉ</label>
-            <input value={form.diaChi} onChange={set("diaChi")} />
+          <FileUpload
+            label="Ảnh đại diện"
+            accept=".jpg,.jpeg,.png"
+            variant="avatar"
+            value={anhDaiDien}
+            existingUrl={anhHienTai}
+            onChange={setAnhDaiDien}
+          />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="field">
+              <label>Họ và tên</label>
+              <input value={form.hoTen} onChange={set("hoTen")} required />
+            </div>
+            <div className="field">
+              <label>Số điện thoại</label>
+              <input value={form.sdt} onChange={set("sdt")} />
+            </div>
+            <div className="field">
+              <label>Ngày sinh</label>
+              <input type="date" value={form.ngaySinh} onChange={set("ngaySinh")} />
+            </div>
+            <div className="field">
+              <label>Địa chỉ</label>
+              <input value={form.diaChi} onChange={set("diaChi")} />
+            </div>
           </div>
           <div className="field">
             <label>Giới thiệu bản thân</label>
