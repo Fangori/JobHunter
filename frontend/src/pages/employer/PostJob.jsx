@@ -87,9 +87,11 @@ export default function PostJob() {
   if (dangTai) return <div className="page-container">Đang tải...</div>;
 
   return (
-    <div className="page-container" style={{ maxWidth: 720 }}>
-      <div className="card">
+    <div className="page-container" style={{ maxWidth: 760 }}>
+      <div className="dashboard-header-band">
         <h2>{isEdit ? "Sửa tin tuyển dụng" : "Đăng tin tuyển dụng"}</h2>
+      </div>
+      <div className="card">
         <form onSubmit={handleSubmit}>
           <div className="field">
             <label>Tiêu đề tin</label>
@@ -107,29 +109,31 @@ export default function PostJob() {
             <label>Quyền lợi</label>
             <textarea rows={3} value={form.quyenLoi} onChange={set("quyenLoi")} />
           </div>
-          <div className="field">
-            <label>Mức lương</label>
-            <input value={form.mucLuong} onChange={set("mucLuong")} placeholder="VD: 15-20 triệu" />
-          </div>
-          <div className="field">
-            <label>Địa điểm làm việc</label>
-            <input value={form.diaDiem} onChange={set("diaDiem")} />
-          </div>
-          <div className="field">
-            <label>Hình thức làm việc</label>
-            <select value={form.hinhThucLamViec} onChange={set("hinhThucLamViec")}>
-              <option value="FullTime">Full-time</option>
-              <option value="PartTime">Part-time</option>
-              <option value="Remote">Remote</option>
-            </select>
-          </div>
-          <div className="field">
-            <label>Số năm kinh nghiệm yêu cầu</label>
-            <input type="number" min="0" value={form.soNamKinhNghiemYeuCau} onChange={set("soNamKinhNghiemYeuCau")} />
-          </div>
-          <div className="field">
-            <label>Hạn nộp hồ sơ</label>
-            <input type="date" value={form.hanNopHoSo} onChange={set("hanNopHoSo")} required />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="field">
+              <label>Mức lương</label>
+              <input value={form.mucLuong} onChange={set("mucLuong")} placeholder="VD: 15-20 triệu" />
+            </div>
+            <div className="field">
+              <label>Số năm kinh nghiệm yêu cầu</label>
+              <input type="number" min="0" value={form.soNamKinhNghiemYeuCau} onChange={set("soNamKinhNghiemYeuCau")} />
+            </div>
+            <div className="field">
+              <label>Địa điểm làm việc</label>
+              <input value={form.diaDiem} onChange={set("diaDiem")} />
+            </div>
+            <div className="field">
+              <label>Hình thức làm việc</label>
+              <select value={form.hinhThucLamViec} onChange={set("hinhThucLamViec")}>
+                <option value="FullTime">Full-time</option>
+                <option value="PartTime">Part-time</option>
+                <option value="Remote">Remote</option>
+              </select>
+            </div>
+            <div className="field">
+              <label>Hạn nộp hồ sơ</label>
+              <input type="date" value={form.hanNopHoSo} onChange={set("hanNopHoSo")} required />
+            </div>
           </div>
           <div className="field">
             <label>Danh sách kỹ năng yêu cầu</label>
