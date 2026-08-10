@@ -52,7 +52,7 @@ public class AdminIndustryDto
 public class ChiTieuBaoCaoDto
 {
     public string Ten { get; set; } = null!;
-    public int SoLuong { get; set; }
+    public decimal SoLuong { get; set; }
 }
 
 public class BaoCaoThangDto

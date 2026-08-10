@@ -27,6 +27,9 @@ public class AdminReportService : IAdminReportService
         var soNtdMoi = await _db.TaiKhoans.CountAsync(x => x.VaiTro == "NhaTuyenDung" && x.NgayTao >= tuNgay && x.NgayTao < denNgay);
         var soTinMoi = await _db.TinTuyenDungs.CountAsync(x => x.NgayDang >= tuNgay && x.NgayDang < denNgay);
         var soDonMoi = await _db.DonUngTuyens.CountAsync(x => x.NgayNop >= tuNgay && x.NgayNop < denNgay);
+        var soDoanhThu = await _db.GiaoDichMuaGois
+            .Where(x => x.TrangThai == "ThanhCong" && x.NgayMua >= tuNgay && x.NgayMua < denNgay)
+            .SumAsync(x => (decimal?)x.SoTien) ?? 0m; // BR24
 
         return new BaoCaoThangDto
         {
@@ -38,6 +41,7 @@ public class AdminReportService : IAdminReportService
                 new() { Ten = "Tài khoản NTD mới", SoLuong = soNtdMoi },
                 new() { Ten = "Tin tuyển dụng mới", SoLuong = soTinMoi },
                 new() { Ten = "Đơn ứng tuyển mới", SoLuong = soDonMoi },
+                new() { Ten = "Doanh thu gói dịch vụ", SoLuong = soDoanhThu },
             },
         };
     }
