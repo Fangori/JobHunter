@@ -44,7 +44,7 @@ public class AdminAccountServiceTests
         await db.SaveChangesAsync();
 
         var accountService = new AdminAccountService(db, new NotificationService(db));
-        var jobService = new JobService(db, new ThamSoService(db), new NotificationService(db));
+        var jobService = new JobService(db, new ThamSoService(db), new NotificationService(db), new GoiDichVuService(db));
 
         var truoc = await jobService.XemDanhSachCongKhaiAsync(null, null);
         Assert.Single(truoc);

@@ -21,7 +21,7 @@ public class JobServiceTests
         db.NhaTuyenDungs.Add(new NhaTuyenDung { MaTK = taiKhoan.MaTK, TenCongTy = "Test Co", SoTinDangTuyen = 0 });
         await db.SaveChangesAsync();
 
-        var service = new JobService(db, new ThamSoService(db), new NotificationService(db));
+        var service = new JobService(db, new ThamSoService(db), new NotificationService(db), new GoiDichVuService(db));
         return (service, taiKhoan.MaTK);
     }
 
@@ -248,5 +248,52 @@ public class JobServiceTests
 
         var chiTiet = await service.XemChiTietAsync(job.MaTin);
         Assert.Equal("DaDuyet", chiTiet.TrangThai);
+    }
+
+    [Fact]
+    [Trait("Category", "QD18")]
+    public async Task DangTin_VuotGioiHanMienPhi3Tin_ThatBai()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        for (int i = 0; i < 3; i++)
+        {
+            await service.DangTinAsync(maTkNtd, new DangTinRequest
+            {
+                TieuDe = $"Job {i}", MoTaCongViec = "mo ta",
+                HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+            });
+        }
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() => service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Job thu 4", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        }));
+        Assert.Equal(400, ex.StatusCode);
+    }
+
+    [Fact]
+    [Trait("Category", "QD18")]
+    public async Task DangTin_TinBiTuChoiKhongTinhVaoGioiHan_VanDangDuocTiepTuc()
+    {
+        var (service, maTkNtd) = await NewServiceWithNtdAsync();
+        for (int i = 0; i < 3; i++)
+        {
+            var job = await service.DangTinAsync(maTkNtd, new DangTinRequest
+            {
+                TieuDe = $"Job {i}", MoTaCongViec = "mo ta",
+                HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+            });
+            if (i == 0)
+                await service.TuChoiTinAsync(job.MaTin, "Ly do tu choi test");
+        }
+
+        // Tin 0 da bi TuChoi (khong tinh vao gioi han) -> van con "cho" de dang tin thu 4
+        var job4 = await service.DangTinAsync(maTkNtd, new DangTinRequest
+        {
+            TieuDe = "Job thu 4", MoTaCongViec = "mo ta",
+            HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+        });
+        Assert.Equal("ChoDuyet", job4.TrangThai);
     }
 }

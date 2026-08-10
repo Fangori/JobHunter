@@ -11,16 +11,25 @@ public class JobService : IJobService
     private readonly JobHunterDbContext _db;
     private readonly IThamSoService _thamSo;
     private readonly INotificationService _notification;
+    private readonly IGoiDichVuService _goiDichVu;
 
-    public JobService(JobHunterDbContext db, IThamSoService thamSo, INotificationService notification)
+    public JobService(JobHunterDbContext db, IThamSoService thamSo, INotificationService notification, IGoiDichVuService goiDichVu)
     {
         _db = db;
         _thamSo = thamSo;
         _notification = notification;
+        _goiDichVu = goiDichVu;
     }
 
     public async Task<TinTuyenDungSummaryDto> DangTinAsync(int maTkNtd, DangTinRequest request)
     {
+        var gioiHan = await _goiDichVu.LayGioiHanHieuLucAsync(maTkNtd);
+        var soDangHoatDong = await _db.TinTuyenDungs.CountAsync(x =>
+            x.MaTK == maTkNtd && (x.TrangThai == "ChoDuyet" || x.TrangThai == "DaDuyet"));
+        if (soDangHoatDong >= gioiHan)
+            throw new BusinessRuleException(400,
+                "Bạn đã đạt giới hạn số tin đăng tuyển đồng thời của gói dịch vụ hiện tại. Vui lòng mua thêm gói dịch vụ để đăng thêm tin."); // MS67, QD18
+
         var soNgayToiThieu = await _thamSo.LayGiaTriIntAsync("TS7");
         var ngayDang = DateTime.UtcNow;
         var ngayDangOnly = DateOnly.FromDateTime(ngayDang);
