@@ -31,6 +31,7 @@ builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped<IAdminAccountService, AdminAccountService>();
 builder.Services.AddScoped<IAdminCategoryService, AdminCategoryService>();
 builder.Services.AddScoped<IAdminReportService, AdminReportService>();
+builder.Services.AddScoped<IGoiDichVuService, GoiDichVuService>();
 
 builder.Services.AddCors(options =>
 {
