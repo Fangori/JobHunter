@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { ClipboardCheck, Trash2, Building2, Users, Tag, Factory, BarChart3 } from "lucide-react";
+import { ClipboardCheck, Trash2, Building2, Users, Tag, Factory, BarChart3, Package } from "lucide-react";
 
 const NAV_ITEMS = [
   { to: "/admin/pending-jobs", label: "Duyệt tin", icon: ClipboardCheck },
@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: "/admin/accounts/candidates", label: "TK Ứng viên", icon: Users },
   { to: "/admin/skills", label: "Danh mục Kỹ năng", icon: Tag },
   { to: "/admin/industries", label: "Danh mục Ngành nghề", icon: Factory },
+  { to: "/admin/packages", label: "Gói dịch vụ", icon: Package },
   { to: "/admin/reports", label: "Báo cáo", icon: BarChart3 },
 ];
 

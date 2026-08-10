@@ -23,6 +23,7 @@ import AdminAccounts from './pages/admin/AdminAccounts'
 import AdminSkills from './pages/admin/AdminSkills'
 import AdminIndustries from './pages/admin/AdminIndustries'
 const AdminReports = lazy(() => import('./pages/admin/AdminReports'))
+import PackageManagement from './pages/admin/PackageManagement'
 import ManageCv from './pages/candidate/ManageCv'
 import Profile from './pages/candidate/Profile'
 import MyApplications from './pages/candidate/MyApplications'
@@ -72,6 +73,7 @@ function App() {
           <Route path="skills" element={<AdminSkills />} />
           <Route path="industries" element={<AdminIndustries />} />
           <Route path="reports" element={<AdminReports />} />
+          <Route path="packages" element={<PackageManagement />} />
         </Route>
         <Route path="/candidate/cvs" element={
           <ProtectedRoute role="UngVien"><ManageCv /></ProtectedRoute>
