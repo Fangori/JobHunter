@@ -26,6 +26,8 @@ public class JobHunterDbContext : DbContext
     public DbSet<ThongBao> ThongBaos => Set<ThongBao>();
     public DbSet<TinYeuThich> TinYeuThichs => Set<TinYeuThich>();
     public DbSet<TheoDoiCongTy> TheoDoiCongTys => Set<TheoDoiCongTy>();
+    public DbSet<GoiDichVu> GoiDichVus => Set<GoiDichVu>();
+    public DbSet<GiaoDichMuaGoi> GiaoDichMuaGois => Set<GiaoDichMuaGoi>();
 
     // DbSet khac duoc them dan theo tung Phase khi entity tuong ung
     // duoc tao trong Models/, khop dung database/JobHunter_CreateTables.sql
@@ -163,6 +165,22 @@ public class JobHunterDbContext : DbContext
             e.HasKey(x => new { x.MaTK_UngVien, x.MaTK_NTD });
             e.HasOne<UngVien>().WithMany().HasForeignKey(x => x.MaTK_UngVien);
             e.HasOne<NhaTuyenDung>().WithMany().HasForeignKey(x => x.MaTK_NTD);
+        });
+
+        modelBuilder.Entity<GoiDichVu>(e =>
+        {
+            e.ToTable("GOI_DICH_VU");
+            e.HasKey(x => x.MaGoi);
+            e.Property(x => x.GiaTien).HasColumnType("decimal(12,2)");
+        });
+
+        modelBuilder.Entity<GiaoDichMuaGoi>(e =>
+        {
+            e.ToTable("GIAO_DICH_MUA_GOI");
+            e.HasKey(x => x.MaGiaoDich);
+            e.Property(x => x.SoTien).HasColumnType("decimal(12,2)");
+            e.HasOne<NhaTuyenDung>().WithMany().HasForeignKey(x => x.MaTK);
+            e.HasOne(x => x.GoiDichVu).WithMany().HasForeignKey(x => x.MaGoi);
         });
     }
 }
