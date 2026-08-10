@@ -96,6 +96,7 @@ const ROLE_MENU_LINKS = {
   NhaTuyenDung: [
     { to: "/employer/my-jobs", label: "Tin của tôi" },
     { to: "/employer/profile", label: "Hồ sơ công ty" },
+    { to: "/employer/service-packages", label: "Gói dịch vụ" },
   ],
   Admin: [
     { to: "/admin/pending-jobs", label: "Quản trị" },

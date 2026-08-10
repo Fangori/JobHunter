@@ -15,6 +15,7 @@ import PostJob from './pages/employer/PostJob'
 import Applicants from './pages/employer/Applicants'
 import CompanyProfile from './pages/employer/CompanyProfile'
 import MyJobs from './pages/employer/MyJobs'
+import PackagePlans from './pages/employer/PackagePlans'
 import ApproveJobs from './pages/admin/ApproveJobs'
 import AdminLayout from './pages/admin/AdminLayout'
 import RemovedJobs from './pages/admin/RemovedJobs'
@@ -57,6 +58,9 @@ function App() {
         } />
         <Route path="/employer/profile" element={
           <ProtectedRoute role="NhaTuyenDung"><CompanyProfile /></ProtectedRoute>
+        } />
+        <Route path="/employer/service-packages" element={
+          <ProtectedRoute role="NhaTuyenDung"><PackagePlans /></ProtectedRoute>
         } />
         <Route path="/admin" element={
           <ProtectedRoute role="Admin"><AdminLayout /></ProtectedRoute>
