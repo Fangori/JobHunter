@@ -98,3 +98,7 @@
     grid-template-columns: 1fr !important;
   }
 }
+
+.hover-row:hover {
+  background: var(--bg);
+}

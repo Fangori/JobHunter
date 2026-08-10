@@ -11,6 +11,8 @@ const TRANG_THAI_LABEL = {
   DaHuy: "Đã hủy",
 };
 
+const TRANG_THAI_BADGE = { DaNop: "badge-info", DangXemXet: "badge-warning", PhongVan: "badge-warning", TuChoi: "badge-danger", Nhan: "badge-success", DaHuy: "badge-neutral" };
+
 const TRINH_DO_LABEL = { TrungCap: "Trung cấp", CaoDang: "Cao đẳng", DaiHoc: "Đại học", SauDaiHoc: "Sau đại học" };
 
 // Phai khop dung ChuyenTiepHopLe o backend (ApplicationService.cs) - BR05/QD11
@@ -70,40 +72,44 @@ export default function ApplicantDetail({ maDon, skillNames, onClose, onUpdated 
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
       <div className="card" style={{ width: 560, maxHeight: "85vh", overflowY: "auto", background: "white" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <h3 style={{ margin: 0 }}>{detail.hoTenUngVien}</h3>
+          <div>
+            <h3 style={{ margin: 0 }}>{detail.hoTenUngVien}</h3>
+            <span className={`badge ${TRANG_THAI_BADGE[detail.trangThai] || "badge-neutral"}`} style={{ marginTop: 6, display: "inline-block" }}>
+              {TRANG_THAI_LABEL[detail.trangThai] || detail.trangThai}
+            </span>
+          </div>
           <button type="button" className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={onClose}>Đóng</button>
         </div>
-        <p style={{ color: "var(--text-muted)" }}>
-          Trạng thái hiện tại: <strong>{TRANG_THAI_LABEL[detail.trangThai] || detail.trangThai}</strong>
-        </p>
 
-        <h4 style={{ marginBottom: 4 }}>{detail.cv.tenCV}</h4>
-        {detail.cv.viTriMongMuon && <p style={{ margin: "2px 0" }}>Vị trí mong muốn: {detail.cv.viTriMongMuon}</p>}
-        {detail.cv.mucLuongMongMuon && <p style={{ margin: "2px 0" }}>Mức lương mong muốn: {detail.cv.mucLuongMongMuon}</p>}
-        {detail.cv.trinhDoHocVan && <p style={{ margin: "2px 0" }}>Trình độ: {TRINH_DO_LABEL[detail.cv.trinhDoHocVan] || detail.cv.trinhDoHocVan}</p>}
+        <div style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 12, margin: "16px 0" }}>
+          <h4 style={{ marginTop: 0, marginBottom: 4 }}>{detail.cv.tenCV}</h4>
+          {detail.cv.viTriMongMuon && <p style={{ margin: "2px 0" }}>Vị trí mong muốn: {detail.cv.viTriMongMuon}</p>}
+          {detail.cv.mucLuongMongMuon && <p style={{ margin: "2px 0" }}>Mức lương mong muốn: {detail.cv.mucLuongMongMuon}</p>}
+          {detail.cv.trinhDoHocVan && <p style={{ margin: "2px 0" }}>Trình độ: {TRINH_DO_LABEL[detail.cv.trinhDoHocVan] || detail.cv.trinhDoHocVan}</p>}
 
-        {detail.cv.duongDanFile ? (
-          <p><a href={detail.cv.duongDanFile} target="_blank" rel="noreferrer">Xem file CV đã tải lên</a></p>
-        ) : (
-          <>
-            <h4>Kỹ năng</h4>
-            <p>{detail.cv.kyNang.map((k) => skillNames?.[k.maKyNang] || k.maKyNang).join(", ") || "(không có)"}</p>
+          {detail.cv.duongDanFile ? (
+            <p><a href={detail.cv.duongDanFile} target="_blank" rel="noreferrer">Xem file CV đã tải lên</a></p>
+          ) : (
+            <>
+              <h4>Kỹ năng</h4>
+              <p>{detail.cv.kyNang.map((k) => skillNames?.[k.maKyNang] || k.maKyNang).join(", ") || "(không có)"}</p>
 
-            <h4>Kinh nghiệm</h4>
-            {detail.cv.kinhNghiem.length === 0 && <p>(không có)</p>}
-            {detail.cv.kinhNghiem.map((k, i) => <p key={i} style={{ margin: "2px 0" }}>{k.viTri} tại {k.congTy} ({k.tuNgay} — {k.denNgay || "hiện tại"})</p>)}
+              <h4>Kinh nghiệm</h4>
+              {detail.cv.kinhNghiem.length === 0 && <p>(không có)</p>}
+              {detail.cv.kinhNghiem.map((k, i) => <p key={i} style={{ margin: "2px 0" }}>{k.viTri} tại {k.congTy} ({k.tuNgay} — {k.denNgay || "hiện tại"})</p>)}
 
-            <h4>Học vấn</h4>
-            {detail.cv.hocVan.length === 0 && <p>(không có)</p>}
-            {detail.cv.hocVan.map((h, i) => <p key={i} style={{ margin: "2px 0" }}>{h.chuyenNganh} — {h.truong}</p>)}
-          </>
-        )}
+              <h4>Học vấn</h4>
+              {detail.cv.hocVan.length === 0 && <p>(không có)</p>}
+              {detail.cv.hocVan.map((h, i) => <p key={i} style={{ margin: "2px 0" }}>{h.chuyenNganh} — {h.truong}</p>)}
+            </>
+          )}
+        </div>
 
         {detail.thuGioiThieu && (
-          <>
-            <h4>Thư giới thiệu</h4>
-            <p style={{ whiteSpace: "pre-wrap" }}>{detail.thuGioiThieu}</p>
-          </>
+          <div style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: 12, marginBottom: 16 }}>
+            <h4 style={{ marginTop: 0 }}>Thư giới thiệu</h4>
+            <p style={{ whiteSpace: "pre-wrap", margin: 0 }}>{detail.thuGioiThieu}</p>
+          </div>
         )}
 
         <div className="field">

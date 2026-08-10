@@ -16,6 +16,8 @@ export default function Applicants() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMaDon, setSelectedMaDon] = useState(null);
+  const [sortKey, setSortKey] = useState(null);
+  const [sortDir, setSortDir] = useState("desc");
 
   // 3 tieu chi loc dung BM14
   const [selectedSkills, setSelectedSkills] = useState([]);
@@ -62,11 +64,27 @@ export default function Applicants() {
     loadDefault();
   };
 
+  const toggleSort = (key) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+    } else {
+      setSortKey(key);
+      setSortDir("desc");
+    }
+  };
+
   const skillNames = Object.fromEntries(skills.map((s) => [s.maKyNang, s.tenKyNang]));
+
+  const sortedList = sortKey
+    ? [...list].sort((a, b) => (sortDir === "desc" ? b[sortKey] - a[sortKey] : a[sortKey] - b[sortKey]))
+    : list;
 
   return (
     <div className="page-container">
-      <h2>Danh sách ứng viên</h2>
+      <div className="dashboard-header-band">
+        <h2>Danh sách ứng viên</h2>
+        <p>{list.length} ứng viên phù hợp</p>
+      </div>
       <div style={{ display: "flex", gap: 24 }}>
         <aside className="card" style={{ width: 260, flexShrink: 0, alignSelf: "flex-start" }}>
           <h3>Bộ lọc</h3>
@@ -115,15 +133,20 @@ export default function Applicants() {
                 <tr style={{ textAlign: "left", borderBottom: "2px solid var(--border)" }}>
                   <th style={{ padding: 8 }}>Ứng viên</th>
                   <th style={{ padding: 8 }}>Kỹ năng khớp</th>
-                  <th style={{ padding: 8 }}>Tỉ lệ phù hợp</th>
-                  <th style={{ padding: 8 }}>Kinh nghiệm</th>
+                  <th style={{ padding: 8, cursor: "pointer" }} onClick={() => toggleSort("phanTramPhuHop")}>
+                    Tỉ lệ phù hợp {sortKey === "phanTramPhuHop" ? (sortDir === "desc" ? "▼" : "▲") : ""}
+                  </th>
+                  <th style={{ padding: 8, cursor: "pointer" }} onClick={() => toggleSort("soNamKinhNghiem")}>
+                    Kinh nghiệm {sortKey === "soNamKinhNghiem" ? (sortDir === "desc" ? "▼" : "▲") : ""}
+                  </th>
                   <th style={{ padding: 8 }}>Trạng thái</th>
                 </tr>
               </thead>
               <tbody>
-                {list.map((a) => (
+                {sortedList.map((a) => (
                   <tr
                     key={a.maDon}
+                    className="hover-row"
                     style={{ borderBottom: "1px solid var(--border)", cursor: "pointer" }}
                     onClick={() => setSelectedMaDon(a.maDon)}
                   >
