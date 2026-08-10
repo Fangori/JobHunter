@@ -31,11 +31,11 @@ GO
 -- loc ung vien demo hom nay)
 -- ====================================================================
 INSERT INTO DANH_MUC_KY_NANG (TenKyNang, NhomNganh, TrangThai) VALUES
-(N'C#', N'Ngon ngu lap trinh', 'HoatDong'),
-(N'Java', N'Ngon ngu lap trinh', 'HoatDong'),
-(N'Python', N'Ngon ngu lap trinh', 'HoatDong'),
-(N'JavaScript', N'Ngon ngu lap trinh', 'HoatDong'),
-(N'TypeScript', N'Ngon ngu lap trinh', 'HoatDong'),
+(N'C#', N'Ngôn ngữ lập trình', 'HoatDong'),
+(N'Java', N'Ngôn ngữ lập trình', 'HoatDong'),
+(N'Python', N'Ngôn ngữ lập trình', 'HoatDong'),
+(N'JavaScript', N'Ngôn ngữ lập trình', 'HoatDong'),
+(N'TypeScript', N'Ngôn ngữ lập trình', 'HoatDong'),
 (N'React', N'Frontend', 'HoatDong'),
 (N'Angular', N'Frontend', 'HoatDong'),
 (N'Node.js', N'Backend', 'HoatDong'),
@@ -44,7 +44,7 @@ INSERT INTO DANH_MUC_KY_NANG (TenKyNang, NhomNganh, TrangThai) VALUES
 (N'MongoDB', N'Database', 'HoatDong'),
 (N'Docker', N'DevOps', 'HoatDong'),
 (N'Kubernetes', N'DevOps', 'HoatDong'),
-(N'Git', N'Cong cu', 'HoatDong'),
+(N'Git', N'Công cụ', 'HoatDong'),
 (N'AWS', N'DevOps', 'HoatDong');
 GO
 
