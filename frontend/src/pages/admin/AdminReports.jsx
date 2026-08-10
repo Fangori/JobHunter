@@ -1,14 +1,24 @@
 import { useState } from "react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
+import { layDanhSach6ThangGanNhat } from "../../utils/reportMonths";
 
 const now = new Date();
+
+const MAU_CHI_TIEU = {
+  "Tài khoản Ứng viên mới": "#3949c6",
+  "Tài khoản NTD mới": "#1f9d55",
+  "Tin tuyển dụng mới": "#b7791f",
+  "Đơn ứng tuyển mới": "#d64545",
+};
 
 export default function AdminReports() {
   const { auth } = useAuth();
   const [thang, setThang] = useState(now.getMonth() + 1);
   const [nam, setNam] = useState(now.getFullYear());
   const [report, setReport] = useState(null);
+  const [trendData, setTrendData] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -16,8 +26,17 @@ export default function AdminReports() {
     setError("");
     setLoading(true);
     try {
-      const data = await api.get(`/admin/reports?thang=${thang}&nam=${nam}`, auth.token);
-      setReport(data);
+      const thangs = layDanhSach6ThangGanNhat(thang, nam);
+      const ketQua = await Promise.all(
+        thangs.map((t) => api.get(`/admin/reports?thang=${t.thang}&nam=${t.nam}`, auth.token))
+      );
+      setReport(ketQua[ketQua.length - 1]);
+      setTrendData(
+        ketQua.map((r) => ({
+          nhan: `T${r.thang}/${r.nam}`,
+          ...Object.fromEntries(r.chiTieu.map((c) => [c.ten, c.soLuong])),
+        }))
+      );
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Có lỗi xảy ra.");
     } finally {
@@ -54,7 +73,7 @@ export default function AdminReports() {
       {report && (
         <div>
           <h3>Báo cáo tháng {report.thang}/{report.nam}</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12, marginBottom: 24 }}>
             {report.chiTieu.map((c) => (
               <div key={c.ten} className="card">
                 <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>{c.ten}</p>
@@ -64,6 +83,22 @@ export default function AdminReports() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="card">
+            <h3 style={{ marginTop: 0 }}>Xu hướng 6 tháng gần nhất</h3>
+            <ResponsiveContainer width="100%" height={320}>
+              <LineChart data={trendData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="nhan" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Legend />
+                {Object.entries(MAU_CHI_TIEU).map(([ten, mau]) => (
+                  <Line key={ten} type="monotone" dataKey={ten} stroke={mau} strokeWidth={2} dot />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
       )}
