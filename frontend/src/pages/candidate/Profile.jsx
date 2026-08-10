@@ -62,54 +62,69 @@ export default function Profile() {
   };
 
   return (
-    <div className="page-container" style={{ maxWidth: 520 }}>
+    <div className="page-container">
       <div className="dashboard-header-band">
         <h2>Thông tin cá nhân</h2>
       </div>
-      <div className="card">
-        {dangTai && <p>Đang tải...</p>}
-        {!dangTai && (
-        <>
-        <form onSubmit={handleSubmit}>
-          <FileUpload
-            label="Ảnh đại diện"
-            accept=".jpg,.jpeg,.png"
-            variant="avatar"
-            value={anhDaiDien}
-            existingUrl={anhHienTai}
-            onChange={setAnhDaiDien}
-          />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <div className="field">
-              <label>Họ và tên</label>
-              <input value={form.hoTen} onChange={set("hoTen")} required />
-            </div>
-            <div className="field">
-              <label>Số điện thoại</label>
-              <input value={form.sdt} onChange={set("sdt")} />
-            </div>
-            <div className="field">
-              <label>Ngày sinh</label>
-              <input type="date" value={form.ngaySinh} onChange={set("ngaySinh")} />
-            </div>
-            <div className="field">
-              <label>Địa chỉ</label>
-              <input value={form.diaChi} onChange={set("diaChi")} />
-            </div>
+      {dangTai && <div className="card"><p>Đang tải...</p></div>}
+      {!dangTai && (
+        <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24, alignItems: "start" }}>
+          <div className="card" style={{ textAlign: "center" }}>
+            {anhHienTai ? (
+              <img src={anhHienTai} alt="Ảnh đại diện" style={{ width: 120, height: 120, borderRadius: "50%", objectFit: "cover", margin: "0 auto 16px" }} />
+            ) : (
+              <div style={{
+                width: 120, height: 120, borderRadius: "50%", background: "var(--info-bg)", color: "var(--indigo-dark)",
+                display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 40, margin: "0 auto 16px",
+              }}>
+                {form.hoTen?.[0]?.toUpperCase() || "?"}
+              </div>
+            )}
+            <p style={{ fontWeight: 700, fontSize: 18, margin: "0 0 4px" }}>{form.hoTen || "Chưa đặt tên"}</p>
+            <p style={{ color: "var(--text-muted)", margin: 0 }}>Ứng viên</p>
           </div>
-          <div className="field">
-            <label>Giới thiệu bản thân</label>
-            <textarea rows={4} value={form.gioiThieuBanThan} onChange={set("gioiThieuBanThan")} />
+
+          <div className="card">
+            <form onSubmit={handleSubmit}>
+              <FileUpload
+                label="Ảnh đại diện"
+                accept=".jpg,.jpeg,.png"
+                variant="avatar"
+                value={anhDaiDien}
+                existingUrl={anhHienTai}
+                onChange={setAnhDaiDien}
+              />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div className="field">
+                  <label>Họ và tên</label>
+                  <input value={form.hoTen} onChange={set("hoTen")} required />
+                </div>
+                <div className="field">
+                  <label>Số điện thoại</label>
+                  <input value={form.sdt} onChange={set("sdt")} />
+                </div>
+                <div className="field">
+                  <label>Ngày sinh</label>
+                  <input type="date" value={form.ngaySinh} onChange={set("ngaySinh")} />
+                </div>
+                <div className="field">
+                  <label>Địa chỉ</label>
+                  <input value={form.diaChi} onChange={set("diaChi")} />
+                </div>
+              </div>
+              <div className="field">
+                <label>Giới thiệu bản thân</label>
+                <textarea rows={4} value={form.gioiThieuBanThan} onChange={set("gioiThieuBanThan")} />
+              </div>
+              {error && <p className="error-text">{error}</p>}
+              {success && <p className="success-text">{success}</p>}
+              <button className="btn btn-primary" style={{ width: "100%" }} disabled={loading} type="submit">
+                {loading ? "Đang lưu..." : "Lưu"}
+              </button>
+            </form>
           </div>
-          {error && <p className="error-text">{error}</p>}
-          {success && <p className="success-text">{success}</p>}
-          <button className="btn btn-primary" style={{ width: "100%" }} disabled={loading} type="submit">
-            {loading ? "Đang lưu..." : "Lưu"}
-          </button>
-        </form>
-        </>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

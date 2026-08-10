@@ -5,13 +5,12 @@ import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import JobCard from "../../components/JobCard";
 
-const TAG_GOI_Y = ["React", "Java", "Python", "SQL Server", "Docker", "Node.js"];
-
 export default function Home() {
   const { auth } = useAuth();
   const [keyword, setKeyword] = useState("");
   const [diaDiem, setDiaDiem] = useState("");
   const [featured, setFeatured] = useState([]);
+  const [industries, setIndustries] = useState([]);
   const [results, setResults] = useState([]);
   const [searched, setSearched] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState(new Set());
@@ -20,6 +19,7 @@ export default function Home() {
 
   useEffect(() => {
     api.get("/jobs/featured?top=6").then(setFeatured).catch(() => {});
+    api.get("/industries").then(setIndustries).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -99,13 +99,24 @@ export default function Home() {
         <button className="btn btn-primary" type="submit">Tìm Việc Ngay</button>
       </form>
 
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 32, justifyContent: "center" }}>
-        {TAG_GOI_Y.map((tag) => (
-          <button key={tag} type="button" className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={() => handleTagClick(tag)}>
-            {tag}
-          </button>
-        ))}
-      </div>
+      {industries.length > 0 && (
+        <div style={{ marginBottom: 32 }}>
+          <p style={{ textAlign: "center", color: "var(--text-muted)", fontSize: 14, marginBottom: 10 }}>Ngành nghề phổ biến</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+            {industries.slice(0, 8).map((nn) => (
+              <button
+                key={nn.maNganhNghe}
+                type="button"
+                className="btn btn-secondary"
+                style={{ height: 32, padding: "0 14px", borderRadius: 999 }}
+                onClick={() => handleTagClick(nn.tenNganhNghe)}
+              >
+                {nn.tenNganhNghe}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!searched && canFavorite && !coCv && (
         <div className="card" style={{ marginBottom: 32 }}>
