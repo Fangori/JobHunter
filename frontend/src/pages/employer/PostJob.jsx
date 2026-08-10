@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
+
+const MS67 = "Bạn đã đạt giới hạn số tin đăng tuyển đồng thời của gói dịch vụ hiện tại. Vui lòng mua thêm gói dịch vụ để đăng thêm tin.";
 
 export default function PostJob() {
   const { auth } = useAuth();
@@ -161,7 +163,17 @@ export default function PostJob() {
               ))}
             </div>
           </div>
-          {error && <p className="error-text">{error}</p>}
+          {error && (
+            <p className="error-text">
+              {error}
+              {error === MS67 && (
+                <>
+                  {" "}
+                  <Link to="/employer/service-packages">Mua gói dịch vụ ngay</Link>
+                </>
+              )}
+            </p>
+          )}
           {success && <p className="success-text">{success}</p>}
           <button className="btn btn-primary" style={{ width: "100%" }} disabled={loading} type="submit">
             {loading ? "Đang lưu..." : isEdit ? "Cập nhật tin" : "Đăng tin"}
