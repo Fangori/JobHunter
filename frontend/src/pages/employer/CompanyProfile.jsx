@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
+import FileUpload from "../../components/FileUpload";
 
 const BASE_URL = "http://localhost:5147/api";
 
@@ -60,46 +61,52 @@ export default function CompanyProfile() {
   };
 
   return (
-    <div className="page-container" style={{ maxWidth: 520 }}>
-      <div className="card">
+    <div className="page-container" style={{ maxWidth: 640 }}>
+      <div className="dashboard-header-band">
         <h2>Hồ sơ công ty</h2>
+      </div>
+      <div className="card">
         {dangTai && <p>Đang tải...</p>}
         {!dangTai && (
-        <>
-        {logoHienTai && <img src={logoHienTai} alt="Logo" style={{ width: 96, height: 96, objectFit: "contain", marginBottom: 16 }} />}
         <form onSubmit={handleSubmit}>
+          <FileUpload
+            label="Logo công ty"
+            accept=".jpg,.jpeg,.png"
+            variant="avatar"
+            value={logo}
+            existingUrl={logoHienTai}
+            onChange={setLogo}
+          />
           <div className="field">
             <label>Tên công ty</label>
             <input value={form.tenCongTy} onChange={set("tenCongTy")} required />
           </div>
-          <div className="field">
-            <label>Logo</label>
-            <input type="file" accept=".jpg,.jpeg,.png" onChange={(e) => setLogo(e.target.files[0])} />
-          </div>
-          <div className="field">
-            <label>Quy mô</label>
-            <select value={form.quyMo} onChange={set("quyMo")}>
-              <option value="">-- Chọn --</option>
-              <option value="<50">&lt;50</option>
-              <option value="50-200">50-200</option>
-              <option value="200-500">200-500</option>
-              <option value=">500">&gt;500</option>
-            </select>
-          </div>
-          <div className="field">
-            <label>Lĩnh vực hoạt động</label>
-            <select value={form.maNganhNghe} onChange={set("maNganhNghe")}>
-              <option value="">-- Chọn --</option>
-              {industries.map((i) => <option key={i.maNganhNghe} value={i.maNganhNghe}>{i.tenNganhNghe}</option>)}
-            </select>
-          </div>
-          <div className="field">
-            <label>Địa chỉ</label>
-            <input value={form.diaChi} onChange={set("diaChi")} />
-          </div>
-          <div className="field">
-            <label>Website</label>
-            <input value={form.website} onChange={set("website")} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="field">
+              <label>Quy mô</label>
+              <select value={form.quyMo} onChange={set("quyMo")}>
+                <option value="">-- Chọn --</option>
+                <option value="<50">&lt;50</option>
+                <option value="50-200">50-200</option>
+                <option value="200-500">200-500</option>
+                <option value=">500">&gt;500</option>
+              </select>
+            </div>
+            <div className="field">
+              <label>Lĩnh vực hoạt động</label>
+              <select value={form.maNganhNghe} onChange={set("maNganhNghe")}>
+                <option value="">-- Chọn --</option>
+                {industries.map((i) => <option key={i.maNganhNghe} value={i.maNganhNghe}>{i.tenNganhNghe}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label>Địa chỉ</label>
+              <input value={form.diaChi} onChange={set("diaChi")} />
+            </div>
+            <div className="field">
+              <label>Website</label>
+              <input value={form.website} onChange={set("website")} />
+            </div>
           </div>
           <div className="field">
             <label>Giới thiệu công ty</label>
@@ -111,7 +118,6 @@ export default function CompanyProfile() {
             {loading ? "Đang lưu..." : "Lưu"}
           </button>
         </form>
-        </>
         )}
       </div>
     </div>
