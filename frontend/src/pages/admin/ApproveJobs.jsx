@@ -41,28 +41,32 @@ export default function ApproveJobs() {
 
   return (
     <div>
-      <h2>Duyệt tin tuyển dụng</h2>
+      <div className="dashboard-header-band">
+        <h2>Duyệt tin tuyển dụng</h2>
+      </div>
 
-      <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
-        <div className="card" style={{ flex: 1, textAlign: "center" }}>
-          <div style={{ fontSize: 32, fontWeight: 700, color: "var(--indigo)" }}>{stats.soChoDuyet}</div>
-          <div style={{ color: "var(--text-muted)" }}>Số tin chờ duyệt</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: 24 }}>
+        <div className="card" style={{ textAlign: "center" }}>
+          <p style={{ fontSize: 32, fontWeight: 700, margin: 0, color: "var(--indigo)" }}>{stats.soChoDuyet}</p>
+          <p style={{ margin: 0, color: "var(--text-muted)" }}>Số tin chờ duyệt</p>
         </div>
-        <div className="card" style={{ flex: 1, textAlign: "center" }}>
-          <div style={{ fontSize: 32, fontWeight: 700, color: "var(--success)" }}>{stats.soDaDuyet}</div>
-          <div style={{ color: "var(--text-muted)" }}>Số tin đã duyệt</div>
+        <div className="card" style={{ textAlign: "center" }}>
+          <p style={{ fontSize: 32, fontWeight: 700, margin: 0, color: "var(--success)" }}>{stats.soDaDuyet}</p>
+          <p style={{ margin: 0, color: "var(--text-muted)" }}>Số tin đã duyệt</p>
         </div>
       </div>
 
       {error && <p className="error-text">{error}</p>}
 
-      <div className="card">
-        <h3>Danh sách chờ duyệt</h3>
-        {jobs.length === 0 && <p>Không có tin nào chờ duyệt.</p>}
+      <h3>Danh sách chờ duyệt</h3>
+      {jobs.length === 0 && <p>Không có tin nào chờ duyệt.</p>}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
         {jobs.map((job) => (
-          <div key={job.maTin} style={{ borderBottom: "1px solid var(--border)", padding: "12px 0" }}>
-            <strong>{job.tieuDe}</strong> — {job.tenCongTy}
-            <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+          <div key={job.maTin} className="card">
+            <span className="badge badge-warning">Chờ duyệt</span>
+            <p style={{ fontWeight: 600, margin: "10px 0 2px" }}>{job.tieuDe}</p>
+            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>{job.tenCongTy}</p>
+            <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
               <button className="btn btn-primary" style={{ height: 36 }} onClick={() => approve(job.maTin)}>Duyệt</button>
               <button className="btn btn-secondary" style={{ height: 36 }} onClick={() => setRejectingId(job.maTin)}>Từ chối</button>
             </div>

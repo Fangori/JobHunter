@@ -1,13 +1,14 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { ClipboardCheck, Trash2, Building2, Users, Tag, Factory, BarChart3 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { to: "/admin/pending-jobs", label: "Duyệt tin" },
-  { to: "/admin/removed-jobs", label: "Gỡ tin" },
-  { to: "/admin/accounts/employers", label: "TK Nhà tuyển dụng" },
-  { to: "/admin/accounts/candidates", label: "TK Ứng viên" },
-  { to: "/admin/skills", label: "Danh mục Kỹ năng" },
-  { to: "/admin/industries", label: "Danh mục Ngành nghề" },
-  { to: "/admin/reports", label: "Báo cáo" },
+  { to: "/admin/pending-jobs", label: "Duyệt tin", icon: ClipboardCheck },
+  { to: "/admin/removed-jobs", label: "Gỡ tin", icon: Trash2 },
+  { to: "/admin/accounts/employers", label: "TK Nhà tuyển dụng", icon: Building2 },
+  { to: "/admin/accounts/candidates", label: "TK Ứng viên", icon: Users },
+  { to: "/admin/skills", label: "Danh mục Kỹ năng", icon: Tag },
+  { to: "/admin/industries", label: "Danh mục Ngành nghề", icon: Factory },
+  { to: "/admin/reports", label: "Báo cáo", icon: BarChart3 },
 ];
 
 export default function AdminLayout() {
@@ -20,7 +21,9 @@ export default function AdminLayout() {
               key={item.to}
               to={item.to}
               style={({ isActive }) => ({
-                display: "block",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
                 padding: "8px 12px",
                 borderRadius: "var(--radius)",
                 textDecoration: "none",
@@ -29,6 +32,7 @@ export default function AdminLayout() {
                 fontWeight: isActive ? 600 : 400,
               })}
             >
+              <item.icon size={16} />
               {item.label}
             </NavLink>
           ))}
