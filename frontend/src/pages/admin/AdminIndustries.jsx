@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 export default function AdminIndustries() {
   const { auth } = useAuth();
   const [industries, setIndustries] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [tenNganhNghe, setTenNganhNghe] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
@@ -56,9 +57,13 @@ export default function AdminIndustries() {
     }
   };
 
+  const filtered = industries.filter((n) => n.tenNganhNghe.toLowerCase().includes(searchTerm.trim().toLowerCase()));
+
   return (
     <div>
-      <h2>Danh mục Ngành nghề</h2>
+      <div className="dashboard-header-band">
+        <h2>Danh mục Ngành nghề</h2>
+      </div>
 
       <form onSubmit={handleSubmit} className="card" style={{ marginBottom: 24, display: "flex", gap: 8, alignItems: "flex-end" }}>
         <div className="field" style={{ flex: 1, margin: 0 }}>
@@ -74,14 +79,19 @@ export default function AdminIndustries() {
       {error && <p className="error-text">{error}</p>}
       {success && <p className="success-text">{success}</p>}
 
-      <div className="card">
-        {industries.map((n) => (
-          <div key={n.maNganhNghe} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)", padding: "10px 0" }}>
-            <div>
-              <strong>{n.tenNganhNghe}</strong>
-              {n.trangThai === "NgungSuDung" && <span className="error-text" style={{ marginLeft: 8 }}>(Ngừng sử dụng)</span>}
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
+      <input
+        placeholder="Tìm ngành nghề..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ marginBottom: 16, maxWidth: 360 }}
+      />
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
+        {filtered.map((n) => (
+          <div key={n.maNganhNghe} className="card">
+            {n.trangThai === "NgungSuDung" && <span className="badge badge-neutral">Ngừng sử dụng</span>}
+            <p style={{ fontWeight: 600, margin: "10px 0 2px" }}>{n.tenNganhNghe}</p>
+            <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
               <button className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={() => startEdit(n)}>Sửa</button>
               <button className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={() => handleDelete(n.maNganhNghe)}>Xóa</button>
             </div>

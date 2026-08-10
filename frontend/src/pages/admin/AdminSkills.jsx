@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 export default function AdminSkills() {
   const { auth } = useAuth();
   const [skills, setSkills] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [tenKyNang, setTenKyNang] = useState("");
   const [nhomNganh, setNhomNganh] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -59,9 +60,13 @@ export default function AdminSkills() {
     }
   };
 
+  const filtered = skills.filter((s) => s.tenKyNang.toLowerCase().includes(searchTerm.trim().toLowerCase()));
+
   return (
     <div>
-      <h2>Danh mục Kỹ năng</h2>
+      <div className="dashboard-header-band">
+        <h2>Danh mục Kỹ năng</h2>
+      </div>
 
       <form onSubmit={handleSubmit} className="card" style={{ marginBottom: 24, display: "flex", gap: 8, alignItems: "flex-end" }}>
         <div className="field" style={{ flex: 1, margin: 0 }}>
@@ -81,15 +86,20 @@ export default function AdminSkills() {
       {error && <p className="error-text">{error}</p>}
       {success && <p className="success-text">{success}</p>}
 
-      <div className="card">
-        {skills.map((s) => (
-          <div key={s.maKyNang} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)", padding: "10px 0" }}>
-            <div>
-              <strong>{s.tenKyNang}</strong>
-              {s.nhomNganh && <span style={{ color: "var(--text-muted)" }}> · {s.nhomNganh}</span>}
-              {s.trangThai === "NgungSuDung" && <span className="error-text" style={{ marginLeft: 8 }}>(Ngừng sử dụng)</span>}
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
+      <input
+        placeholder="Tìm kỹ năng..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ marginBottom: 16, maxWidth: 360 }}
+      />
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
+        {filtered.map((s) => (
+          <div key={s.maKyNang} className="card">
+            {s.trangThai === "NgungSuDung" && <span className="badge badge-neutral">Ngừng sử dụng</span>}
+            <p style={{ fontWeight: 600, margin: "10px 0 2px" }}>{s.tenKyNang}</p>
+            {s.nhomNganh && <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>{s.nhomNganh}</p>}
+            <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
               <button className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={() => startEdit(s)}>Sửa</button>
               <button className="btn btn-secondary" style={{ height: 32, padding: "0 12px" }} onClick={() => handleDelete(s.maKyNang)}>Xóa</button>
             </div>
