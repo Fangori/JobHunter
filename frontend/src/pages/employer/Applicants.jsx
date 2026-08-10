@@ -83,7 +83,7 @@ export default function Applicants() {
     <div className="page-container">
       <div className="dashboard-header-band">
         <h2>Danh sách ứng viên</h2>
-        <p>{list.length} ứng viên phù hợp</p>
+        {!loading && <p>{list.length} ứng viên phù hợp</p>}
       </div>
       <div style={{ display: "flex", gap: 24 }}>
         <aside className="card" style={{ width: 260, flexShrink: 0, alignSelf: "flex-start" }}>

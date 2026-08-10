@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Search } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 
@@ -52,7 +53,7 @@ export default function AdminAccounts({ vaiTro }) {
   const filtered = accounts.filter((a) => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return true;
-    return a.hoTenOrTenCongTy.toLowerCase().includes(term) || a.email.toLowerCase().includes(term);
+    return (a.hoTenOrTenCongTy || "").toLowerCase().includes(term) || (a.email || "").toLowerCase().includes(term);
   });
 
   return (
@@ -76,17 +77,21 @@ export default function AdminAccounts({ vaiTro }) {
         </div>
       </div>
 
-      <input
-        placeholder="Tìm theo tên hoặc email..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ marginBottom: 16, maxWidth: 360 }}
-      />
+      <div className="input-icon-wrap" style={{ marginBottom: 16, maxWidth: 360 }}>
+        <Search size={18} />
+        <input
+          placeholder="Tìm theo tên hoặc email..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
       {error && <p className="error-text">{error}</p>}
       {success && <p className="success-text">{success}</p>}
 
-      {filtered.length === 0 && <p>Không có tài khoản nào.</p>}
+      {filtered.length === 0 && (
+        <p>{accounts.length === 0 ? "Không có tài khoản nào." : "Không tìm thấy tài khoản khớp từ khóa."}</p>
+      )}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
         {filtered.map((acc) => (
           <div key={acc.maTk} className="card">

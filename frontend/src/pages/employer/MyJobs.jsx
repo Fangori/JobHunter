@@ -23,9 +23,12 @@ const FILTER_TABS = [
   { key: "all", label: "Tất cả", match: () => true },
   { key: "ChoDuyet", label: "Chờ duyệt", match: (s) => s === "ChoDuyet" },
   { key: "DaDuyet", label: "Đã duyệt", match: (s) => s === "DaDuyet" },
+  { key: "TuChoi", label: "Từ chối", match: (s) => s === "TuChoi" },
+  { key: "DaGo", label: "Đã gỡ", match: (s) => s === "DaGo" },
   { key: "DaDong", label: "Đã đóng", match: (s) => s === "DaDong" },
 ];
 
+// Gia dinh trinh duyet chay o timezone UTC+ (VN); UTC am co the lech 1 ngay do parse UTC + setHours local.
 function soNgayConLai(hanNopHoSo) {
   const han = new Date(hanNopHoSo);
   const homNay = new Date();

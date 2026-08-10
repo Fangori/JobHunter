@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Search } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 
@@ -86,13 +87,16 @@ export default function AdminSkills() {
       {error && <p className="error-text">{error}</p>}
       {success && <p className="success-text">{success}</p>}
 
-      <input
-        placeholder="Tìm kỹ năng..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ marginBottom: 16, maxWidth: 360 }}
-      />
+      <div className="input-icon-wrap" style={{ marginBottom: 16, maxWidth: 360 }}>
+        <Search size={18} />
+        <input
+          placeholder="Tìm kỹ năng..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
+      {filtered.length === 0 && <p>Không tìm thấy kỹ năng nào.</p>}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
         {filtered.map((s) => (
           <div key={s.maKyNang} className="card">
