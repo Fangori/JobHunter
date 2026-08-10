@@ -80,3 +80,13 @@ SET @MaTkUngVienDemo = SCOPE_IDENTITY();
 INSERT INTO UNG_VIEN (MaTK, HoTen, SDT, DiaChi, GioiThieuBanThan, SoCV) VALUES
 (@MaTkUngVienDemo, N'Nguyễn Văn Test', N'0901234567', N'Quận 1, TP. Hồ Chí Minh', N'Tài khoản demo dùng để kiểm tra giao diện Ứng viên.', 0);
 GO
+
+-- ====================================================================
+-- SEED: GOI_DICH_VU (Standard/Gold - gia/thoi han theo quyet dinh thiet
+-- ke 2026-08-10; bao cao chi dinh nghia GioiHanTin qua QD18, khong cho
+-- gia cu the)
+-- ====================================================================
+INSERT INTO GOI_DICH_VU (TenGoi, GioiHanTin, CoNoiBat, GiaTien, ThoiHan, TrangThai) VALUES
+(N'Standard', 10, 0, 299000, 30, 'DangBan'),
+(N'Gold', 20, 1, 599000, 30, 'DangBan');
+GO

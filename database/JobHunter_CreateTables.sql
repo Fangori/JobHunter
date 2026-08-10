@@ -295,3 +295,37 @@ CREATE TABLE THEO_DOI_CONG_TY (
     CONSTRAINT FK_TheoDoi_NTD FOREIGN KEY (MaTK_NTD) REFERENCES NHA_TUYEN_DUNG(MaTK)
 );
 GO
+
+-- --------------------------------------------------------------------
+-- 18. GOI_DICH_VU
+-- --------------------------------------------------------------------
+CREATE TABLE GOI_DICH_VU (
+    MaGoi           INT IDENTITY(1,1) PRIMARY KEY,
+    TenGoi          NVARCHAR(50) NOT NULL UNIQUE,        -- BR26: khong trung lap
+    GioiHanTin      INT NOT NULL CHECK (GioiHanTin > 0),  -- QD18
+    CoNoiBat        BIT NOT NULL DEFAULT 0,
+    GiaTien         DECIMAL(12,2) NOT NULL CHECK (GiaTien >= 0),
+    ThoiHan         INT NOT NULL DEFAULT 30 CHECK (ThoiHan > 0),
+    TrangThai       NVARCHAR(20) NOT NULL DEFAULT 'DangBan'
+                        CHECK (TrangThai IN ('DangBan','NgungBan'))  -- BR27
+);
+GO
+
+-- --------------------------------------------------------------------
+-- 19. GIAO_DICH_MUA_GOI
+-- --------------------------------------------------------------------
+CREATE TABLE GIAO_DICH_MUA_GOI (
+    MaGiaoDich              INT IDENTITY(1,1) PRIMARY KEY,
+    MaTK                    INT NOT NULL,             -- FK -> NHA_TUYEN_DUNG
+    MaGoi                   INT NOT NULL,             -- FK -> GOI_DICH_VU
+    NgayMua                 DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    NgayHetHan              DATETIME2 NOT NULL,        -- = NgayMua + ThoiHan goi (BR25)
+    SoTien                  DECIMAL(12,2) NOT NULL,    -- = GiaTien goi tai thoi diem mua
+    PhuongThucThanhToan     NVARCHAR(20) NOT NULL
+                                CHECK (PhuongThucThanhToan IN ('TheNganHang','ChuyenKhoan')),
+    TrangThai               NVARCHAR(20) NOT NULL DEFAULT 'ThanhCong'
+                                CHECK (TrangThai IN ('ThanhCong','ThatBai')),
+    CONSTRAINT FK_GiaoDich_NTD FOREIGN KEY (MaTK) REFERENCES NHA_TUYEN_DUNG(MaTK),
+    CONSTRAINT FK_GiaoDich_Goi FOREIGN KEY (MaGoi) REFERENCES GOI_DICH_VU(MaGoi)
+);
+GO
