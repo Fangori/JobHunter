@@ -68,8 +68,7 @@ public class GoiDichVuService : IGoiDichVuService
         if (goi is null)
             throw new BusinessRuleException(404, "Không tìm thấy gói dịch vụ.");
 
-        var dangDuoc = await _db.GiaoDichMuaGois.AnyAsync(x =>
-            x.MaGoi == maGoi && x.TrangThai == "ThanhCong" && x.NgayHetHan >= DateTime.UtcNow);
+        var dangDuoc = await _db.GiaoDichMuaGois.AnyAsync(x => x.MaGoi == maGoi);
         if (dangDuoc)
         {
             goi.TrangThai = "NgungBan";
@@ -100,6 +99,8 @@ public class GoiDichVuService : IGoiDichVuService
     {
         if (string.IsNullOrWhiteSpace(request.ThongTinThanhToan))
             throw new BusinessRuleException(400, "Thanh toán thất bại, vui lòng thử lại."); // MS61, Alt 4a
+        if (request.PhuongThucThanhToan is not ("TheNganHang" or "ChuyenKhoan"))
+            throw new BusinessRuleException(400, "Thanh toán thất bại, vui lòng thử lại."); // MS61
 
         var goi = await _db.GoiDichVus.FirstOrDefaultAsync(x => x.MaGoi == maGoi && x.TrangThai == "DangBan");
         if (goi is null)

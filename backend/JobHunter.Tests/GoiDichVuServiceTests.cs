@@ -101,4 +101,56 @@ public class GoiDichVuServiceTests
         var gioiHan = await service.LayGioiHanHieuLucAsync(maTkNtd);
         Assert.Equal(3, gioiHan);
     }
+
+    [Fact]
+    [Trait("Category", "QD18")]
+    public async Task LayGioiHanHieuLuc_GoiDaHetHan_TraVeMienPhi3()
+    {
+        var (service, db, maTkNtd) = await NewServiceWithNtdAsync();
+        var goi = await service.ThemGoiAsync(new GoiDichVuUpsertRequest { TenGoi = "Gold", GioiHanTin = 20, GiaTien = 599000 });
+        db.GiaoDichMuaGois.Add(new GiaoDichMuaGoi
+        {
+            MaTK = maTkNtd,
+            MaGoi = goi.MaGoi,
+            NgayMua = DateTime.UtcNow.AddDays(-60),
+            NgayHetHan = DateTime.UtcNow.AddDays(-30), // da het han
+            SoTien = 599000,
+            PhuongThucThanhToan = "ChuyenKhoan",
+            TrangThai = "ThanhCong",
+        });
+        await db.SaveChangesAsync();
+
+        var gioiHan = await service.LayGioiHanHieuLucAsync(maTkNtd);
+        Assert.Equal(3, gioiHan);
+    }
+
+    [Fact]
+    [Trait("Category", "QD18")]
+    public async Task LayGioiHanHieuLuc_NhieuGoiConHanCungLuc_LayGioiHanLonNhat()
+    {
+        var (service, _, maTkNtd) = await NewServiceWithNtdAsync();
+        var goiStandard = await service.ThemGoiAsync(new GoiDichVuUpsertRequest { TenGoi = "Standard", GioiHanTin = 10, GiaTien = 299000 });
+        var goiGold = await service.ThemGoiAsync(new GoiDichVuUpsertRequest { TenGoi = "Gold", GioiHanTin = 20, GiaTien = 599000 });
+        await service.MuaGoiAsync(maTkNtd, goiStandard.MaGoi, new MuaGoiRequest { PhuongThucThanhToan = "ChuyenKhoan", ThongTinThanhToan = "STK 1" });
+        await service.MuaGoiAsync(maTkNtd, goiGold.MaGoi, new MuaGoiRequest { PhuongThucThanhToan = "TheNganHang", ThongTinThanhToan = "4111111111111111" });
+
+        var gioiHan = await service.LayGioiHanHieuLucAsync(maTkNtd);
+        Assert.Equal(20, gioiHan); // lay gioi han lon nhat (Gold), khong phai gia tri mua sau cung
+
+        var goiHienTai = (await service.LayDanhSachChoNtdAsync(maTkNtd)).GoiHienTai;
+        Assert.Equal("Gold", goiHienTai.TenGoi);
+    }
+
+    [Fact]
+    [Trait("Category", "BR26")]
+    public async Task SuaGoi_TenTrungVoiGoiKhac_ThatBai()
+    {
+        var (service, _, _) = await NewServiceWithNtdAsync();
+        await service.ThemGoiAsync(new GoiDichVuUpsertRequest { TenGoi = "Standard", GioiHanTin = 10, GiaTien = 299000 });
+        var goiGold = await service.ThemGoiAsync(new GoiDichVuUpsertRequest { TenGoi = "Gold", GioiHanTin = 20, GiaTien = 599000 });
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() =>
+            service.SuaGoiAsync(goiGold.MaGoi, new GoiDichVuUpsertRequest { TenGoi = "standard", GioiHanTin = 25, GiaTien = 699000 }));
+        Assert.Equal(400, ex.StatusCode);
+    }
 }

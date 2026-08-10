@@ -270,6 +270,7 @@ public class JobServiceTests
             HanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
         }));
         Assert.Equal(400, ex.StatusCode);
+        Assert.Equal("Bạn đã đạt giới hạn số tin đăng tuyển đồng thời của gói dịch vụ hiện tại. Vui lòng mua thêm gói dịch vụ để đăng thêm tin.", ex.Message);
     }
 
     [Fact]

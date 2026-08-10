@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using JobHunter.API.Data;
 using JobHunter.API.DTOs;
+using JobHunter.API.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -185,5 +186,46 @@ public class IntegrationTests : IClassFixture<CustomWebApplicationFactory>
             kyNangYeuCau = Array.Empty<object>(),
         });
         Assert.Equal(HttpStatusCode.Created, postSauKhiMua.StatusCode);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task XoaGoiDichVu_GoiChiCoGiaoDichDaHetHan_XoaVatLyKhongLoi500()
+    {
+        var client = _factory.CreateClient();
+        var rand = Guid.NewGuid().ToString("N")[..8];
+
+        var loginAdmin = await client.PostAsJsonAsync("/api/auth/login", new { email = "admin@jobhunter.local", matKhau = "Admin@123" });
+        Assert.Equal(HttpStatusCode.OK, loginAdmin.StatusCode);
+        var adminToken = (await loginAdmin.Content.ReadFromJsonAsync<LoginResponseDto>(JsonOpts))!.Token;
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+
+        var them = await client.PostAsJsonAsync("/api/admin/packages", new
+        {
+            tenGoi = $"Goi Test Xoa {rand}", gioiHanTin = 5, coNoiBat = false, giaTien = 99000,
+        });
+        Assert.Equal(HttpStatusCode.Created, them.StatusCode);
+        var themBody = await them.Content.ReadFromJsonAsync<JsonElement>();
+        var maGoi = themBody.GetProperty("goi").GetProperty("maGoi").GetInt32();
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<JobHunterDbContext>();
+            var ntd = await db.NhaTuyenDungs.FirstAsync();
+            db.GiaoDichMuaGois.Add(new GiaoDichMuaGoi
+            {
+                MaTK = ntd.MaTK,
+                MaGoi = maGoi,
+                NgayMua = DateTime.UtcNow.AddDays(-60),
+                NgayHetHan = DateTime.UtcNow.AddDays(-30),
+                SoTien = 99000,
+                PhuongThucThanhToan = "ChuyenKhoan",
+                TrangThai = "ThanhCong",
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var xoa = await client.DeleteAsync($"/api/admin/packages/{maGoi}");
+        Assert.Equal(HttpStatusCode.OK, xoa.StatusCode);
     }
 }
