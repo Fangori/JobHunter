@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using JobHunter.API.Data;
+using JobHunter.API.DTOs;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -122,4 +123,67 @@ public class IntegrationTests : IClassFixture<CustomWebApplicationFactory>
     private record LoginResponseDto(string Token, string VaiTro, string HoTenOrTenCongTy);
     private record SkillDto(int MaKyNang, string TenKyNang);
     private record JobDto(int MaTin, string TieuDe, string TrangThai);
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task MuaGoiDichVu_VuotGioiHanMienPhi_BiChanChoDenKhiMuaGoi()
+    {
+        var client = _factory.CreateClient();
+        var rand = Guid.NewGuid().ToString("N")[..8];
+
+        var regNtd = await client.PostAsJsonAsync("/api/auth/register/employer", new
+        {
+            tenCongTy = $"Goi Corp {rand}", diaChi = "1 Test St", email = $"goi_ntd_{rand}@test.local",
+            matKhau = "Test1234", sdt = "0900000000", xacNhanMatKhau = "Test1234",
+        });
+        Assert.Equal(HttpStatusCode.Created, regNtd.StatusCode);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<JobHunterDbContext>();
+            var taiKhoan = await db.TaiKhoans.FirstAsync(x => x.Email == $"goi_ntd_{rand}@test.local");
+            taiKhoan.DaXacThuc = true;
+            await db.SaveChangesAsync();
+        }
+
+        var login = await client.PostAsJsonAsync("/api/auth/login", new { email = $"goi_ntd_{rand}@test.local", matKhau = "Test1234" });
+        Assert.Equal(HttpStatusCode.OK, login.StatusCode);
+        var token = (await login.Content.ReadFromJsonAsync<LoginResponseDto>(JsonOpts))!.Token;
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        // Dang du 3 tin (dung dung gioi han Mien phi QD18)
+        for (int i = 0; i < 3; i++)
+        {
+            var post = await client.PostAsJsonAsync("/api/jobs", new
+            {
+                tieuDe = $"Goi Job {rand} {i}", moTaCongViec = "mo ta",
+                hanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(10)),
+                kyNangYeuCau = Array.Empty<object>(),
+            });
+            Assert.Equal(HttpStatusCode.Created, post.StatusCode);
+        }
+
+        // Tin thu 4 phai bi chan (QD18)
+        var postThu4 = await client.PostAsJsonAsync("/api/jobs", new
+        {
+            tieuDe = $"Goi Job {rand} thu 4", moTaCongViec = "mo ta",
+            hanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(10)),
+            kyNangYeuCau = Array.Empty<object>(),
+        });
+        Assert.Equal(HttpStatusCode.BadRequest, postThu4.StatusCode);
+
+        // Mua goi Standard (gioi han 10) -> tin thu 4 phai dang duoc
+        var danhSachGoi = await (await client.GetAsync("/api/packages")).Content.ReadFromJsonAsync<DanhSachGoiResponse>(JsonOpts);
+        var goiStandard = danhSachGoi!.DanhSachGoi.First(g => g.TenGoi == "Standard");
+        var mua = await client.PostAsJsonAsync($"/api/packages/{goiStandard.MaGoi}/mua", new { phuongThucThanhToan = "ChuyenKhoan", thongTinThanhToan = "STK 123456" });
+        Assert.Equal(HttpStatusCode.OK, mua.StatusCode);
+
+        var postSauKhiMua = await client.PostAsJsonAsync("/api/jobs", new
+        {
+            tieuDe = $"Goi Job {rand} sau khi mua", moTaCongViec = "mo ta",
+            hanNopHoSo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(10)),
+            kyNangYeuCau = Array.Empty<object>(),
+        });
+        Assert.Equal(HttpStatusCode.Created, postSauKhiMua.StatusCode);
+    }
 }
