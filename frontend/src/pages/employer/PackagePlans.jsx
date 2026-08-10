@@ -12,6 +12,10 @@ function ThanhToanModal({ goi, onClose, onSuccess }) {
 
   const handleConfirm = async () => {
     setError("");
+    if (!thongTinThanhToan.trim()) {
+      setError("Thanh toán thất bại, vui lòng thử lại."); // MS61
+      return;
+    }
     setLoading(true);
     try {
       const result = await api.post(`/packages/${goi.maGoi}/mua`, { phuongThucThanhToan, thongTinThanhToan }, auth.token);
@@ -78,6 +82,7 @@ export default function PackagePlans() {
 
   const load = () => {
     setLoadError(false);
+    setDangTai(true);
     api.get("/packages", auth.token)
       .then((data) => {
         setGoiHienTai(data.goiHienTai);
