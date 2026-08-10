@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { layDanhSach6ThangGanNhat } from "../../utils/reportMonths";
 
 const now = new Date();
+const TEN_DOANH_THU = "Doanh thu gói dịch vụ";
 
 const MAU_CHI_TIEU = {
   "Tài khoản Ứng viên mới": "#3949c6",
@@ -46,7 +47,9 @@ export default function AdminReports() {
     }
   };
 
-  const maxSoLuong = report ? Math.max(1, ...report.chiTieu.map((c) => c.soLuong)) : 1;
+  const chiTieuDem = report ? report.chiTieu.filter((c) => c.ten !== TEN_DOANH_THU) : [];
+  const doanhThu = report ? report.chiTieu.find((c) => c.ten === TEN_DOANH_THU)?.soLuong ?? 0 : 0;
+  const maxSoLuong = Math.max(1, ...chiTieuDem.map((c) => c.soLuong));
 
   return (
     <div>
@@ -75,8 +78,8 @@ export default function AdminReports() {
       {report && (
         <div>
           <h3>Báo cáo tháng {report.thang}/{report.nam}</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12, marginBottom: 24 }}>
-            {report.chiTieu.map((c) => (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12, marginBottom: 16 }}>
+            {chiTieuDem.map((c) => (
               <div key={c.ten} className="card">
                 <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>{c.ten}</p>
                 <p style={{ fontSize: 28, fontWeight: 700, margin: "4px 0 8px", color: "var(--indigo)" }}>{c.soLuong}</p>
@@ -85,6 +88,11 @@ export default function AdminReports() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="card" style={{ marginBottom: 24, background: "linear-gradient(135deg, var(--navy), var(--indigo))" }}>
+            <p style={{ margin: 0, color: "rgba(255,255,255,0.85)", fontSize: 14 }}>Doanh thu gói dịch vụ</p>
+            <p style={{ fontSize: 32, fontWeight: 700, margin: "4px 0 0", color: "white" }}>{doanhThu.toLocaleString("vi-VN")}đ</p>
           </div>
 
           <div className="card">
