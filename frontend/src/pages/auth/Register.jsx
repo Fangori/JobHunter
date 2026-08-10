@@ -1,9 +1,26 @@
 import { useState } from "react";
-import { User, Lock, Mail, Phone, Building2, MapPin, Briefcase } from "lucide-react";
+import { User, Lock, Mail, Phone, Building2, MapPin, Briefcase, CheckCircle2 } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 
+const emptyCandidateForm = () => ({ hoTen: "", matKhau: "", email: "", xacNhanMatKhau: "", sdt: "" });
+
+function DangKyThanhCongPopup({ message, onClose }) {
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)",
+      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100,
+    }}>
+      <div className="card" style={{ width: 400, background: "white", textAlign: "center" }}>
+        <CheckCircle2 size={40} color="var(--success)" style={{ marginBottom: 12 }} />
+        <p className="success-text" style={{ fontSize: 15 }}>{message}</p>
+        <button className="btn btn-primary" style={{ width: "100%" }} onClick={onClose}>Đóng</button>
+      </div>
+    </div>
+  );
+}
+
 function CandidateForm() {
-  const [form, setForm] = useState({ hoTen: "", matKhau: "", email: "", xacNhanMatKhau: "", sdt: "" });
+  const [form, setForm] = useState(emptyCandidateForm());
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,6 +39,7 @@ function CandidateForm() {
     try {
       const result = await api.post("/auth/register/candidate", form);
       setSuccess(result.message || "Đăng ký thành công.");
+      setForm(emptyCandidateForm());
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Có lỗi xảy ra.");
     } finally {
@@ -67,16 +85,18 @@ function CandidateForm() {
         </div>
       </div>
       {error && <p className="error-text">{error}</p>}
-      {success && <p className="success-text">{success}</p>}
       <button className="btn btn-primary" style={{ width: "100%" }} disabled={loading} type="submit">
         {loading ? "Đang đăng ký..." : "Đăng ký ngay"}
       </button>
+      {success && <DangKyThanhCongPopup message={success} onClose={() => setSuccess("")} />}
     </form>
   );
 }
 
+const emptyEmployerForm = () => ({ tenCongTy: "", diaChi: "", email: "", matKhau: "", sdt: "", xacNhanMatKhau: "" });
+
 function EmployerForm() {
-  const [form, setForm] = useState({ tenCongTy: "", diaChi: "", email: "", matKhau: "", sdt: "", xacNhanMatKhau: "" });
+  const [form, setForm] = useState(emptyEmployerForm());
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -95,6 +115,7 @@ function EmployerForm() {
     try {
       const result = await api.post("/auth/register/employer", form);
       setSuccess(result.message || "Đăng ký thành công.");
+      setForm(emptyEmployerForm());
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Có lỗi xảy ra.");
     } finally {
@@ -147,10 +168,10 @@ function EmployerForm() {
         </div>
       </div>
       {error && <p className="error-text">{error}</p>}
-      {success && <p className="success-text">{success}</p>}
       <button className="btn btn-primary" style={{ width: "100%" }} disabled={loading} type="submit">
         {loading ? "Đang đăng ký..." : "Đăng ký ngay"}
       </button>
+      {success && <DangKyThanhCongPopup message={success} onClose={() => setSuccess("")} />}
     </form>
   );
 }
