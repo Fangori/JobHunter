@@ -62,3 +62,21 @@ INSERT INTO DANH_MUC_NGANH_NGHE (TenNganhNghe, TrangThai) VALUES
 (N'Bán lẻ', 'HoatDong'),
 (N'Marketing', 'HoatDong');
 GO
+
+-- ====================================================================
+-- SEED: Tai khoan Ung vien demo de test dang nhap/giao dien (khong
+-- thuoc UC dang ky nao, chi de tien QA thu cong). Da xac thuc san
+-- (DaXacThuc=1) nen dang nhap duoc ngay, khong can qua buoc xac thuc
+-- email. Hash BCrypt cua "Test@1234" (cost=11, dat QD01/TS1: >=8 ky
+-- tu + >=1 chu so).
+-- ====================================================================
+DECLARE @MaTkUngVienDemo INT;
+
+INSERT INTO TAI_KHOAN (Email, MatKhau, VaiTro, DaXacThuc, TrangThai, SoLanDangNhapSai, NgayTao) VALUES
+(N'ungvien.demo@jobhunter.local', '$2a$11$vYTeFhlGGpfPl6aPiELM1eqPelmlqJ3rxovEFJtDUYdVdex82b5JO', 'UngVien', 1, 'HoatDong', 0, SYSDATETIME());
+
+SET @MaTkUngVienDemo = SCOPE_IDENTITY();
+
+INSERT INTO UNG_VIEN (MaTK, HoTen, SDT, DiaChi, GioiThieuBanThan, SoCV) VALUES
+(@MaTkUngVienDemo, N'Nguyễn Văn Test', N'0901234567', N'Quận 1, TP. Hồ Chí Minh', N'Tài khoản demo dùng để kiểm tra giao diện Ứng viên.', 0);
+GO
