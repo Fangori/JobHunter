@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -20,7 +21,7 @@ import RemovedJobs from './pages/admin/RemovedJobs'
 import AdminAccounts from './pages/admin/AdminAccounts'
 import AdminSkills from './pages/admin/AdminSkills'
 import AdminIndustries from './pages/admin/AdminIndustries'
-import AdminReports from './pages/admin/AdminReports'
+const AdminReports = lazy(() => import('./pages/admin/AdminReports'))
 import ManageCv from './pages/candidate/ManageCv'
 import Profile from './pages/candidate/Profile'
 import MyApplications from './pages/candidate/MyApplications'
@@ -32,6 +33,7 @@ function App() {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Header />
       <div style={{ flex: 1 }}>
+      <Suspense fallback={null}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/jobs/:id" element={<JobDetail />} />
@@ -80,6 +82,7 @@ function App() {
           <ProtectedRoute role="UngVien"><Favorites /></ProtectedRoute>
         } />
       </Routes>
+      </Suspense>
       </div>
       <Footer />
     </div>

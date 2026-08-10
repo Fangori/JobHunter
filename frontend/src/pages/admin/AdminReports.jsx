@@ -39,6 +39,8 @@ export default function AdminReports() {
       );
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Có lỗi xảy ra.");
+      setReport(null);
+      setTrendData([]);
     } finally {
       setLoading(false);
     }
@@ -61,7 +63,7 @@ export default function AdminReports() {
         </div>
         <div className="field" style={{ margin: 0 }}>
           <label>Năm</label>
-          <input type="number" value={nam} onChange={(e) => setNam(Number(e.target.value))} style={{ width: 100 }} />
+          <input type="number" value={nam} onChange={(e) => setNam(Number(e.target.value))} min={2000} max={2100} style={{ width: 100 }} />
         </div>
         <button className="btn btn-primary" style={{ height: 36, padding: "0 16px" }} disabled={loading} onClick={load}>
           {loading ? "Đang tải..." : "Xem báo cáo"}
