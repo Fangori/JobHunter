@@ -25,9 +25,13 @@ export default function AdminReports() {
     }
   };
 
+  const maxSoLuong = report ? Math.max(1, ...report.chiTieu.map((c) => c.soLuong)) : 1;
+
   return (
     <div>
-      <h2>Báo cáo thống kê</h2>
+      <div className="dashboard-header-band">
+        <h2>Báo cáo thống kê</h2>
+      </div>
 
       <div className="card" style={{ marginBottom: 24, display: "flex", gap: 8, alignItems: "flex-end" }}>
         <div className="field" style={{ margin: 0 }}>
@@ -48,24 +52,19 @@ export default function AdminReports() {
       {error && <p className="error-text">{error}</p>}
 
       {report && (
-        <div className="card">
+        <div>
           <h3>Báo cáo tháng {report.thang}/{report.nam}</h3>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ textAlign: "left", borderBottom: "2px solid var(--border)" }}>
-                <th style={{ padding: 8 }}>Chỉ tiêu</th>
-                <th style={{ padding: 8 }}>Số lượng</th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.chiTieu.map((c) => (
-                <tr key={c.ten} style={{ borderBottom: "1px solid var(--border)" }}>
-                  <td style={{ padding: 8 }}>{c.ten}</td>
-                  <td style={{ padding: 8, fontWeight: 700, color: "var(--indigo)" }}>{c.soLuong}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
+            {report.chiTieu.map((c) => (
+              <div key={c.ten} className="card">
+                <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>{c.ten}</p>
+                <p style={{ fontSize: 28, fontWeight: 700, margin: "4px 0 8px", color: "var(--indigo)" }}>{c.soLuong}</p>
+                <div style={{ height: 6, borderRadius: 3, background: "var(--bg)", overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${(c.soLuong / maxSoLuong) * 100}%`, background: "var(--indigo)" }} />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
