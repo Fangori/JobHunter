@@ -51,22 +51,28 @@ export default function RemovedJobs() {
 
   return (
     <div>
-      <h2>Gỡ tin vi phạm</h2>
+      <div className="dashboard-header-band">
+        <h2>Gỡ tin vi phạm</h2>
+      </div>
       {error && <p className="error-text">{error}</p>}
       {success && <p className="success-text">{success}</p>}
 
-      <div className="card" style={{ marginBottom: 24 }}>
-        <h3>Tin đang hiển thị công khai</h3>
-        {activeJobs.length === 0 && <p>Không có tin nào.</p>}
+      <h3>Tin đang hiển thị công khai</h3>
+      {activeJobs.length === 0 && <p>Không có tin nào.</p>}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12, marginBottom: 24 }}>
         {activeJobs.map((job) => (
-          <div key={job.maTin} style={{ borderBottom: "1px solid var(--border)", padding: "12px 0" }}>
-            <strong>{job.tieuDe}</strong> — {job.tenCongTy}
-            <div style={{ marginTop: 8 }}>
+          <div key={job.maTin} className="card">
+            <span className="badge badge-success">Đang hiển thị</span>
+            <p style={{ fontWeight: 600, margin: "10px 0 2px" }}>{job.tieuDe}</p>
+            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>{job.tenCongTy}</p>
+            <div style={{ marginTop: 12 }}>
               {removingId === job.maTin ? (
-                <div style={{ display: "flex", gap: 8 }}>
-                  <input placeholder="Lý do gỡ tin (bắt buộc)" value={lyDo} onChange={(e) => setLyDo(e.target.value)} style={{ flex: 1 }} />
-                  <button className="btn btn-primary" style={{ height: 36 }} onClick={() => submitRemove(job.maTin)}>Xác nhận gỡ</button>
-                  <button className="btn btn-secondary" style={{ height: 36 }} onClick={() => { setRemovingId(null); setLyDo(""); }}>Hủy</button>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <input placeholder="Lý do gỡ tin (bắt buộc)" value={lyDo} onChange={(e) => setLyDo(e.target.value)} />
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button className="btn btn-primary" style={{ height: 36 }} onClick={() => submitRemove(job.maTin)}>Xác nhận gỡ</button>
+                    <button className="btn btn-secondary" style={{ height: 36 }} onClick={() => { setRemovingId(null); setLyDo(""); }}>Hủy</button>
+                  </div>
                 </div>
               ) : (
                 <button className="btn btn-secondary" style={{ height: 36 }} onClick={() => { setRemovingId(job.maTin); setLyDo(""); }}>Gỡ tin</button>
@@ -76,13 +82,15 @@ export default function RemovedJobs() {
         ))}
       </div>
 
-      <div className="card">
-        <h3>Tin đã gỡ</h3>
-        {removedJobs.length === 0 && <p>Không có tin nào.</p>}
+      <h3>Tin đã gỡ</h3>
+      {removedJobs.length === 0 && <p>Không có tin nào.</p>}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
         {removedJobs.map((job) => (
-          <div key={job.maTin} style={{ borderBottom: "1px solid var(--border)", padding: "12px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span><strong>{job.tieuDe}</strong> — {job.tenCongTy}</span>
-            <button className="btn btn-primary" style={{ height: 36 }} onClick={() => restore(job.maTin)}>Phục hồi</button>
+          <div key={job.maTin} className="card">
+            <span className="badge badge-danger">Đã gỡ</span>
+            <p style={{ fontWeight: 600, margin: "10px 0 2px" }}>{job.tieuDe}</p>
+            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>{job.tenCongTy}</p>
+            <button className="btn btn-primary" style={{ height: 36, marginTop: 12 }} onClick={() => restore(job.maTin)}>Phục hồi</button>
           </div>
         ))}
       </div>
