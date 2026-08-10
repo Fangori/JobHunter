@@ -33,13 +33,16 @@ Set-Content -Path $tmpCreate -Value $testCreateSql -Encoding utf8
 Set-Content -Path $tmpSeed -Value $testSeedSql -Encoding utf8
 
 Write-Host "Dropping old JobHunterDB_Test (neu co)..."
-sqlcmd -S $Server -U sa -P $SaPassword -C -i $tmpDrop.FullName
+sqlcmd -S $Server -U sa -P $SaPassword -C -f i:65001 -i $tmpDrop.FullName
 
 Write-Host "Creating JobHunterDB_Test tu JobHunter_CreateTables.sql..."
-sqlcmd -S $Server -U sa -P $SaPassword -C -i $tmpCreate.FullName
+# -f i:65001: doc file input dung UTF-8, tranh hong du lieu tieng Viet
+# co dau (N'...') - da gap loi that 2026-08-10, khong phai loi hien
+# thi ma la du lieu bi ghi sai vao DB neu thieu co flag nay.
+sqlcmd -S $Server -U sa -P $SaPassword -C -f i:65001 -i $tmpCreate.FullName
 
 Write-Host "Seeding JobHunterDB_Test tu JobHunter_SeedData.sql..."
-sqlcmd -S $Server -U sa -P $SaPassword -C -i $tmpSeed.FullName
+sqlcmd -S $Server -U sa -P $SaPassword -C -f i:65001 -i $tmpSeed.FullName
 
 Remove-Item $tmpDrop, $tmpCreate, $tmpSeed -Force
 
