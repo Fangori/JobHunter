@@ -4,11 +4,19 @@ async function request(method, path, body, token) {
   const headers = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  let res;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    // fetch tu ban than that bai (server khong chay, mat mang, CORS...)
+    // - khac voi server tra ve loi nghiep vu (vao nhanh !res.ok ben duoi).
+    // Bao ro nguyen nhan thay vi de component roi vao fallback chung chung.
+    throw new ApiError("Không kết nối được đến server. Vui lòng kiểm tra backend đã chạy chưa.", 0);
+  }
 
   const isJson = res.headers.get("content-type")?.includes("application/json");
   const data = isJson ? await res.json() : null;

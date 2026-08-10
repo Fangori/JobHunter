@@ -39,17 +39,17 @@ function CandidateForm() {
         </div>
       </div>
       <div className="field">
-        <label>Mật khẩu</label>
-        <div className="input-icon-wrap">
-          <Lock size={18} />
-          <input type="password" value={form.matKhau} onChange={set("matKhau")} required />
-        </div>
-      </div>
-      <div className="field">
         <label>Email</label>
         <div className="input-icon-wrap">
           <Mail size={18} />
           <input type="email" value={form.email} onChange={set("email")} required />
+        </div>
+      </div>
+      <div className="field">
+        <label>Mật khẩu</label>
+        <div className="input-icon-wrap">
+          <Lock size={18} />
+          <input type="password" value={form.matKhau} onChange={set("matKhau")} required />
         </div>
       </div>
       <div className="field">
@@ -133,17 +133,17 @@ function EmployerForm() {
         </div>
       </div>
       <div className="field">
-        <label>Số điện thoại</label>
-        <div className="input-icon-wrap">
-          <Phone size={18} />
-          <input value={form.sdt} onChange={set("sdt")} />
-        </div>
-      </div>
-      <div className="field">
         <label>Xác nhận mật khẩu</label>
         <div className="input-icon-wrap">
           <Lock size={18} />
           <input type="password" value={form.xacNhanMatKhau} onChange={set("xacNhanMatKhau")} required />
+        </div>
+      </div>
+      <div className="field">
+        <label>Số điện thoại</label>
+        <div className="input-icon-wrap">
+          <Phone size={18} />
+          <input value={form.sdt} onChange={set("sdt")} />
         </div>
       </div>
       {error && <p className="error-text">{error}</p>}
