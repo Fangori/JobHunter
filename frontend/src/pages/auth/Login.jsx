@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Mail, Lock, Briefcase } from "lucide-react";
+import { Mail, Briefcase } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
+import PasswordInput from "../../components/PasswordInput";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -69,10 +70,7 @@ export default function Login() {
             </div>
             <div className="field">
               <label>Mật khẩu</label>
-              <div className="input-icon-wrap">
-                <Lock size={18} />
-                <input type="password" value={matKhau} onChange={(e) => setMatKhau(e.target.value)} required />
-              </div>
+              <PasswordInput value={matKhau} onChange={(e) => setMatKhau(e.target.value)} required autoComplete="current-password" />
             </div>
             {error && <p className="error-text">{error}</p>}
             {chuaXacThuc && (

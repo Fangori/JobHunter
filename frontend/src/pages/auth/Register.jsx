@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { User, Lock, Mail, Phone, Building2, MapPin, Briefcase, CheckCircle2 } from "lucide-react";
+import { User, Mail, Phone, Building2, MapPin, Briefcase, CheckCircle2 } from "lucide-react";
 import { api, ApiError } from "../../api/client";
+import PasswordInput from "../../components/PasswordInput";
 
 const emptyCandidateForm = () => ({ hoTen: "", matKhau: "", email: "", xacNhanMatKhau: "", sdt: "" });
 
@@ -65,17 +66,11 @@ function CandidateForm() {
       </div>
       <div className="field">
         <label>Mật khẩu</label>
-        <div className="input-icon-wrap">
-          <Lock size={18} />
-          <input type="password" value={form.matKhau} onChange={set("matKhau")} required />
-        </div>
+        <PasswordInput value={form.matKhau} onChange={set("matKhau")} required autoComplete="new-password" />
       </div>
       <div className="field">
         <label>Xác nhận mật khẩu</label>
-        <div className="input-icon-wrap">
-          <Lock size={18} />
-          <input type="password" value={form.xacNhanMatKhau} onChange={set("xacNhanMatKhau")} required />
-        </div>
+        <PasswordInput value={form.xacNhanMatKhau} onChange={set("xacNhanMatKhau")} required autoComplete="new-password" />
       </div>
       <div className="field">
         <label>Số điện thoại</label>
@@ -148,17 +143,11 @@ function EmployerForm() {
       </div>
       <div className="field">
         <label>Mật khẩu</label>
-        <div className="input-icon-wrap">
-          <Lock size={18} />
-          <input type="password" value={form.matKhau} onChange={set("matKhau")} required />
-        </div>
+        <PasswordInput value={form.matKhau} onChange={set("matKhau")} required autoComplete="new-password" />
       </div>
       <div className="field">
         <label>Xác nhận mật khẩu</label>
-        <div className="input-icon-wrap">
-          <Lock size={18} />
-          <input type="password" value={form.xacNhanMatKhau} onChange={set("xacNhanMatKhau")} required />
-        </div>
+        <PasswordInput value={form.xacNhanMatKhau} onChange={set("xacNhanMatKhau")} required autoComplete="new-password" />
       </div>
       <div className="field">
         <label>Số điện thoại</label>

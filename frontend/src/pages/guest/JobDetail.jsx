@@ -146,7 +146,7 @@ export default function JobDetail() {
                   type="button"
                   onClick={toggleFavorite}
                   title={isFavorited ? "Bỏ lưu tin" : "Lưu tin"}
-                  style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "transparent", cursor: "pointer", display: "flex", padding: "0 12px", color: isFavorited ? "#e0245e" : "var(--text-muted)" }}
+                  style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 12px", color: isFavorited ? "#e0245e" : "var(--text-muted)" }}
                 >
                   <Heart size={20} fill={isFavorited ? "#e0245e" : "none"} />
                 </button>

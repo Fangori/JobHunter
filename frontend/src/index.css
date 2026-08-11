@@ -53,6 +53,8 @@ h1, h2, h3 {
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  text-decoration: none; /* .btn cung duoc dung tren <Link> (vd nut "Mua goi") -
+  khong reset thi ke thua gach chan mac dinh cua the <a>, nhin bi lech/sai */
 }
 
 .btn-primary {
@@ -129,7 +131,9 @@ label {
 .input-icon-wrap {
   position: relative;
 }
-.input-icon-wrap svg {
+/* Chi nham icon dau dong (con truc tiep) - ">" de khong dinh chi cho svg cua
+   nut hien/an mat khau (.input-icon-toggle) nam long trong div nay. */
+.input-icon-wrap > svg {
   position: absolute;
   left: 14px;
   top: 50%;
@@ -140,6 +144,23 @@ label {
 .input-icon-wrap input,
 .input-icon-wrap select {
   padding-left: 42px;
+}
+.input-icon-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+.input-icon-wrap.has-toggle input {
+  padding-right: 40px;
 }
 
 .error-text {
