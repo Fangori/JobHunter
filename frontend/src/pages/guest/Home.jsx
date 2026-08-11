@@ -10,6 +10,10 @@ import JobCard from "../../components/JobCard";
 
 // Icon trang tri theo ten nganh nghe (DANH_MUC_NGANH_NGHE khong co cot icon
 // trong schema) - chi de card nhin sinh dong hon, khong anh huong nghiep vu.
+// Luoi tin tuyen dung 3 cot tren desktop (tu dong xep lai it hon o man
+// hinh hep), thay vi 1 tin/1 hang ngang toan chieu rong nhu truoc.
+const JOB_GRID_STYLE = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16, marginBottom: 8 };
+
 const NGANH_NGHE_ICON = {
   "Bán lẻ": ShoppingBag,
   "Công nghệ thông tin": Cpu,
@@ -171,15 +175,17 @@ export default function Home() {
       {recommendedShown.length > 0 && (
         <>
           <h2>Gợi ý cho bạn</h2>
-          {recommendedShown.map((job) => (
-            <JobCard
-              key={job.maTin}
-              job={job}
-              isFavorited={favoriteIds.has(job.maTin)}
-              onToggleFavorite={toggleFavorite}
-              matchPercent={job.phanTramPhuHop}
-            />
-          ))}
+          <div style={JOB_GRID_STYLE}>
+            {recommendedShown.map((job) => (
+              <JobCard
+                key={job.maTin}
+                job={job}
+                isFavorited={favoriteIds.has(job.maTin)}
+                onToggleFavorite={toggleFavorite}
+                matchPercent={job.phanTramPhuHop}
+              />
+            ))}
+          </div>
         </>
       )}
 
@@ -187,20 +193,8 @@ export default function Home() {
         <>
           <h2>{selectedIndustry ? `Ngành ${selectedIndustry}` : "Kết quả tìm kiếm"} ({results.length})</h2>
           {results.length === 0 && <p>Không tìm thấy việc làm phù hợp với điều kiện tìm kiếm.</p>}
-          {results.map((job) => (
-            <JobCard
-              key={job.maTin}
-              job={job}
-              isFavorited={favoriteIds.has(job.maTin)}
-              onToggleFavorite={canFavorite ? toggleFavorite : undefined}
-            />
-          ))}
-        </>
-      ) : (
-        featuredFiltered.length > 0 && (
-          <>
-            <h2>Việc Làm Nổi Bật</h2>
-            {featuredFiltered.map((job) => (
+          <div style={JOB_GRID_STYLE}>
+            {results.map((job) => (
               <JobCard
                 key={job.maTin}
                 job={job}
@@ -208,6 +202,22 @@ export default function Home() {
                 onToggleFavorite={canFavorite ? toggleFavorite : undefined}
               />
             ))}
+          </div>
+        </>
+      ) : (
+        featuredFiltered.length > 0 && (
+          <>
+            <h2>Việc Làm Nổi Bật</h2>
+            <div style={JOB_GRID_STYLE}>
+              {featuredFiltered.map((job) => (
+                <JobCard
+                  key={job.maTin}
+                  job={job}
+                  isFavorited={favoriteIds.has(job.maTin)}
+                  onToggleFavorite={canFavorite ? toggleFavorite : undefined}
+                />
+              ))}
+            </div>
           </>
         )
       )}
