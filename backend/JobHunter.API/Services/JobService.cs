@@ -35,6 +35,7 @@ public class JobService : IJobService
         var ngayDangOnly = DateOnly.FromDateTime(ngayDang);
         if (request.HanNopHoSo < ngayDangOnly.AddDays(soNgayToiThieu))
             throw new BusinessRuleException(400, "Hạn nộp hồ sơ phải sau ngày đăng tin ít nhất 1 ngày."); // MS06
+        KiemTraKhoangLuong(request.LuongToiThieu, request.LuongToiDa);
 
         var tin = new TinTuyenDung
         {
@@ -43,7 +44,10 @@ public class JobService : IJobService
             MoTaCongViec = request.MoTaCongViec,
             YeuCauUngVien = request.YeuCauUngVien,
             QuyenLoi = request.QuyenLoi,
-            MucLuong = request.MucLuong,
+            MucLuong = FormatMucLuong(request.LuongToiThieu, request.LuongToiDa),
+            LuongToiThieu = request.LuongToiThieu,
+            LuongToiDa = request.LuongToiDa,
+            SoLuongTuyen = request.SoLuongTuyen ?? 1,
             DiaDiem = request.DiaDiem,
             HinhThucLamViec = request.HinhThucLamViec,
             SoNamKinhNghiemYeuCau = request.SoNamKinhNghiemYeuCau,
@@ -77,6 +81,17 @@ public class JobService : IJobService
 
     public async Task<List<TinTuyenDungSummaryDto>> XemDanhSachCongKhaiAsync(string? keyword, string? diaDiem, int? maNganhNghe = null)
     {
+        var query = TinCongKhaiQuery(keyword, diaDiem, maNganhNghe);
+        return await query.OrderByDescending(x => x.NgayDang)
+            .Select(x => ToSummary(x))
+            .ToListAsync();
+    }
+
+    // Dung chung giua XemDanhSachCongKhaiAsync (cu) va TimKiemVaLocAsync
+    // (loc nang cao) - tranh 2 noi cung Where(BR25/keyword/diaDiem/nganhNghe)
+    // ma sua lech nhau ve sau (vd sua dieu kien BR25 o 1 cho, quen cho kia).
+    private IQueryable<TinTuyenDung> TinCongKhaiQuery(string? keyword, string? diaDiem, int? maNganhNghe)
+    {
         var query = _db.TinTuyenDungs.Include(x => x.NhaTuyenDung).ThenInclude(n => n.TaiKhoan)
             .Where(x => x.TrangThai == "DaDuyet" && x.NhaTuyenDung.TaiKhoan.TrangThai != "BiKhoa"); // BR25
 
@@ -91,9 +106,7 @@ public class JobService : IJobService
         if (maNganhNghe.HasValue)
             query = query.Where(x => x.NhaTuyenDung.MaNganhNghe == maNganhNghe.Value);
 
-        return await query.OrderByDescending(x => x.NgayDang)
-            .Select(x => ToSummary(x))
-            .ToListAsync();
+        return query;
     }
 
     public async Task<List<TinTuyenDungSummaryDto>> XemNoiBatAsync(int top)
@@ -125,6 +138,9 @@ public class JobService : IJobService
             MaNganhNghe = tin.NhaTuyenDung.MaNganhNghe,
             DiaDiem = tin.DiaDiem,
             MucLuong = tin.MucLuong,
+            LuongToiThieu = tin.LuongToiThieu,
+            LuongToiDa = tin.LuongToiDa,
+            SoLuongTuyen = tin.SoLuongTuyen,
             HinhThucLamViec = tin.HinhThucLamViec,
             NgayDang = tin.NgayDang,
             HanNopHoSo = tin.HanNopHoSo,
@@ -204,12 +220,16 @@ public class JobService : IJobService
         var ngayDangOnly = DateOnly.FromDateTime(tin.NgayDang);
         if (request.HanNopHoSo < ngayDangOnly.AddDays(soNgayToiThieu))
             throw new BusinessRuleException(400, "Hạn nộp hồ sơ phải sau ngày đăng tin ít nhất 1 ngày."); // MS06
+        KiemTraKhoangLuong(request.LuongToiThieu, request.LuongToiDa);
 
         tin.TieuDe = request.TieuDe;
         tin.MoTaCongViec = request.MoTaCongViec;
         tin.YeuCauUngVien = request.YeuCauUngVien;
         tin.QuyenLoi = request.QuyenLoi;
-        tin.MucLuong = request.MucLuong;
+        tin.MucLuong = FormatMucLuong(request.LuongToiThieu, request.LuongToiDa);
+        tin.LuongToiThieu = request.LuongToiThieu;
+        tin.LuongToiDa = request.LuongToiDa;
+        tin.SoLuongTuyen = request.SoLuongTuyen ?? 1;
         tin.DiaDiem = request.DiaDiem;
         tin.HinhThucLamViec = request.HinhThucLamViec;
         tin.SoNamKinhNghiemYeuCau = request.SoNamKinhNghiemYeuCau;
@@ -325,9 +345,69 @@ public class JobService : IJobService
         MaNganhNghe = x.NhaTuyenDung.MaNganhNghe,
         DiaDiem = x.DiaDiem,
         MucLuong = x.MucLuong,
+        LuongToiThieu = x.LuongToiThieu,
+        LuongToiDa = x.LuongToiDa,
+        SoLuongTuyen = x.SoLuongTuyen,
         HinhThucLamViec = x.HinhThucLamViec,
         NgayDang = x.NgayDang,
         HanNopHoSo = x.HanNopHoSo,
         TrangThai = x.TrangThai,
     };
+
+    // MucLuong (chuoi hien thi cho JobCard/JobDetail...) sinh tu khoang so -
+    // giu 1 nguon su that duy nhat, tranh lech giua so va text nhu truoc.
+    private static string? FormatMucLuong(int? min, int? max)
+    {
+        if (min is null && max is null) return "Thỏa thuận";
+        if (min is not null && max is not null) return $"{min}-{max} triệu";
+        if (min is not null) return $"Từ {min} triệu";
+        return $"Đến {max} triệu";
+    }
+
+    private static void KiemTraKhoangLuong(int? min, int? max)
+    {
+        if (min is not null && max is not null && min > max)
+            throw new BusinessRuleException(400, "Lương tối thiểu phải nhỏ hơn hoặc bằng lương tối đa.");
+    }
+
+    // UC10 (LAB4) - tim kiem/loc nang cao: tu khoa, dia diem, nganh nghe (da
+    // co san), them loai hinh cong viec, khoang luong, sap xep, phan trang.
+    public async Task<DanhSachViecLamPhanTrangDto> TimKiemVaLocAsync(TimKiemVaLocRequest request)
+    {
+        var query = TinCongKhaiQuery(request.Keyword, request.DiaDiem, request.MaNganhNghe);
+
+        if (request.HinhThucLamViec is { Count: > 0 })
+            query = query.Where(x => x.HinhThucLamViec != null && request.HinhThucLamViec.Contains(x.HinhThucLamViec));
+        // Loc theo khoang luong = phep giao 2 khoang [LuongToiThieu,LuongToiDa]
+        // (cua tin) va [LuongMin,LuongMax] (nguoi dung chon). Mot dau NULL o
+        // tin nghia la "khong gioi han phia do" (vd chi nhap "Tu 15 trieu")
+        // -> KHONG duoc coi la khong khop, chi loai tin "Thoa thuan" (CA HAI
+        // deu NULL) giong hanh vi cac trang tuyen dung thuc te khac. Truoc do
+        // dieu kien doi hoi ca dau doi dien phai co gia tri nen tin chi nhap
+        // 1 dau (luong mo) bi loai oan khoi moi khoang loc - da sua lai 12/08.
+        if (request.LuongMin.HasValue || request.LuongMax.HasValue)
+        {
+            query = query.Where(x => x.LuongToiThieu != null || x.LuongToiDa != null);
+            if (request.LuongMin.HasValue)
+                query = query.Where(x => x.LuongToiDa == null || x.LuongToiDa >= request.LuongMin.Value);
+            if (request.LuongMax.HasValue)
+                query = query.Where(x => x.LuongToiThieu == null || x.LuongToiThieu <= request.LuongMax.Value);
+        }
+
+        query = request.SortBy switch
+        {
+            "luong_giam" => query.OrderByDescending(x => x.LuongToiDa ?? x.LuongToiThieu ?? -1),
+            "luong_tang" => query.OrderBy(x => x.LuongToiThieu ?? x.LuongToiDa ?? int.MaxValue),
+            _ => query.OrderByDescending(x => x.NgayDang),
+        };
+
+        var totalCount = await query.CountAsync();
+        var page = request.Page < 1 ? 1 : request.Page;
+        var pageSize = request.PageSize is < 1 or > 50 ? 9 : request.PageSize;
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(x => ToSummary(x))
+            .ToListAsync();
+
+        return new DanhSachViecLamPhanTrangDto { Items = items, TotalCount = totalCount, Page = page, PageSize = pageSize };
+    }
 }

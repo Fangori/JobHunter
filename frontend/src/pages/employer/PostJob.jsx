@@ -13,7 +13,8 @@ export default function PostJob() {
   const [skills, setSkills] = useState([]);
   const [selectedSkills, setSelectedSkills] = useState({}); // { maKyNang: mucDoUuTien }
   const [form, setForm] = useState({
-    tieuDe: "", moTaCongViec: "", yeuCauUngVien: "", quyenLoi: "", mucLuong: "",
+    tieuDe: "", moTaCongViec: "", yeuCauUngVien: "", quyenLoi: "",
+    luongToiThieu: "", luongToiDa: "", soLuongTuyen: "",
     diaDiem: "", hinhThucLamViec: "FullTime", soNamKinhNghiemYeuCau: "", hanNopHoSo: "",
   });
   const [error, setError] = useState("");
@@ -30,7 +31,9 @@ export default function PostJob() {
           moTaCongViec: job.moTaCongViec,
           yeuCauUngVien: job.yeuCauUngVien || "",
           quyenLoi: job.quyenLoi || "",
-          mucLuong: job.mucLuong || "",
+          luongToiThieu: job.luongToiThieu ?? "",
+          luongToiDa: job.luongToiDa ?? "",
+          soLuongTuyen: job.soLuongTuyen ?? "",
           diaDiem: job.diaDiem || "",
           hinhThucLamViec: job.hinhThucLamViec || "FullTime",
           soNamKinhNghiemYeuCau: job.soNamKinhNghiemYeuCau ?? "",
@@ -67,6 +70,9 @@ export default function PostJob() {
       const body = {
         ...form,
         soNamKinhNghiemYeuCau: form.soNamKinhNghiemYeuCau ? Number(form.soNamKinhNghiemYeuCau) : null,
+        luongToiThieu: form.luongToiThieu ? Number(form.luongToiThieu) : null,
+        luongToiDa: form.luongToiDa ? Number(form.luongToiDa) : null,
+        soLuongTuyen: form.soLuongTuyen ? Number(form.soLuongTuyen) : null,
         kyNangYeuCau: Object.entries(selectedSkills).map(([maKyNang, mucDoUuTien]) => ({
           maKyNang: Number(maKyNang), mucDoUuTien,
         })),
@@ -113,8 +119,16 @@ export default function PostJob() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <div className="field">
-              <label>Mức lương</label>
-              <input value={form.mucLuong} onChange={set("mucLuong")} placeholder="VD: 15-20 triệu" />
+              <label>Lương tối thiểu (triệu)</label>
+              <input type="number" min="0" value={form.luongToiThieu} onChange={set("luongToiThieu")} placeholder="Để trống nếu thỏa thuận" />
+            </div>
+            <div className="field">
+              <label>Lương tối đa (triệu)</label>
+              <input type="number" min="0" value={form.luongToiDa} onChange={set("luongToiDa")} placeholder="Để trống nếu thỏa thuận" />
+            </div>
+            <div className="field">
+              <label>Số lượng tuyển</label>
+              <input type="number" min="1" value={form.soLuongTuyen} onChange={set("soLuongTuyen")} placeholder="VD: 2" />
             </div>
             <div className="field">
               <label>Số năm kinh nghiệm yêu cầu</label>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { MapPin, Briefcase, Wallet, CalendarDays, Heart } from "lucide-react";
+import { MapPin, Briefcase, Wallet, CalendarDays, Heart, Users } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import ApplyModal from "../candidate/ApplyModal";
@@ -79,6 +79,7 @@ export default function JobDetail() {
             {job.diaDiem && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><MapPin size={16} /> {job.diaDiem}</span>}
             {job.hinhThucLamViec && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Briefcase size={16} /> {job.hinhThucLamViec}</span>}
             {job.mucLuong && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Wallet size={16} /> {job.mucLuong}</span>}
+            {job.soLuongTuyen && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Users size={16} /> Tuyển {job.soLuongTuyen} người</span>}
             <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><CalendarDays size={16} /> Hạn nộp: {job.hanNopHoSo}</span>
           </div>
 

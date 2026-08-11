@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Search, MapPin, ShoppingBag, Cpu, GraduationCap, Megaphone,
-  Factory, Landmark, ShoppingCart, HeartPulse, Briefcase,
+  Factory, Landmark, ShoppingCart, HeartPulse, Briefcase, X,
 } from "lucide-react";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
@@ -25,10 +25,39 @@ const NGANH_NGHE_ICON = {
   "Y tế": HeartPulse,
 };
 
+// Gop y bao cao (LAB4 - "Tim kiem va loc viec lam"): loai hinh cong viec
+// (checkbox), muc luong (dropdown khoang), sap xep, phan trang theo so
+// trang. "Cap bac" bi bo qua co y - khong co trong schema/Lab 3, da chot
+// voi nguoi dung 12/08 la khong lam.
+const HINH_THUC_OPTIONS = [
+  { value: "FullTime", label: "Full-time" },
+  { value: "PartTime", label: "Part-time" },
+  { value: "Remote", label: "Remote" },
+];
+const LUONG_OPTIONS = [
+  { value: "", label: "Tất cả mức lương" },
+  { value: "duoi10", label: "Dưới 10 triệu", max: 10 },
+  { value: "10-20", label: "10 - 20 triệu", min: 10, max: 20 },
+  { value: "20-30", label: "20 - 30 triệu", min: 20, max: 30 },
+  { value: "tren30", label: "Trên 30 triệu", min: 30 },
+];
+const SORT_OPTIONS = [
+  { value: "moi_nhat", label: "Mới nhất" },
+  { value: "luong_giam", label: "Lương cao - thấp" },
+  { value: "luong_tang", label: "Lương thấp - cao" },
+];
+const PAGE_SIZE = 9;
+
 export default function Home() {
   const { auth } = useAuth();
   const [keyword, setKeyword] = useState("");
   const [diaDiem, setDiaDiem] = useState("");
+  const [maNganhNghe, setMaNganhNghe] = useState(null);
+  const [hinhThucSelected, setHinhThucSelected] = useState([]);
+  const [luongRange, setLuongRange] = useState("");
+  const [sortBy, setSortBy] = useState("moi_nhat");
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [featured, setFeatured] = useState([]);
   const [industries, setIndustries] = useState([]);
   const [results, setResults] = useState([]);
@@ -80,20 +109,42 @@ export default function Home() {
     }
   };
 
-  const search = async (kw = keyword, dd = diaDiem, maNganhNghe = null) => {
+  // Tham so nhan overrides de doc gia tri MOI ngay lap tuc (setState la bat
+  // dong bo - vd bam checkbox loai hinh phai loc bang gia tri VUA doi, khong
+  // phai state cu con luu trong closure).
+  const runSearch = async (overrides = {}) => {
+    const kw = overrides.keyword ?? keyword;
+    const dd = overrides.diaDiem ?? diaDiem;
+    const nn = "maNganhNghe" in overrides ? overrides.maNganhNghe : maNganhNghe;
+    const hinhThuc = overrides.hinhThucSelected ?? hinhThucSelected;
+    const luong = overrides.luongRange ?? luongRange;
+    const sort = overrides.sortBy ?? sortBy;
+    const targetPage = overrides.page ?? 1;
+
     const params = new URLSearchParams();
     if (kw) params.set("keyword", kw);
     if (dd) params.set("diaDiem", dd);
-    if (maNganhNghe) params.set("maNganhNghe", maNganhNghe);
-    const data = await api.get(`/jobs?${params.toString()}`);
-    setResults(data);
+    if (nn) params.set("maNganhNghe", nn);
+    hinhThuc.forEach((h) => params.append("hinhThucLamViec", h));
+    const luongOpt = LUONG_OPTIONS.find((o) => o.value === luong);
+    if (luongOpt?.min !== undefined) params.set("luongMin", luongOpt.min);
+    if (luongOpt?.max !== undefined) params.set("luongMax", luongOpt.max);
+    params.set("sortBy", sort);
+    params.set("page", targetPage);
+    params.set("pageSize", PAGE_SIZE);
+
+    const data = await api.get(`/jobs/search?${params.toString()}`);
+    setResults(data.items);
+    setTotalCount(data.totalCount);
+    setPage(data.page);
     setSearched(true);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSelectedIndustry(null);
-    search(keyword, diaDiem, null);
+    setMaNganhNghe(null);
+    runSearch({ maNganhNghe: null });
   };
 
   // Loc theo nganh nghe THAT (qua MaNganhNghe cua cong ty dang tin), khong
@@ -102,10 +153,44 @@ export default function Home() {
   const handleIndustryClick = (nn) => {
     setKeyword("");
     setSelectedIndustry(nn.tenNganhNghe);
-    search("", diaDiem, nn.maNganhNghe);
+    setMaNganhNghe(nn.maNganhNghe);
+    runSearch({ keyword: "", maNganhNghe: nn.maNganhNghe });
+  };
+
+  const toggleHinhThuc = (value) => {
+    const next = hinhThucSelected.includes(value)
+      ? hinhThucSelected.filter((v) => v !== value)
+      : [...hinhThucSelected, value];
+    setHinhThucSelected(next);
+    runSearch({ hinhThucSelected: next });
+  };
+
+  const changeLuongRange = (value) => {
+    setLuongRange(value);
+    runSearch({ luongRange: value });
+  };
+
+  const changeSortBy = (value) => {
+    setSortBy(value);
+    runSearch({ sortBy: value });
+  };
+
+  const clearAllFilters = () => {
+    setKeyword("");
+    setDiaDiem("");
+    setSelectedIndustry(null);
+    setMaNganhNghe(null);
+    setHinhThucSelected([]);
+    setLuongRange("");
+    setSortBy("moi_nhat");
+    setSearched(false);
+    setResults([]);
+    setTotalCount(0);
+    setPage(1);
   };
 
   const canFavorite = auth?.vaiTro === "UngVien";
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   // Tranh hien trung tin: neu da co muc "Goi y cho ban", loai nhung tin do
   // ra khoi "Viec Lam Noi Bat" thay vi lap lai y het danh sach ben tren.
@@ -131,6 +216,47 @@ export default function Home() {
         </div>
         <button className="btn btn-primary" type="submit">Tìm Việc Ngay</button>
       </form>
+
+      <div className="card" style={{ display: "flex", flexWrap: "wrap", gap: 20, alignItems: "center", marginBottom: 32 }}>
+        <div>
+          <p style={{ margin: "0 0 6px", fontSize: 13, color: "var(--text-muted)", fontWeight: 600 }}>Loại hình công việc</p>
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+            {HINH_THUC_OPTIONS.map((o) => (
+              <label key={o.value} style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 400, fontSize: 14 }}>
+                <input
+                  type="checkbox"
+                  style={{ height: "auto", width: "auto" }}
+                  checked={hinhThucSelected.includes(o.value)}
+                  onChange={() => toggleHinhThuc(o.value)}
+                />
+                {o.label}
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="field" style={{ margin: 0 }}>
+          <label>Mức lương</label>
+          <select value={luongRange} onChange={(e) => changeLuongRange(e.target.value)} style={{ width: 180 }}>
+            {LUONG_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+        <div className="field" style={{ margin: 0 }}>
+          <label>Sắp xếp</label>
+          <select value={sortBy} onChange={(e) => changeSortBy(e.target.value)} style={{ width: 180 }}>
+            {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+        {searched && (
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ height: 36, padding: "0 14px", display: "flex", alignItems: "center", gap: 6, marginLeft: "auto" }}
+            onClick={clearAllFilters}
+          >
+            <X size={16} /> Xóa tất cả
+          </button>
+        )}
+      </div>
 
       {industries.length > 0 && (
         <div style={{ marginBottom: 32 }}>
@@ -191,7 +317,7 @@ export default function Home() {
 
       {searched ? (
         <>
-          <h2>{selectedIndustry ? `Ngành ${selectedIndustry}` : "Kết quả tìm kiếm"} ({results.length})</h2>
+          <h2>{selectedIndustry ? `Ngành ${selectedIndustry}` : "Kết quả tìm kiếm"} ({totalCount})</h2>
           {results.length === 0 && <p>Không tìm thấy việc làm phù hợp với điều kiện tìm kiếm.</p>}
           <div style={JOB_GRID_STYLE}>
             {results.map((job) => (
@@ -203,6 +329,21 @@ export default function Home() {
               />
             ))}
           </div>
+          {totalPages > 1 && (
+            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 20 }}>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  className={p === page ? "btn btn-primary" : "btn btn-secondary"}
+                  style={{ height: 36, width: 36, padding: 0 }}
+                  onClick={() => runSearch({ page: p })}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          )}
         </>
       ) : (
         featuredFiltered.length > 0 && (

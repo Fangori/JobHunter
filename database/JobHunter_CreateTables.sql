@@ -215,7 +215,10 @@ CREATE TABLE TIN_TUYEN_DUNG (
     MoTaCongViec                NVARCHAR(MAX) NOT NULL,
     YeuCauUngVien               NVARCHAR(MAX) NULL,
     QuyenLoi                    NVARCHAR(MAX) NULL,
-    MucLuong                    NVARCHAR(50) NULL,
+    MucLuong                    NVARCHAR(50) NULL,   -- chuoi hien thi, Service tu sinh tu LuongToiThieu/LuongToiDa
+    LuongToiThieu                INT NULL,             -- trieu VND, NULL = khong nhap (Thoa thuan)
+    LuongToiDa                   INT NULL,             -- trieu VND
+    SoLuongTuyen                 INT NULL,             -- so luong ung vien can tuyen
     DiaDiem                     NVARCHAR(150) NULL,
     HinhThucLamViec             NVARCHAR(30) NULL
                                     CHECK (HinhThucLamViec IN ('FullTime','PartTime','Remote')),

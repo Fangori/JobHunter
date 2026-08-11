@@ -9,6 +9,9 @@ public class TinTuyenDung
     public string? YeuCauUngVien { get; set; }
     public string? QuyenLoi { get; set; }
     public string? MucLuong { get; set; }
+    public int? LuongToiThieu { get; set; } // trieu VND
+    public int? LuongToiDa { get; set; } // trieu VND
+    public int? SoLuongTuyen { get; set; }
     public string? DiaDiem { get; set; }
     public string? HinhThucLamViec { get; set; } // FullTime / PartTime / Remote
     public int? SoNamKinhNghiemYeuCau { get; set; }

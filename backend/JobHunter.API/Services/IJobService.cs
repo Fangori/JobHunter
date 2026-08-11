@@ -6,6 +6,7 @@ public interface IJobService
 {
     Task<TinTuyenDungSummaryDto> DangTinAsync(int maTkNtd, DangTinRequest request);
     Task<List<TinTuyenDungSummaryDto>> XemDanhSachCongKhaiAsync(string? keyword, string? diaDiem, int? maNganhNghe = null);
+    Task<DanhSachViecLamPhanTrangDto> TimKiemVaLocAsync(TimKiemVaLocRequest request); // UC10 loc nang cao (LAB4)
     Task<List<TinTuyenDungSummaryDto>> XemNoiBatAsync(int top);
     Task<TinTuyenDungDetailDto> XemChiTietAsync(int maTin);
     Task<List<TinTuyenDungSummaryDto>> XemDanhSachChoDuyetAsync();

@@ -26,6 +26,22 @@ public class JobsController : ControllerBase
     public async Task<IActionResult> XemDanhSachCongKhai([FromQuery] string? keyword, [FromQuery] string? diaDiem, [FromQuery] int? maNganhNghe)
         => Ok(await _jobService.XemDanhSachCongKhaiAsync(keyword, diaDiem, maNganhNghe));
 
+    // UC10 (LAB4) - tim kiem/loc nang cao: loai hinh, khoang luong, sap
+    // xep, phan trang. Endpoint rieng, khong doi shape cua GET /api/jobs
+    // cu (van tra ve mang phang, dang duoc IntegrationTests.cs dung).
+    [HttpGet("search")]
+    public async Task<IActionResult> TimKiemVaLoc([FromQuery] TimKiemVaLocRequest request)
+    {
+        try
+        {
+            return Ok(await _jobService.TimKiemVaLocAsync(request));
+        }
+        catch (BusinessRuleException ex)
+        {
+            return StatusCode(ex.StatusCode, new ErrorResponse { Message = ex.Message });
+        }
+    }
+
     [HttpGet("featured")]
     public async Task<IActionResult> XemNoiBat([FromQuery] int top = 6)
         => Ok(await _jobService.XemNoiBatAsync(top));

@@ -15,7 +15,12 @@ public class DangTinRequest
     [Required] public string MoTaCongViec { get; set; } = null!;
     public string? YeuCauUngVien { get; set; }
     public string? QuyenLoi { get; set; }
-    public string? MucLuong { get; set; }
+    // MucLuong (chuoi hien thi) khong nhan tu client nua - Service tu sinh
+    // tu LuongToiThieu/LuongToiDa (gop y bao cao 11-12/08: form nhap
+    // "khoang Luong toi thieu/toi da" dang so thay vi go text tu do).
+    public int? LuongToiThieu { get; set; } // trieu VND
+    public int? LuongToiDa { get; set; } // trieu VND
+    public int? SoLuongTuyen { get; set; }
     public string? DiaDiem { get; set; }
     public string? HinhThucLamViec { get; set; }
     public int? SoNamKinhNghiemYeuCau { get; set; }
@@ -37,6 +42,9 @@ public class TinTuyenDungSummaryDto
     public int? MaNganhNghe { get; set; }
     public string? DiaDiem { get; set; }
     public string? MucLuong { get; set; }
+    public int? LuongToiThieu { get; set; }
+    public int? LuongToiDa { get; set; }
+    public int? SoLuongTuyen { get; set; }
     public string? HinhThucLamViec { get; set; }
     public DateTime NgayDang { get; set; }
     public DateOnly HanNopHoSo { get; set; }
@@ -50,6 +58,31 @@ public class TinTuyenDungDetailDto : TinTuyenDungSummaryDto
     public string? QuyenLoi { get; set; }
     public int? SoNamKinhNghiemYeuCau { get; set; }
     public List<KyNangYeuCauDto> KyNangYeuCau { get; set; } = new();
+}
+
+// UC10 (LAB4) - tim kiem/loc nang cao: loai hinh cong viec, khoang luong,
+// sap xep, phan trang theo so trang. Endpoint rieng (GET /api/jobs/search)
+// de khong doi shape cua GET /api/jobs cu (dang duoc IntegrationTests.cs
+// va cac noi khac dung nguyen dang mang phang).
+public class TimKiemVaLocRequest
+{
+    public string? Keyword { get; set; }
+    public string? DiaDiem { get; set; }
+    public int? MaNganhNghe { get; set; }
+    public List<string>? HinhThucLamViec { get; set; }
+    public int? LuongMin { get; set; } // trieu VND
+    public int? LuongMax { get; set; } // trieu VND
+    public string SortBy { get; set; } = "moi_nhat"; // moi_nhat | luong_giam | luong_tang
+    public int Page { get; set; } = 1;
+    public int PageSize { get; set; } = 9;
+}
+
+public class DanhSachViecLamPhanTrangDto
+{
+    public List<TinTuyenDungSummaryDto> Items { get; set; } = new();
+    public int TotalCount { get; set; }
+    public int Page { get; set; }
+    public int PageSize { get; set; }
 }
 
 public class TuChoiTinRequest
