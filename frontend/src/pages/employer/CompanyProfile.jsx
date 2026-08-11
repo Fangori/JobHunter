@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import { api, ApiError } from "../../api/client";
+import { api, ApiError, BASE_URL } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import FileUpload from "../../components/FileUpload";
 import { getCompanyBanner } from "../../utils/companyBanner";
 import { decodeJwtMaTk } from "../../utils/jwt";
-
-const BASE_URL = "http://localhost:5147/api";
 
 // BM08
 export default function CompanyProfile() {

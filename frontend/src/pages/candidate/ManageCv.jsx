@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, ApiError } from "../../api/client";
+import { api, ApiError, BASE_URL } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import FileUpload from "../../components/FileUpload";
 
@@ -149,7 +149,7 @@ export default function ManageCv() {
       const fd = new FormData();
       fd.append("tenCv", uploadTenCv);
       fd.append("file", uploadFile);
-      const res = await fetch("http://localhost:5147/api/cvs/upload", {
+      const res = await fetch(`${BASE_URL}/cvs/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${auth.token}` },
         body: fd,

@@ -76,6 +76,23 @@ cd frontend
 npm test
 ```
 
+## Deploy (không cần domain riêng)
+
+Không bắt buộc phải có tên miền — các nền tảng dưới đây tự cấp subdomain HTTPS miễn phí:
+
+| Phần | Gợi ý nền tảng | Ghi chú |
+|---|---|---|
+| Frontend | Vercel / Netlify | Free, tự deploy khi push GitHub |
+| Backend API | Azure App Service (free tier) | Chạy .NET native, không cần Docker |
+| Database | Azure SQL Database (free tier) | Duy nhất trong các lựa chọn free hỗ trợ đúng SQL Server |
+
+Có email trường (.edu) thì dùng [Azure for Students](https://azure.microsoft.com/free/students/) — $100 credit, không cần thẻ tín dụng, đủ host cả 3 phần trên cùng 1 tài khoản.
+
+**2 biến môi trường cần set khi deploy** (không đặt thì mặc định chạy như dev local):
+
+- Frontend (Vercel/Netlify → Environment Variables): `VITE_API_BASE_URL=https://ten-api-cua-ban.azurewebsites.net/api`
+- Backend (Azure App Service → Configuration): `CORS_ALLOWED_ORIGINS=https://ten-frontend-cua-ban.vercel.app` (nhiều origin cách nhau bởi dấu phẩy)
+
 ## Cấu trúc thư mục
 
 ```

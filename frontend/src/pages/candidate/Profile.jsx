@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import { ApiError } from "../../api/client";
+import { ApiError, BASE_URL } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import FileUpload from "../../components/FileUpload";
-
-const BASE_URL = "http://localhost:5147/api";
 
 // BM05
 export default function Profile() {

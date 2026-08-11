@@ -1,4 +1,7 @@
-const BASE_URL = "http://localhost:5147/api";
+// VITE_API_BASE_URL: dat khi build cho moi truong deploy (vd
+// https://ten-api.azurewebsites.net/api). Khong dat -> mac dinh localhost
+// cho dev. Bien Vite phai bat dau bang "VITE_" moi duoc expose ra client.
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5147/api";
 
 async function request(method, path, body, token) {
   const headers = { "Content-Type": "application/json" };
