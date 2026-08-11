@@ -12,7 +12,7 @@
 #>
 param(
     [string]$Server = "localhost",
-    [string]$SaPassword = "REDACTED_LOCAL_DEV_PASSWORD"
+    [string]$SaPassword = "DevDocker_2026!Sql"
 )
 
 $ErrorActionPreference = "Stop"

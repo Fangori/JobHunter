@@ -19,7 +19,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:DefaultConnection"] =
-                    "Server=localhost,1433;Database=JobHunterDB_Test;User Id=sa;Password=REDACTED_LOCAL_DEV_PASSWORD;TrustServerCertificate=True;",
+                    "Server=localhost,1433;Database=JobHunterDB_Test;User Id=sa;Password=DevDocker_2026!Sql;TrustServerCertificate=True;",
             });
         });
     }
