@@ -32,6 +32,7 @@ export default function Home() {
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [recommended, setRecommended] = useState([]);
   const [coCv, setCoCv] = useState(true);
+  const [selectedIndustry, setSelectedIndustry] = useState(null);
 
   useEffect(() => {
     api.get("/jobs/featured?top=6").then(setFeatured).catch(() => {});
@@ -75,10 +76,11 @@ export default function Home() {
     }
   };
 
-  const search = async (kw = keyword, dd = diaDiem) => {
+  const search = async (kw = keyword, dd = diaDiem, maNganhNghe = null) => {
     const params = new URLSearchParams();
     if (kw) params.set("keyword", kw);
     if (dd) params.set("diaDiem", dd);
+    if (maNganhNghe) params.set("maNganhNghe", maNganhNghe);
     const data = await api.get(`/jobs?${params.toString()}`);
     setResults(data);
     setSearched(true);
@@ -86,12 +88,17 @@ export default function Home() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    search();
+    setSelectedIndustry(null);
+    search(keyword, diaDiem, null);
   };
 
-  const handleIndustryClick = (tenNganhNghe) => {
-    setKeyword(tenNganhNghe);
-    search(tenNganhNghe, diaDiem);
+  // Loc theo nganh nghe THAT (qua MaNganhNghe cua cong ty dang tin), khong
+  // phai nhet ten nganh vao o tu khoa - truoc do o keyword.Contains(TieuDe)
+  // gan nhu luon ra 0 ket qua vi tieu de tin khong bao gio chua ten nganh.
+  const handleIndustryClick = (nn) => {
+    setKeyword("");
+    setSelectedIndustry(nn.tenNganhNghe);
+    search("", diaDiem, nn.maNganhNghe);
   };
 
   const canFavorite = auth?.vaiTro === "UngVien";
@@ -136,7 +143,7 @@ export default function Home() {
                     display: "flex", alignItems: "center", gap: 10, padding: "14px 16px",
                     textAlign: "left", cursor: "pointer", border: "1px solid var(--border)",
                   }}
-                  onClick={() => handleIndustryClick(nn.tenNganhNghe)}
+                  onClick={() => handleIndustryClick(nn)}
                 >
                   <span style={{
                     flexShrink: 0, width: 36, height: 36, borderRadius: "var(--radius)", background: "var(--info-bg)",
@@ -178,7 +185,7 @@ export default function Home() {
 
       {searched ? (
         <>
-          <h2>Kết quả tìm kiếm ({results.length})</h2>
+          <h2>{selectedIndustry ? `Ngành ${selectedIndustry}` : "Kết quả tìm kiếm"} ({results.length})</h2>
           {results.length === 0 && <p>Không tìm thấy việc làm phù hợp với điều kiện tìm kiếm.</p>}
           {results.map((job) => (
             <JobCard

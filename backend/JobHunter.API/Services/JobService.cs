@@ -75,7 +75,7 @@ public class JobService : IJobService
         return await LayTomTatAsync(tin.MaTin);
     }
 
-    public async Task<List<TinTuyenDungSummaryDto>> XemDanhSachCongKhaiAsync(string? keyword, string? diaDiem)
+    public async Task<List<TinTuyenDungSummaryDto>> XemDanhSachCongKhaiAsync(string? keyword, string? diaDiem, int? maNganhNghe = null)
     {
         var query = _db.TinTuyenDungs.Include(x => x.NhaTuyenDung).ThenInclude(n => n.TaiKhoan)
             .Where(x => x.TrangThai == "DaDuyet" && x.NhaTuyenDung.TaiKhoan.TrangThai != "BiKhoa"); // BR25
@@ -84,6 +84,12 @@ public class JobService : IJobService
             query = query.Where(x => x.TieuDe.Contains(keyword));
         if (!string.IsNullOrWhiteSpace(diaDiem))
             query = query.Where(x => x.DiaDiem != null && x.DiaDiem.Contains(diaDiem));
+        // Loc theo nganh nghe cua CONG TY dang tin (TIN_TUYEN_DUNG khong co
+        // cot nganh nghe rieng trong schema - dung dung MaNganhNghe da co
+        // san tren NHA_TUYEN_DUNG, khong phai khop chuoi ten nganh vao tieu
+        // de tin nhu truoc, vi tieu de khong bao gio chua ten nganh nghe).
+        if (maNganhNghe.HasValue)
+            query = query.Where(x => x.NhaTuyenDung.MaNganhNghe == maNganhNghe.Value);
 
         return await query.OrderByDescending(x => x.NgayDang)
             .Select(x => ToSummary(x))

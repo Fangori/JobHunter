@@ -5,7 +5,7 @@ namespace JobHunter.API.Services;
 public interface IJobService
 {
     Task<TinTuyenDungSummaryDto> DangTinAsync(int maTkNtd, DangTinRequest request);
-    Task<List<TinTuyenDungSummaryDto>> XemDanhSachCongKhaiAsync(string? keyword, string? diaDiem);
+    Task<List<TinTuyenDungSummaryDto>> XemDanhSachCongKhaiAsync(string? keyword, string? diaDiem, int? maNganhNghe = null);
     Task<List<TinTuyenDungSummaryDto>> XemNoiBatAsync(int top);
     Task<TinTuyenDungDetailDto> XemChiTietAsync(int maTin);
     Task<List<TinTuyenDungSummaryDto>> XemDanhSachChoDuyetAsync();

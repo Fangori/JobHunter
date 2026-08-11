@@ -23,8 +23,8 @@ public class JobsController : ControllerBase
     private int CurrentMaTK => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [HttpGet]
-    public async Task<IActionResult> XemDanhSachCongKhai([FromQuery] string? keyword, [FromQuery] string? diaDiem)
-        => Ok(await _jobService.XemDanhSachCongKhaiAsync(keyword, diaDiem));
+    public async Task<IActionResult> XemDanhSachCongKhai([FromQuery] string? keyword, [FromQuery] string? diaDiem, [FromQuery] int? maNganhNghe)
+        => Ok(await _jobService.XemDanhSachCongKhaiAsync(keyword, diaDiem, maNganhNghe));
 
     [HttpGet("featured")]
     public async Task<IActionResult> XemNoiBat([FromQuery] int top = 6)
