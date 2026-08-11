@@ -80,6 +80,12 @@ export default function Home() {
 
   const canFavorite = auth?.vaiTro === "UngVien";
 
+  // Tranh hien trung tin: neu da co muc "Goi y cho ban", loai nhung tin do
+  // ra khoi "Viec Lam Noi Bat" thay vi lap lai y het danh sach ben tren.
+  const recommendedShown = !searched && canFavorite && coCv ? recommended.slice(0, 6) : [];
+  const recommendedIds = new Set(recommendedShown.map((j) => j.maTin));
+  const featuredFiltered = recommendedIds.size > 0 ? featured.filter((j) => !recommendedIds.has(j.maTin)) : featured;
+
   return (
     <div className="page-container">
       <h1 style={{ textAlign: "center" }}>Khám phá Sự nghiệp tương lai của bạn</h1>
@@ -127,10 +133,10 @@ export default function Home() {
         </div>
       )}
 
-      {!searched && canFavorite && coCv && recommended.length > 0 && (
+      {recommendedShown.length > 0 && (
         <>
           <h2>Gợi ý cho bạn</h2>
-          {recommended.slice(0, 6).map((job) => (
+          {recommendedShown.map((job) => (
             <JobCard
               key={job.maTin}
               job={job}
@@ -156,17 +162,19 @@ export default function Home() {
           ))}
         </>
       ) : (
-        <>
-          <h2>Việc Làm Nổi Bật</h2>
-          {featured.map((job) => (
-            <JobCard
-              key={job.maTin}
-              job={job}
-              isFavorited={favoriteIds.has(job.maTin)}
-              onToggleFavorite={canFavorite ? toggleFavorite : undefined}
-            />
-          ))}
-        </>
+        featuredFiltered.length > 0 && (
+          <>
+            <h2>Việc Làm Nổi Bật</h2>
+            {featuredFiltered.map((job) => (
+              <JobCard
+                key={job.maTin}
+                job={job}
+                isFavorited={favoriteIds.has(job.maTin)}
+                onToggleFavorite={canFavorite ? toggleFavorite : undefined}
+              />
+            ))}
+          </>
+        )
       )}
     </div>
   );

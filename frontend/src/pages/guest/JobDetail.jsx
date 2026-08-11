@@ -111,13 +111,21 @@ export default function JobDetail() {
 
         <div className="card" style={{ position: "sticky", top: 24 }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 16 }}>
-            <div style={{
-              flexShrink: 0, width: 56, height: 56, borderRadius: "var(--radius)", background: "var(--info-bg)",
-              color: "var(--indigo-dark)", display: "flex", alignItems: "center", justifyContent: "center",
-              fontWeight: 700, fontSize: 22,
-            }}>
-              {job.tenCongTy?.[0]?.toUpperCase() || "?"}
-            </div>
+            {job.logo ? (
+              <img
+                src={job.logo}
+                alt={job.tenCongTy}
+                style={{ flexShrink: 0, width: 56, height: 56, borderRadius: "var(--radius)", objectFit: "contain", background: "var(--info-bg)" }}
+              />
+            ) : (
+              <div style={{
+                flexShrink: 0, width: 56, height: 56, borderRadius: "var(--radius)", background: "var(--info-bg)",
+                color: "var(--indigo-dark)", display: "flex", alignItems: "center", justifyContent: "center",
+                fontWeight: 700, fontSize: 22,
+              }}>
+                {job.tenCongTy?.[0]?.toUpperCase() || "?"}
+              </div>
+            )}
             <div>
               <Link to={`/companies/${job.maTkNtd}`} style={{ fontWeight: 700, display: "block" }}>{job.tenCongTy}</Link>
               <span style={{ color: "var(--text-muted)", fontSize: 13 }}>Xem hồ sơ công ty</span>
@@ -149,7 +157,17 @@ export default function JobDetail() {
                 Xem danh sách ứng viên
               </Link>
             )}
+            {!auth && (
+              <Link to={`/login?redirect=/jobs/${job.maTin}`} className="btn btn-primary" style={{ flex: 1, textAlign: "center" }}>
+                Đăng nhập để ứng tuyển
+              </Link>
+            )}
           </div>
+          {!auth && (
+            <p style={{ margin: "10px 0 0", fontSize: 13, color: "var(--text-muted)", textAlign: "center" }}>
+              Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
+            </p>
+          )}
         </div>
       </div>
 

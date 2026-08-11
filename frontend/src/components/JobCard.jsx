@@ -40,13 +40,21 @@ export default function JobCard({ job, isFavorited, onToggleFavorite, matchPerce
         </button>
       )}
       <Link to={`/jobs/${job.maTin}`} style={{ display: "flex", gap: 14, textDecoration: "none", color: "inherit" }}>
-        <div style={{
-          flexShrink: 0, width: 48, height: 48, borderRadius: "var(--radius)", background: "var(--info-bg)",
-          color: "var(--indigo-dark)", display: "flex", alignItems: "center", justifyContent: "center",
-          fontWeight: 700, fontSize: 18,
-        }}>
-          {job.tenCongTy?.[0]?.toUpperCase() || "?"}
-        </div>
+        {job.logo ? (
+          <img
+            src={job.logo}
+            alt={job.tenCongTy}
+            style={{ flexShrink: 0, width: 48, height: 48, borderRadius: "var(--radius)", objectFit: "contain", background: "var(--info-bg)" }}
+          />
+        ) : (
+          <div style={{
+            flexShrink: 0, width: 48, height: 48, borderRadius: "var(--radius)", background: "var(--info-bg)",
+            color: "var(--indigo-dark)", display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 700, fontSize: 18,
+          }}>
+            {job.tenCongTy?.[0]?.toUpperCase() || "?"}
+          </div>
+        )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <h3 style={{ margin: "0 0 4px", paddingRight: (onToggleFavorite ? 28 : 0) + (matchPercent != null ? 90 : 0) }}>{job.tieuDe}</h3>
           <p style={{ color: "var(--text-muted)", margin: "0 0 8px" }}>{job.tenCongTy}</p>

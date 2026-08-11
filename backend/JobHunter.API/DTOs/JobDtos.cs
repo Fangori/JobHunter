@@ -29,6 +29,9 @@ public class TinTuyenDungSummaryDto
     public string TieuDe { get; set; } = null!;
     public int MaTkNtd { get; set; }
     public string TenCongTy { get; set; } = null!;
+    // Logo cua NHA_TUYEN_DUNG (cot da co san trong schema) - de the tin
+    // tuyen dung hien duoc logo that thay vi luon la chu cai dau placeholder.
+    public string? Logo { get; set; }
     public string? DiaDiem { get; set; }
     public string? MucLuong { get; set; }
     public string? HinhThucLamViec { get; set; }

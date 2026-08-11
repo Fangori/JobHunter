@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Mail, Lock, Briefcase } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
@@ -13,6 +13,12 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // Cho phep quay lai dung trang truoc do (vd tin tuyen dung dang xem) sau
+  // khi dang nhap, thay vi luon dua ve trang chu - chi chap nhan duong dan
+  // noi bo (bat dau bang "/") de tranh open-redirect ra site khac.
+  const redirect = searchParams.get("redirect");
+  const redirectTo = redirect && redirect.startsWith("/") ? redirect : "/";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +29,7 @@ export default function Login() {
     try {
       const result = await api.post("/auth/login", { email, matKhau });
       login(result);
-      navigate("/");
+      navigate(redirectTo);
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Có lỗi xảy ra.";
       setError(msg);

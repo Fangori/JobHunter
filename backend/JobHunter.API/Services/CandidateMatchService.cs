@@ -105,6 +105,7 @@ public class CandidateMatchService : ICandidateMatchService
                 TieuDe = job.TieuDe,
                 MaTkNtd = job.MaTK,
                 TenCongTy = job.NhaTuyenDung.TenCongTy,
+                Logo = job.NhaTuyenDung.Logo,
                 DiaDiem = job.DiaDiem,
                 MucLuong = job.MucLuong,
                 HinhThucLamViec = job.HinhThucLamViec,
