@@ -1,15 +1,32 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, MapPin } from "lucide-react";
+import {
+  Search, MapPin, ShoppingBag, Cpu, GraduationCap, Megaphone,
+  Factory, Landmark, ShoppingCart, HeartPulse, Briefcase,
+} from "lucide-react";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import JobCard from "../../components/JobCard";
+
+// Icon trang tri theo ten nganh nghe (DANH_MUC_NGANH_NGHE khong co cot icon
+// trong schema) - chi de card nhin sinh dong hon, khong anh huong nghiep vu.
+const NGANH_NGHE_ICON = {
+  "Bán lẻ": ShoppingBag,
+  "Công nghệ thông tin": Cpu,
+  "Giáo dục": GraduationCap,
+  "Marketing": Megaphone,
+  "Sản xuất": Factory,
+  "Tài chính - Ngân hàng": Landmark,
+  "Thương mại điện tử": ShoppingCart,
+  "Y tế": HeartPulse,
+};
 
 export default function Home() {
   const { auth } = useAuth();
   const [keyword, setKeyword] = useState("");
   const [diaDiem, setDiaDiem] = useState("");
   const [featured, setFeatured] = useState([]);
+  const [industries, setIndustries] = useState([]);
   const [results, setResults] = useState([]);
   const [searched, setSearched] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState(new Set());
@@ -18,6 +35,7 @@ export default function Home() {
 
   useEffect(() => {
     api.get("/jobs/featured?top=6").then(setFeatured).catch(() => {});
+    api.get("/industries").then(setIndustries).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -71,6 +89,11 @@ export default function Home() {
     search();
   };
 
+  const handleIndustryClick = (tenNganhNghe) => {
+    setKeyword(tenNganhNghe);
+    search(tenNganhNghe, diaDiem);
+  };
+
   const canFavorite = auth?.vaiTro === "UngVien";
 
   // Tranh hien trung tin: neu da co muc "Goi y cho ban", loai nhung tin do
@@ -97,6 +120,37 @@ export default function Home() {
         </div>
         <button className="btn btn-primary" type="submit">Tìm Việc Ngay</button>
       </form>
+
+      {industries.length > 0 && (
+        <div style={{ marginBottom: 32 }}>
+          <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 10 }}>Khám phá theo ngành nghề</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
+            {industries.slice(0, 8).map((nn) => {
+              const Icon = NGANH_NGHE_ICON[nn.tenNganhNghe] || Briefcase;
+              return (
+                <button
+                  key={nn.maNganhNghe}
+                  type="button"
+                  className="card"
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10, padding: "14px 16px",
+                    textAlign: "left", cursor: "pointer", border: "1px solid var(--border)",
+                  }}
+                  onClick={() => handleIndustryClick(nn.tenNganhNghe)}
+                >
+                  <span style={{
+                    flexShrink: 0, width: 36, height: 36, borderRadius: "var(--radius)", background: "var(--info-bg)",
+                    color: "var(--indigo-dark)", display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <Icon size={18} />
+                  </span>
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>{nn.tenNganhNghe}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {!searched && canFavorite && !coCv && (
         <div className="card" style={{ marginBottom: 32 }}>
