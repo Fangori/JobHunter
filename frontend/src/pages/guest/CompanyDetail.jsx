@@ -43,7 +43,7 @@ export default function CompanyDetail() {
   if (!company) return <div className="page-container">Đang tải...</div>;
 
   return (
-    <div className="page-container" style={{ maxWidth: 720 }}>
+    <div className="page-container">
       <div
         style={{
           height: 220,
@@ -59,47 +59,54 @@ export default function CompanyDetail() {
           Ảnh: Jason Villanueva / Wikimedia Commons (CC BY-SA 4.0)
         </span>
       </div>
-      <div className="card">
-        {company.logo ? (
-          <img src={company.logo} alt="Logo" style={{ width: 80, height: 80, objectFit: "contain", borderRadius: "var(--radius)", marginBottom: 12 }} />
-        ) : (
-          <div style={{
-            width: 80, height: 80, borderRadius: "var(--radius)", background: "var(--info-bg)", color: "var(--indigo-dark)",
-            display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 28, marginBottom: 12,
-          }}>
-            {company.tenCongTy?.[0]?.toUpperCase() || "?"}
-          </div>
-        )}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <h1 style={{ fontSize: 26 }}>{company.tenCongTy}</h1>
+
+      <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 24, alignItems: "start" }}>
+        <div className="card" style={{ position: "sticky", top: 24 }}>
+          {company.logo ? (
+            <img src={company.logo} alt="Logo" style={{ width: 80, height: 80, objectFit: "contain", borderRadius: "var(--radius)", marginBottom: 12 }} />
+          ) : (
+            <div style={{
+              width: 80, height: 80, borderRadius: "var(--radius)", background: "var(--info-bg)", color: "var(--indigo-dark)",
+              display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 28, marginBottom: 12,
+            }}>
+              {company.tenCongTy?.[0]?.toUpperCase() || "?"}
+            </div>
+          )}
+          <h1 style={{ fontSize: 22, margin: "0 0 8px" }}>{company.tenCongTy}</h1>
           {auth?.vaiTro === "UngVien" && (
             <button
               type="button"
               className={isFollowing ? "btn btn-secondary" : "btn btn-primary"}
-              style={{ height: 36, padding: "0 16px", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6 }}
+              style={{ width: "100%", height: 36, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 12 }}
               onClick={toggleFollow}
             >
               {isFollowing ? <Check size={16} /> : <Plus size={16} />}
               {isFollowing ? "Đang theo dõi" : "Theo dõi"}
             </button>
           )}
+          {followMsg && <p className={followMsg.startsWith("Đã theo dõi") ? "success-text" : "error-text"}>{followMsg}</p>}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--text-muted)", fontSize: 14 }}>
+            {company.diaChi && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><MapPin size={16} /> {company.diaChi}</span>}
+            {company.quyMo && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Users size={16} /> Quy mô {company.quyMo}</span>}
+            {company.website && <a href={company.website} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Globe size={16} /> {company.website}</a>}
+          </div>
+          {company.gioiThieuCongTy && (
+            <p style={{ whiteSpace: "pre-wrap", marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--border)" }}>{company.gioiThieuCongTy}</p>
+          )}
         </div>
-        {followMsg && <p className={followMsg.startsWith("Đã theo dõi") ? "success-text" : "error-text"}>{followMsg}</p>}
-        <p style={{ color: "var(--text-muted)", display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
-          {company.diaChi && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><MapPin size={16} /> {company.diaChi}</span>}
-          {company.quyMo && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Users size={16} /> Quy mô {company.quyMo}</span>}
-          {company.website && <a href={company.website} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Globe size={16} /> {company.website}</a>}
-        </p>
-        {company.gioiThieuCongTy && <p style={{ whiteSpace: "pre-wrap" }}>{company.gioiThieuCongTy}</p>}
 
-        <h3 style={{ marginTop: 24 }}>Tin tuyển dụng đang mở</h3>
-        {company.tinDangTuyen.length === 0 && <p>Chưa có tin nào.</p>}
-        {company.tinDangTuyen.map((job) => (
-          <Link key={job.maTin} to={`/jobs/${job.maTin}`} className="card" style={{ display: "block", marginBottom: 8, textDecoration: "none", color: "inherit" }}>
-            <strong>{job.tieuDe}</strong>
-            {job.diaDiem && <span> — {job.diaDiem}</span>}
-          </Link>
-        ))}
+        <div className="card">
+          <h3 style={{ marginTop: 0 }}>Tin tuyển dụng đang mở</h3>
+          {company.tinDangTuyen.length === 0 && <p>Chưa có tin nào.</p>}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12 }}>
+            {company.tinDangTuyen.map((job) => (
+              <Link key={job.maTin} to={`/jobs/${job.maTin}`} className="card" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
+                <strong>{job.tieuDe}</strong>
+                {job.diaDiem && <p style={{ margin: "4px 0 0", color: "var(--text-muted)", fontSize: 14 }}>{job.diaDiem}</p>}
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

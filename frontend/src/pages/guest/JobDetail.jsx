@@ -50,10 +50,49 @@ export default function JobDetail() {
   if (!job) return <div className="page-container">Đang tải...</div>;
 
   return (
-    <div className="page-container" style={{ maxWidth: 760 }}>
-      <div className="card">
-        <div style={{ display: "flex", gap: 16, justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap" }}>
-          <div style={{ display: "flex", gap: 14 }}>
+    <div className="page-container">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24, alignItems: "start" }}>
+        <div className="card">
+          <h1 style={{ fontSize: 26, margin: "0 0 8px" }}>{job.tieuDe}</h1>
+          <Link to={`/companies/${job.maTkNtd}`} style={{ color: "var(--text-muted)" }}>{job.tenCongTy}</Link>
+          {favMsg && <p className={favMsg === "Đã lưu tin vào danh sách yêu thích." ? "success-text" : "error-text"}>{favMsg}</p>}
+
+          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", margin: "16px 0", fontSize: 14, color: "var(--text-muted)" }}>
+            {job.diaDiem && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><MapPin size={16} /> {job.diaDiem}</span>}
+            {job.hinhThucLamViec && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Briefcase size={16} /> {job.hinhThucLamViec}</span>}
+            {job.mucLuong && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Wallet size={16} /> {job.mucLuong}</span>}
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><CalendarDays size={16} /> Hạn nộp: {job.hanNopHoSo}</span>
+          </div>
+
+          <h3>Mô tả công việc</h3>
+          <p style={{ whiteSpace: "pre-wrap" }}>{job.moTaCongViec}</p>
+
+          {job.yeuCauUngVien && (
+            <>
+              <h3>Yêu cầu ứng viên</h3>
+              <p style={{ whiteSpace: "pre-wrap" }}>{job.yeuCauUngVien}</p>
+            </>
+          )}
+          {job.quyenLoi && (
+            <>
+              <h3>Quyền lợi</h3>
+              <p style={{ whiteSpace: "pre-wrap" }}>{job.quyenLoi}</p>
+            </>
+          )}
+
+          <h3>Kỹ năng yêu cầu</h3>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {job.kyNangYeuCau.map((k) => (
+              <span key={k.maKyNang} className="badge badge-info">
+                {skillNames[k.maKyNang] || k.maKyNang}
+                {k.mucDoUuTien === "BatBuoc" ? " (Bắt buộc)" : k.mucDoUuTien === "UuTien" ? " (Ưu tiên)" : ""}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="card" style={{ position: "sticky", top: 24 }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 16 }}>
             <div style={{
               flexShrink: 0, width: 56, height: 56, borderRadius: "var(--radius)", background: "var(--info-bg)",
               color: "var(--indigo-dark)", display: "flex", alignItems: "center", justifyContent: "center",
@@ -62,69 +101,38 @@ export default function JobDetail() {
               {job.tenCongTy?.[0]?.toUpperCase() || "?"}
             </div>
             <div>
-              <h1 style={{ fontSize: 26, margin: "0 0 4px" }}>{job.tieuDe}</h1>
-              <Link to={`/companies/${job.maTkNtd}`} style={{ color: "var(--text-muted)" }}>{job.tenCongTy}</Link>
+              <Link to={`/companies/${job.maTkNtd}`} style={{ fontWeight: 700, display: "block" }}>{job.tenCongTy}</Link>
+              <span style={{ color: "var(--text-muted)", fontSize: 13 }}>Xem hồ sơ công ty</span>
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {job.mucLuong && <span style={{ fontWeight: 700, color: "var(--indigo)", fontSize: 18 }}>{job.mucLuong}</span>}
+
+          {job.mucLuong && (
+            <p style={{ fontWeight: 700, color: "var(--indigo)", fontSize: 20, margin: "0 0 16px" }}>{job.mucLuong}</p>
+          )}
+
+          <div style={{ display: "flex", gap: 8 }}>
             {auth?.vaiTro === "UngVien" && (
-              <button
-                type="button"
-                onClick={toggleFavorite}
-                title={isFavorited ? "Bỏ lưu tin" : "Lưu tin"}
-                style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "transparent", cursor: "pointer", display: "flex", padding: 8, color: isFavorited ? "#e0245e" : "var(--text-muted)" }}
-              >
-                <Heart size={20} fill={isFavorited ? "#e0245e" : "none"} />
-              </button>
+              <>
+                <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => setShowApply(true)}>
+                  Ứng tuyển ngay
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleFavorite}
+                  title={isFavorited ? "Bỏ lưu tin" : "Lưu tin"}
+                  style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "transparent", cursor: "pointer", display: "flex", padding: "0 12px", color: isFavorited ? "#e0245e" : "var(--text-muted)" }}
+                >
+                  <Heart size={20} fill={isFavorited ? "#e0245e" : "none"} />
+                </button>
+              </>
+            )}
+            {auth?.vaiTro === "NhaTuyenDung" && (
+              <Link to={`/employer/jobs/${job.maTin}/applicants`} className="btn btn-primary" style={{ flex: 1, textAlign: "center" }}>
+                Xem danh sách ứng viên
+              </Link>
             )}
           </div>
         </div>
-        {favMsg && <p className={favMsg === "Đã lưu tin vào danh sách yêu thích." ? "success-text" : "error-text"}>{favMsg}</p>}
-
-        <div style={{ display: "flex", gap: 20, flexWrap: "wrap", margin: "16px 0", fontSize: 14, color: "var(--text-muted)" }}>
-          {job.diaDiem && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><MapPin size={16} /> {job.diaDiem}</span>}
-          {job.hinhThucLamViec && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Briefcase size={16} /> {job.hinhThucLamViec}</span>}
-          {job.mucLuong && <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Wallet size={16} /> {job.mucLuong}</span>}
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><CalendarDays size={16} /> Hạn nộp: {job.hanNopHoSo}</span>
-        </div>
-
-        <h3>Mô tả công việc</h3>
-        <p style={{ whiteSpace: "pre-wrap" }}>{job.moTaCongViec}</p>
-
-        {job.yeuCauUngVien && (
-          <>
-            <h3>Yêu cầu ứng viên</h3>
-            <p style={{ whiteSpace: "pre-wrap" }}>{job.yeuCauUngVien}</p>
-          </>
-        )}
-        {job.quyenLoi && (
-          <>
-            <h3>Quyền lợi</h3>
-            <p style={{ whiteSpace: "pre-wrap" }}>{job.quyenLoi}</p>
-          </>
-        )}
-
-        <h3>Kỹ năng yêu cầu</h3>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {job.kyNangYeuCau.map((k) => (
-            <span key={k.maKyNang} className="badge badge-info">
-              {skillNames[k.maKyNang] || k.maKyNang}
-              {k.mucDoUuTien === "BatBuoc" ? " (Bắt buộc)" : k.mucDoUuTien === "UuTien" ? " (Ưu tiên)" : ""}
-            </span>
-          ))}
-        </div>
-
-        {auth?.vaiTro === "UngVien" && (
-          <button className="btn btn-primary" style={{ marginTop: 24 }} onClick={() => setShowApply(true)}>
-            Ứng tuyển ngay
-          </button>
-        )}
-        {auth?.vaiTro === "NhaTuyenDung" && (
-          <Link to={`/employer/jobs/${job.maTin}/applicants`} className="btn btn-primary" style={{ marginTop: 24 }}>
-            Xem danh sách ứng viên
-          </Link>
-        )}
       </div>
 
       {showApply && <ApplyModal maTin={job.maTin} onClose={() => setShowApply(false)} />}

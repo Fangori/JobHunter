@@ -97,6 +97,15 @@
   .page-container div[style*="grid-template-columns: 280px 1fr"] {
     grid-template-columns: 1fr !important;
   }
+  .page-container div[style*="grid-template-columns: 1fr 340px"] {
+    grid-template-columns: 1fr !important;
+  }
+  .page-container div[style*="grid-template-columns: 1fr 380px"] {
+    grid-template-columns: 1fr !important;
+  }
+  .page-container div[style*="grid-template-columns: 320px 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .hover-row:hover {
