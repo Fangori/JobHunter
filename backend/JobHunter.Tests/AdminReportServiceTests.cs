@@ -46,4 +46,25 @@ public class AdminReportServiceTests
         var doanhThu = baoCao.ChiTieu.First(x => x.Ten == "Doanh thu gói dịch vụ");
         Assert.Equal(0m, doanhThu.SoLuong);
     }
+
+    [Fact]
+    [Trait("Category", "LAB4")]
+    public async Task LayPhanBoVaiTro_DemDungSoLuongTheoTungVaiTro()
+    {
+        var db = TestHelpers.NewInMemoryDb();
+        db.TaiKhoans.AddRange(
+            new TaiKhoan { Email = "uv1@test.local", MatKhau = "x", VaiTro = "UngVien", DaXacThuc = true, TrangThai = "HoatDong", NgayTao = DateTime.UtcNow },
+            new TaiKhoan { Email = "uv2@test.local", MatKhau = "x", VaiTro = "UngVien", DaXacThuc = true, TrangThai = "HoatDong", NgayTao = DateTime.UtcNow },
+            new TaiKhoan { Email = "ntd1@test.local", MatKhau = "x", VaiTro = "NhaTuyenDung", DaXacThuc = true, TrangThai = "HoatDong", NgayTao = DateTime.UtcNow },
+            new TaiKhoan { Email = "admin1@test.local", MatKhau = "x", VaiTro = "Admin", DaXacThuc = true, TrangThai = "HoatDong", NgayTao = DateTime.UtcNow }
+        );
+        await db.SaveChangesAsync();
+
+        var reportService = new AdminReportService(db);
+        var phanBo = await reportService.LayPhanBoVaiTroAsync();
+
+        Assert.Equal(2, phanBo.SoUngVien);
+        Assert.Equal(1, phanBo.SoNhaTuyenDung);
+        Assert.Equal(1, phanBo.SoAdmin);
+    }
 }

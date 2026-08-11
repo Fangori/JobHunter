@@ -29,4 +29,7 @@ public class AdminReportsController : ControllerBase
             return StatusCode(ex.StatusCode, new { message = ex.Message });
         }
     }
+
+    [HttpGet("phan-bo-vai-tro")]
+    public async Task<IActionResult> PhanBoVaiTro() => Ok(await _service.LayPhanBoVaiTroAsync());
 }

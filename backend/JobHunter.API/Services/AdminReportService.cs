@@ -45,4 +45,14 @@ public class AdminReportService : IAdminReportService
             },
         };
     }
+
+    public async Task<PhanBoVaiTroDto> LayPhanBoVaiTroAsync()
+    {
+        return new PhanBoVaiTroDto
+        {
+            SoUngVien = await _db.TaiKhoans.CountAsync(x => x.VaiTro == "UngVien"),
+            SoNhaTuyenDung = await _db.TaiKhoans.CountAsync(x => x.VaiTro == "NhaTuyenDung"),
+            SoAdmin = await _db.TaiKhoans.CountAsync(x => x.VaiTro == "Admin"),
+        };
+    }
 }

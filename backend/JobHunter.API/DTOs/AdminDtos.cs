@@ -61,3 +61,13 @@ public class BaoCaoThangDto
     public int Nam { get; set; }
     public List<ChiTieuBaoCaoDto> ChiTieu { get; set; } = new();
 }
+
+// LAB4 - "bieu do phan bo vai tro nguoi dung" o trang tong quan Admin.
+// Tong so tai khoan THEO VAI TRO tinh den hien tai (khong theo thang/nam
+// nhu BaoCaoThangDto - day la snapshot, khong phai bao cao ky).
+public class PhanBoVaiTroDto
+{
+    public int SoUngVien { get; set; }
+    public int SoNhaTuyenDung { get; set; }
+    public int SoAdmin { get; set; }
+}
