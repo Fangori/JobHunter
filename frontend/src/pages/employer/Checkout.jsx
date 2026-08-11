@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { CheckCircle2, ShieldCheck } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 
@@ -52,9 +52,14 @@ export default function Checkout() {
     e.preventDefault();
     setError("");
 
+    // Chi kiem tra co nhap hay khong (khop dung bao cao: Alt 4a la "thieu"
+    // thong tin thanh toan). Khong kiem tra dinh dang dung/sai (vd so the
+    // chua du 16 so, ngay het han chua du MM/YY...) - day la giao dich gia
+    // lap, khong that su xac thuc voi ngan hang nen nhap "sai" dinh dang
+    // van duoc chap nhan, chi rong moi bi chan.
     let thongTinThanhToan;
     if (phuongThucThanhToan === "TheNganHang") {
-      if (!soThe.trim() || !tenChuThe.trim() || hanThe.length < 5 || cvv.trim().length < 3) {
+      if (!soThe.trim() || !tenChuThe.trim() || !hanThe.trim() || !cvv.trim()) {
         setError("Thanh toán thất bại, vui lòng thử lại."); // MS61
         return;
       }
@@ -205,9 +210,6 @@ export default function Checkout() {
               </>
             )}
 
-            <p style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--text-muted)", fontSize: 13 }}>
-              <ShieldCheck size={16} /> Đây là giao dịch giả lập cho mục đích demo, không có xử lý thanh toán thật.
-            </p>
             {error && <p className="error-text">{error}</p>}
             <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
               <button className="btn btn-primary" style={{ flex: 1 }} disabled={loading} type="submit">
