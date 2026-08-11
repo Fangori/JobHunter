@@ -4,6 +4,7 @@ import { MapPin, Briefcase, Wallet, CalendarDays, Heart } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import ApplyModal from "../candidate/ApplyModal";
+import { getCompanyBanner } from "../../utils/companyBanner";
 
 export default function JobDetail() {
   const { id } = useParams();
@@ -49,8 +50,25 @@ export default function JobDetail() {
 
   if (!job) return <div className="page-container">Đang tải...</div>;
 
+  const banner = getCompanyBanner(job.maTkNtd);
+
   return (
     <div className="page-container">
+      <div
+        style={{
+          height: 160,
+          borderRadius: "var(--radius-lg)",
+          marginBottom: 20,
+          backgroundImage: `linear-gradient(to bottom, rgba(26,33,64,0.15), var(--navy)), url(${banner.src})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          position: "relative",
+        }}
+      >
+        <span style={{ position: "absolute", right: 12, bottom: 8, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
+          Ảnh: {banner.credit}
+        </span>
+      </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24, alignItems: "start" }}>
         <div className="card">
           <h1 style={{ fontSize: 26, margin: "0 0 8px" }}>{job.tieuDe}</h1>

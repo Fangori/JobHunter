@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import FileUpload from "../../components/FileUpload";
-import companySkyline from "../../assets/company-skyline.jpg";
+import { getCompanyBanner } from "../../utils/companyBanner";
+import { decodeJwtMaTk } from "../../utils/jwt";
 
 const BASE_URL = "http://localhost:5147/api";
 
@@ -67,22 +68,22 @@ export default function CompanyProfile() {
         <h2>Hồ sơ công ty</h2>
       </div>
 
-      {/* Banner trang tri - anh chung cho moi cong ty (giong CompanyDetail.jsx,
-          NHA_TUYEN_DUNG khong co cot rieng cho anh bia nen khong the tuy chinh
-          theo tung cong ty). */}
+      {/* Banner trang tri - NHA_TUYEN_DUNG khong co cot anh bia rieng trong
+          schema da chot, nen gan co dinh 1 trong 5 anh theo MaTK (doc tu JWT)
+          de moi cong ty nhin co banner rieng biet ma khong doi DB. */}
       <div
         style={{
           height: 180,
           borderRadius: "var(--radius-lg)",
           marginBottom: 24,
-          backgroundImage: `linear-gradient(to bottom, rgba(26,33,64,0.15), var(--navy)), url(${companySkyline})`,
+          backgroundImage: `linear-gradient(to bottom, rgba(26,33,64,0.15), var(--navy)), url(${getCompanyBanner(decodeJwtMaTk(auth.token)).src})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           position: "relative",
         }}
       >
         <span style={{ position: "absolute", right: 12, bottom: 8, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
-          Ảnh: Jason Villanueva / Wikimedia Commons (CC BY-SA 4.0)
+          Ảnh: {getCompanyBanner(decodeJwtMaTk(auth.token)).credit}
         </span>
       </div>
 

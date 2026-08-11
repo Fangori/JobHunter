@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { MapPin, Globe, Users, Plus, Check } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
-import companySkyline from "../../assets/company-skyline.jpg";
+import { getCompanyBanner } from "../../utils/companyBanner";
 
 export default function CompanyDetail() {
   const { id } = useParams();
@@ -42,6 +42,8 @@ export default function CompanyDetail() {
 
   if (!company) return <div className="page-container">Đang tải...</div>;
 
+  const banner = getCompanyBanner(id);
+
   return (
     <div className="page-container">
       <div
@@ -49,14 +51,14 @@ export default function CompanyDetail() {
           height: 220,
           borderRadius: "var(--radius-lg)",
           marginBottom: 24,
-          backgroundImage: `linear-gradient(to bottom, rgba(26,33,64,0.15), var(--navy)), url(${companySkyline})`,
+          backgroundImage: `linear-gradient(to bottom, rgba(26,33,64,0.15), var(--navy)), url(${banner.src})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           position: "relative",
         }}
       >
         <span style={{ position: "absolute", right: 12, bottom: 8, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
-          Ảnh: Jason Villanueva / Wikimedia Commons (CC BY-SA 4.0)
+          Ảnh: {banner.credit}
         </span>
       </div>
 
