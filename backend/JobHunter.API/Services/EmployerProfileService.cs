@@ -66,6 +66,7 @@ public class EmployerProfileService : IEmployerProfileService
                 TieuDe = x.TieuDe,
                 TenCongTy = ntd.TenCongTy,
                 Logo = ntd.Logo,
+                MaNganhNghe = ntd.MaNganhNghe,
                 DiaDiem = x.DiaDiem,
                 MucLuong = x.MucLuong,
                 HinhThucLamViec = x.HinhThucLamViec,

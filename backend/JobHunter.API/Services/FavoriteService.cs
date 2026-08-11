@@ -50,6 +50,7 @@ public class FavoriteService : IFavoriteService
                 MaTkNtd = t.MaTK,
                 TenCongTy = t.NhaTuyenDung.TenCongTy,
                 Logo = t.NhaTuyenDung.Logo,
+                MaNganhNghe = t.NhaTuyenDung.MaNganhNghe,
                 DiaDiem = t.DiaDiem,
                 MucLuong = t.MucLuong,
                 HinhThucLamViec = t.HinhThucLamViec,

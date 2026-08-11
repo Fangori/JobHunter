@@ -32,6 +32,9 @@ public class TinTuyenDungSummaryDto
     // Logo cua NHA_TUYEN_DUNG (cot da co san trong schema) - de the tin
     // tuyen dung hien duoc logo that thay vi luon la chu cai dau placeholder.
     public string? Logo { get; set; }
+    // MaNganhNghe cua NHA_TUYEN_DUNG (cot da co san) - frontend dung de chon
+    // anh minh hoa phu hop nganh nghe cho the tin, khong luu them gi vao DB.
+    public int? MaNganhNghe { get; set; }
     public string? DiaDiem { get; set; }
     public string? MucLuong { get; set; }
     public string? HinhThucLamViec { get; set; }
