@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
@@ -8,7 +8,6 @@ import { useAuth } from "../../context/AuthContext";
 // hien thi tom tat don hang + form thanh toan tren man hinh may tinh.
 export default function Checkout() {
   const { maGoi } = useParams();
-  const navigate = useNavigate();
   const { auth } = useAuth();
 
   const [goi, setGoi] = useState(null);
@@ -16,10 +15,25 @@ export default function Checkout() {
   const [loadError, setLoadError] = useState(false);
 
   const [phuongThucThanhToan, setPhuongThucThanhToan] = useState("TheNganHang");
-  const [thongTinThanhToan, setThongTinThanhToan] = useState("");
+  // Thong tin the (giao dien day du hon cho thuc te, van la gia lap - khong
+  // xu ly thanh toan that, chi ghep thanh 1 chuoi ThongTinThanhToan gui len API).
+  const [soThe, setSoThe] = useState("");
+  const [tenChuThe, setTenChuThe] = useState("");
+  const [hanThe, setHanThe] = useState("");
+  const [cvv, setCvv] = useState("");
+  // Thong tin chuyen khoan
+  const [nganHang, setNganHang] = useState("");
+  const [soTaiKhoan, setSoTaiKhoan] = useState("");
+  const [tenChuTk, setTenChuTk] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [thanhCongMessage, setThanhCongMessage] = useState("");
+
+  const formatSoThe = (v) => v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+  const formatHanThe = (v) => {
+    const digits = v.replace(/\D/g, "").slice(0, 4);
+    return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+  };
 
   useEffect(() => {
     setLoadError(false);
@@ -37,10 +51,23 @@ export default function Checkout() {
   const handleConfirm = async (e) => {
     e.preventDefault();
     setError("");
-    if (!thongTinThanhToan.trim()) {
-      setError("Thanh toán thất bại, vui lòng thử lại."); // MS61
-      return;
+
+    let thongTinThanhToan;
+    if (phuongThucThanhToan === "TheNganHang") {
+      if (!soThe.trim() || !tenChuThe.trim() || hanThe.length < 5 || cvv.trim().length < 3) {
+        setError("Thanh toán thất bại, vui lòng thử lại."); // MS61
+        return;
+      }
+      const soTheDigits = soThe.replace(/\D/g, "");
+      thongTinThanhToan = `Thẻ **** **** **** ${soTheDigits.slice(-4)} - ${tenChuThe.trim().toUpperCase()} - Hết hạn ${hanThe}`;
+    } else {
+      if (!nganHang.trim() || !soTaiKhoan.trim() || !tenChuTk.trim()) {
+        setError("Thanh toán thất bại, vui lòng thử lại."); // MS61
+        return;
+      }
+      thongTinThanhToan = `${nganHang.trim()} - STK ${soTaiKhoan.trim()} - ${tenChuTk.trim().toUpperCase()}`;
     }
+
     setLoading(true);
     try {
       const result = await api.post(`/packages/${goi.maGoi}/mua`, { phuongThucThanhToan, thongTinThanhToan }, auth.token);
@@ -104,14 +131,80 @@ export default function Checkout() {
                 <option value="ChuyenKhoan">Chuyển khoản</option>
               </select>
             </div>
-            <div className="field">
-              <label>{phuongThucThanhToan === "TheNganHang" ? "Số thẻ" : "Số tài khoản"}</label>
-              <input
-                placeholder={phuongThucThanhToan === "TheNganHang" ? "Số thẻ (giả lập)" : "Số tài khoản (giả lập)"}
-                value={thongTinThanhToan}
-                onChange={(e) => setThongTinThanhToan(e.target.value)}
-              />
-            </div>
+
+            {phuongThucThanhToan === "TheNganHang" ? (
+              <>
+                <div className="field">
+                  <label>Số thẻ</label>
+                  <input
+                    placeholder="1234 5678 9012 3456"
+                    value={soThe}
+                    onChange={(e) => setSoThe(formatSoThe(e.target.value))}
+                    inputMode="numeric"
+                  />
+                </div>
+                <div className="field">
+                  <label>Tên chủ thẻ</label>
+                  <input
+                    placeholder="NGUYEN VAN A"
+                    value={tenChuThe}
+                    onChange={(e) => setTenChuThe(e.target.value)}
+                    style={{ textTransform: "uppercase" }}
+                  />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <div className="field">
+                    <label>Ngày hết hạn</label>
+                    <input
+                      placeholder="MM/YY"
+                      value={hanThe}
+                      onChange={(e) => setHanThe(formatHanThe(e.target.value))}
+                      inputMode="numeric"
+                    />
+                  </div>
+                  <div className="field">
+                    <label>CVV</label>
+                    <input
+                      placeholder="123"
+                      value={cvv}
+                      onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                      inputMode="numeric"
+                      maxLength={4}
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="field">
+                  <label>Ngân hàng</label>
+                  <input
+                    placeholder="VD: Vietcombank"
+                    value={nganHang}
+                    onChange={(e) => setNganHang(e.target.value)}
+                  />
+                </div>
+                <div className="field">
+                  <label>Số tài khoản</label>
+                  <input
+                    placeholder="Số tài khoản (giả lập)"
+                    value={soTaiKhoan}
+                    onChange={(e) => setSoTaiKhoan(e.target.value.replace(/\D/g, ""))}
+                    inputMode="numeric"
+                  />
+                </div>
+                <div className="field">
+                  <label>Tên chủ tài khoản</label>
+                  <input
+                    placeholder="NGUYEN VAN A"
+                    value={tenChuTk}
+                    onChange={(e) => setTenChuTk(e.target.value)}
+                    style={{ textTransform: "uppercase" }}
+                  />
+                </div>
+              </>
+            )}
+
             <p style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--text-muted)", fontSize: 13 }}>
               <ShieldCheck size={16} /> Đây là giao dịch giả lập cho mục đích demo, không có xử lý thanh toán thật.
             </p>
