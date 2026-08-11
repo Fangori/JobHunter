@@ -7,7 +7,7 @@ import { renderWithProviders, seedAuth } from "../../test/renderWithProviders";
 
 vi.mock("../../api/client", async (importOriginal) => {
   const actual = await importOriginal();
-  return { ...actual, api: { ...actual.api, get: vi.fn() } };
+  return { ...actual, api: { ...actual.api, get: vi.fn(), post: vi.fn() } };
 });
 
 function fieldInput(scope, labelText, tag = "input") {
@@ -65,5 +65,34 @@ describe("ManageCv - tai len CV (dinh dang/dung luong file)", () => {
     fireEvent.submit(uploadForm);
 
     expect(await findByText("Tải lên CV thành công.")).toBeInTheDocument();
+  });
+});
+
+describe("ManageCv - tao CV truc tuyen voi kinh nghiem/hoc van (regression 2026-08-11)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+    seedAuth({ token: "fake-token", vaiTro: "UngVien", hoTenOrTenCongTy: "Test UV" });
+    api.get.mockResolvedValue([]);
+  });
+
+  it("khong gui chuoi rong cho denNgay/tuNam/denNam (DTO nhan DateOnly?/int?, '' lam 400)", async () => {
+    api.post.mockResolvedValue({ maCV: 1, tenCV: "CV cua toi", loaiCV: "TrucTuyen", trangThai: "HoatDong" });
+    const user = userEvent.setup();
+    const { container } = renderWithProviders(<ManageCv />);
+
+    const createForm = container.querySelectorAll("form")[0];
+    await user.type(fieldInput(createForm, "Tên CV"), "CV cua toi");
+    await user.type(createForm.querySelector('input[placeholder="Công ty"]'), "Cong ty ABC");
+    fireEvent.change(createForm.querySelector('input[type="date"]'), { target: { value: "2023-01-01" } });
+    await user.type(createForm.querySelector('input[placeholder="Trường"]'), "Truong XYZ");
+
+    fireEvent.submit(createForm);
+
+    await vi.waitFor(() => expect(api.post).toHaveBeenCalledWith("/cvs/online", expect.any(Object), "fake-token"));
+    const body = api.post.mock.calls[0][1];
+    expect(body.kinhNghiem[0].denNgay).toBeNull();
+    expect(body.hocVan[0].tuNam).toBeNull();
+    expect(body.hocVan[0].denNam).toBeNull();
   });
 });

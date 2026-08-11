@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
 import { api, ApiError, BASE_URL } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import FileUpload from "../../components/FileUpload";
@@ -46,6 +47,9 @@ export default function ManageCv() {
   }, []);
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
+
+  const removeKinhNghiem = (i) => setKinhNghiem(kinhNghiem.filter((_, idx) => idx !== i));
+  const removeHocVan = (i) => setHocVan(hocVan.filter((_, idx) => idx !== i));
 
   const toggleSkill = (maKyNang) => {
     setSelectedSkills((prev) => {
@@ -121,8 +125,16 @@ export default function ManageCv() {
       const body = {
         ...form,
         kyNang: Object.entries(selectedSkills).map(([maKyNang, mucDoThanhThao]) => ({ maKyNang: Number(maKyNang), mucDoThanhThao })),
-        kinhNghiem: kinhNghiem.filter((k) => k.congTy && k.tuNgay),
-        hocVan: hocVan.filter((h) => h.truong),
+        // denNgay/tuNam/denNam khong co o nhap rieng trong form nay nen luon
+        // la "" o state - phai doi thanh null truoc khi gui, vi backend nhan
+        // JSON body (System.Text.Json) khong parse duoc "" thanh DateOnly?/
+        // int?, gay 400 Bad Request (bug that gap 2026-08-11).
+        kinhNghiem: kinhNghiem.filter((k) => k.congTy && k.tuNgay).map((k) => ({ ...k, denNgay: k.denNgay || null })),
+        hocVan: hocVan.filter((h) => h.truong).map((h) => ({
+          ...h,
+          tuNam: h.tuNam ? Number(h.tuNam) : null,
+          denNam: h.denNam ? Number(h.denNam) : null,
+        })),
       };
       if (editingCvId) {
         const result = await api.put(`/cvs/${editingCvId}`, body, auth.token);
@@ -223,15 +235,15 @@ export default function ManageCv() {
           <form onSubmit={handleSubmit}>
             <div className="field">
               <label>Tên CV</label>
-              <input value={form.tenCv} onChange={set("tenCv")} required />
+              <input value={form.tenCv} onChange={set("tenCv")} placeholder="VD: CV Frontend Developer" required />
             </div>
             <div className="field">
               <label>Vị trí mong muốn</label>
-              <input value={form.viTriMongMuon} onChange={set("viTriMongMuon")} />
+              <input value={form.viTriMongMuon} onChange={set("viTriMongMuon")} placeholder="VD: Nhân viên Marketing" />
             </div>
             <div className="field">
               <label>Mức lương mong muốn</label>
-              <input value={form.mucLuongMongMuon} onChange={set("mucLuongMongMuon")} />
+              <input value={form.mucLuongMongMuon} onChange={set("mucLuongMongMuon")} placeholder="VD: 15-20 triệu hoặc Thỏa thuận" />
             </div>
             <div className="field">
               <label>Trình độ học vấn</label>
@@ -255,10 +267,19 @@ export default function ManageCv() {
             <div className="field">
               <label>Kinh nghiệm làm việc</label>
               {kinhNghiem.map((k, i) => (
-                <div key={i} className="card" style={{ marginBottom: 8 }}>
+                <div key={i} className="card" style={{ marginBottom: 8, position: "relative" }}>
+                  <button
+                    type="button"
+                    onClick={() => removeKinhNghiem(i)}
+                    aria-label="Xóa kinh nghiệm này"
+                    title="Xóa"
+                    style={{ position: "absolute", top: 8, right: 8, background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", padding: 4 }}
+                  >
+                    <Trash2 size={16} />
+                  </button>
                   <input placeholder="Công ty" value={k.congTy} onChange={(e) => {
                     const next = [...kinhNghiem]; next[i] = { ...k, congTy: e.target.value }; setKinhNghiem(next);
-                  }} style={{ marginBottom: 6 }} />
+                  }} style={{ marginBottom: 6, paddingRight: 36 }} />
                   <input placeholder="Vị trí" value={k.viTri} onChange={(e) => {
                     const next = [...kinhNghiem]; next[i] = { ...k, viTri: e.target.value }; setKinhNghiem(next);
                   }} style={{ marginBottom: 6 }} />
@@ -275,10 +296,19 @@ export default function ManageCv() {
             <div className="field">
               <label>Học vấn</label>
               {hocVan.map((h, i) => (
-                <div key={i} className="card" style={{ marginBottom: 8 }}>
+                <div key={i} className="card" style={{ marginBottom: 8, position: "relative" }}>
+                  <button
+                    type="button"
+                    onClick={() => removeHocVan(i)}
+                    aria-label="Xóa học vấn này"
+                    title="Xóa"
+                    style={{ position: "absolute", top: 8, right: 8, background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", padding: 4 }}
+                  >
+                    <Trash2 size={16} />
+                  </button>
                   <input placeholder="Trường" value={h.truong} onChange={(e) => {
                     const next = [...hocVan]; next[i] = { ...h, truong: e.target.value }; setHocVan(next);
-                  }} style={{ marginBottom: 6 }} />
+                  }} style={{ marginBottom: 6, paddingRight: 36 }} />
                   <input placeholder="Chuyên ngành" value={h.chuyenNganh} onChange={(e) => {
                     const next = [...hocVan]; next[i] = { ...h, chuyenNganh: e.target.value }; setHocVan(next);
                   }} />
