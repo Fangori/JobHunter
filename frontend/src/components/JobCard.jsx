@@ -13,7 +13,7 @@ function thoiGianTruoc(ngayDang) {
 // 1 hang ngang toan chieu rong nhu truoc - do trong 1 the it thong tin, xep
 // hang ngang de lai nhieu khoang trong ben phai tren man hinh rong.
 export default function JobCard({ job, isFavorited, onToggleFavorite, matchPercent }) {
-  const thumbnail = getJobThumbnail(job.maNganhNghe);
+  const thumbnail = getJobThumbnail(job.maNganhNghe, job.maTin);
 
   return (
     <div className="card" style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column", padding: 0, overflow: "hidden" }}>
