@@ -54,8 +54,16 @@ export default function PackagePlans() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
             {danhSachGoi.map((goi) => (
-              <div key={goi.maGoi} className="card">
-                {goi.coNoiBat && <span className="badge badge-warning">Nổi bật</span>}
+              <div
+                key={goi.maGoi}
+                className="card"
+                style={goi.coNoiBat ? { border: "2px solid var(--warning)", position: "relative" } : undefined}
+              >
+                {goi.coNoiBat && (
+                  <span className="badge badge-warning" style={{ position: "absolute", top: -12, left: 20 }}>
+                    ★ Được chọn nhiều nhất
+                  </span>
+                )}
                 <p style={{ fontSize: 20, fontWeight: 700, margin: "10px 0 4px" }}>{goi.tenGoi}</p>
                 <p style={{ fontSize: 26, fontWeight: 700, color: "var(--indigo)", margin: "0 0 8px" }}>
                   {goi.giaTien.toLocaleString("vi-VN")}đ <span style={{ fontSize: 14, fontWeight: 400, color: "var(--text-muted)" }}>/ {goi.thoiHan} ngày</span>
