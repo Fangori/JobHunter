@@ -7,17 +7,52 @@ using Xunit;
 
 namespace JobHunter.Tests;
 
+// Fake nhung van kiem that (khong chi tra ve hang so co dinh) de test con
+// y nghia - "ky" = noi 3 tham so, "verify" = so khop lai dung chuoi do.
+// Khong can Jwt:Key that, khac voi JwtServiceTests.cs (test bang JwtService
+// that, dung HMAC that).
 file class FakeJwtService : IJwtService
 {
     public string GenerateToken(TaiKhoan taiKhoan, string displayName) => "fake-token";
+
+    public string KyTokenMucDich(int maToken, string loaiToken, DateTime thoiHanHetHan)
+        => $"{maToken}|{loaiToken}|{thoiHanHetHan:O}";
+
+    public bool XacMinhTokenMucDich(string chuKy, int maToken, string loaiToken, DateTime thoiHanHetHan)
+        => chuKy == KyTokenMucDich(maToken, loaiToken, thoiHanHetHan);
+}
+
+file class FakeEmailService : IEmailService
+{
+    public List<(string ToEmail, string TokenValue)> XacThucDaGui { get; } = new();
+    public List<(string ToEmail, string TokenValue)> DatLaiMatKhauDaGui { get; } = new();
+
+    public Task GuiXacThucEmailAsync(string toEmail, string tokenValue)
+    {
+        XacThucDaGui.Add((toEmail, tokenValue));
+        return Task.CompletedTask;
+    }
+
+    public Task GuiDatLaiMatKhauAsync(string toEmail, string tokenValue)
+    {
+        DatLaiMatKhauDaGui.Add((toEmail, tokenValue));
+        return Task.CompletedTask;
+    }
 }
 
 public class AuthServiceTests
 {
     private static AuthService NewService(out JobHunter.API.Data.JobHunterDbContext db)
+        => NewService(out db, out _);
+
+    // "IJwtService" (khong phai FakeJwtService file-local) o kieu tra ve -
+    // C# khong cho type file-local xuat hien trong signature cua thanh vien
+    // thuoc class KHONG file-local (AuthServiceTests o day).
+    private static AuthService NewService(out JobHunter.API.Data.JobHunterDbContext db, out IJwtService jwt)
     {
         db = TestHelpers.NewInMemoryDb();
-        return new AuthService(db, new ThamSoService(db), new FakeJwtService());
+        jwt = new FakeJwtService();
+        return new AuthService(db, new ThamSoService(db), jwt, new FakeEmailService());
     }
 
     [Fact]
@@ -140,7 +175,7 @@ public class AuthServiceTests
     [Trait("Category", "BR08")]
     public async Task XacThucEmail_TokenHetHan_ThatBai()
     {
-        var service = NewService(out var db);
+        var service = NewService(out var db, out var jwt);
         await service.DangKyUngVienAsync(new DangKyUngVienRequest { HoTen = "A", Email = "h@test.local", MatKhau = "Test1234", XacNhanMatKhau = "Test1234" });
 
         var taiKhoan = db.TaiKhoans.Single(x => x.Email == "h@test.local");
@@ -148,7 +183,8 @@ public class AuthServiceTests
         token.ThoiHanHetHan = DateTime.UtcNow.AddMinutes(-1); // gia lap qua han
         await db.SaveChangesAsync();
 
-        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() => service.VerifyEmailAsync(token.MaToken.ToString()));
+        var tokenValue = $"{token.MaToken}.{jwt.KyTokenMucDich(token.MaToken, token.LoaiToken, token.ThoiHanHetHan)}";
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() => service.VerifyEmailAsync(tokenValue));
         Assert.Equal(400, ex.StatusCode); // MS19
     }
 
@@ -156,7 +192,7 @@ public class AuthServiceTests
     [Trait("Category", "BR08")]
     public async Task DatLaiMatKhau_TokenQua15Phut_ThatBai()
     {
-        var service = NewService(out var db);
+        var service = NewService(out var db, out var jwt);
         await service.DangKyUngVienAsync(new DangKyUngVienRequest { HoTen = "A", Email = "i@test.local", MatKhau = "Test1234", XacNhanMatKhau = "Test1234" });
         await service.ForgotPasswordAsync("i@test.local");
 
@@ -165,8 +201,48 @@ public class AuthServiceTests
         token.ThoiHanHetHan = DateTime.UtcNow.AddMinutes(-1); // qua 15 phut (BR08)
         await db.SaveChangesAsync();
 
+        var tokenValue = $"{token.MaToken}.{jwt.KyTokenMucDich(token.MaToken, token.LoaiToken, token.ThoiHanHetHan)}";
         var ex = await Assert.ThrowsAsync<BusinessRuleException>(() =>
-            service.ResetPasswordAsync(token.MaToken.ToString(), "NewPass123", "NewPass123"));
+            service.ResetPasswordAsync(tokenValue, "NewPass123", "NewPass123"));
         Assert.Equal(400, ex.StatusCode); // MS23
+    }
+
+    [Fact]
+    [Trait("Category", "Security")]
+    public async Task XacThucEmail_ChuKyBiSuaSai_ThatBai()
+    {
+        // Chung minh lo hong "doan MaToken" da duoc va: du MaToken dung va
+        // token chua het han, sua sai 1 ky tu trong chu ky thi van bi tu
+        // choi - khong con the chi doan so nguyen la xac thuc duoc tai
+        // khoan nguoi khac nhu truoc.
+        var service = NewService(out var db, out var jwt);
+        await service.DangKyUngVienAsync(new DangKyUngVienRequest { HoTen = "A", Email = "j@test.local", MatKhau = "Test1234", XacNhanMatKhau = "Test1234" });
+
+        var taiKhoan = db.TaiKhoans.Single(x => x.Email == "j@test.local");
+        var token = db.TokenXacThucs.Single(x => x.MaTK == taiKhoan.MaTK && x.LoaiToken == "XacThucEmail");
+        var chuKyDung = jwt.KyTokenMucDich(token.MaToken, token.LoaiToken, token.ThoiHanHetHan);
+        var chuKySai = chuKyDung + "x"; // gia mao / sua sai
+
+        var ex = await Assert.ThrowsAsync<BusinessRuleException>(() =>
+            service.VerifyEmailAsync($"{token.MaToken}.{chuKySai}"));
+        Assert.Equal(400, ex.StatusCode);
+
+        var taiKhoanSau = db.TaiKhoans.Single(x => x.Email == "j@test.local");
+        Assert.False(taiKhoanSau.DaXacThuc); // van chua xac thuc duoc
+    }
+
+    [Fact]
+    [Trait("Category", "Security")]
+    public async Task DangKy_GuiEmailXacThucDungNguoiNhanVaKemToken()
+    {
+        var db = TestHelpers.NewInMemoryDb();
+        var email = new FakeEmailService();
+        var service = new AuthService(db, new ThamSoService(db), new FakeJwtService(), email);
+
+        await service.DangKyUngVienAsync(new DangKyUngVienRequest { HoTen = "A", Email = "k@test.local", MatKhau = "Test1234", XacNhanMatKhau = "Test1234" });
+
+        var goiGui = Assert.Single(email.XacThucDaGui);
+        Assert.Equal("k@test.local", goiGui.ToEmail);
+        Assert.Contains('.', goiGui.TokenValue); // dung dinh dang "{MaToken}.{chuKy}"
     }
 }

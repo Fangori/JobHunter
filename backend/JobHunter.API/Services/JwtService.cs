@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using JobHunter.API.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -39,5 +40,29 @@ public class JwtService : IJwtService
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    // UC03/UC06 - token xac thuc email/dat lai mat khau tu ky bang HMAC,
+    // KHONG luu them cot DB (schema Lab 3 da nop, khong doi). Chu ky bao
+    // dam "MaToken" (INT tu tang, doan duoc) khong the bi gia mao neu
+    // khong biet Jwt:Key - xem chi tiet trong
+    // docs/superpowers/specs/2026-08-12-smtp-email-design.md
+    public string KyTokenMucDich(int maToken, string loaiToken, DateTime thoiHanHetHan)
+    {
+        var data = $"{maToken}|{loaiToken}|{thoiHanHetHan:O}";
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+        return Convert.ToBase64String(hash).Replace('+', '-').Replace('/', '_').TrimEnd('=');
+    }
+
+    public bool XacMinhTokenMucDich(string chuKy, int maToken, string loaiToken, DateTime thoiHanHetHan)
+    {
+        var chuKyDung = KyTokenMucDich(maToken, loaiToken, thoiHanHetHan);
+        // FixedTimeEquals doi 2 mang cung do dai - kiem truoc de tranh
+        // exception (do dai khac nhau tu no da la "khong khop" roi).
+        var a = Encoding.UTF8.GetBytes(chuKy);
+        var b = Encoding.UTF8.GetBytes(chuKyDung);
+        if (a.Length != b.Length) return false;
+        return CryptographicOperations.FixedTimeEquals(a, b);
     }
 }

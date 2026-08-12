@@ -93,6 +93,8 @@ Có email trường (.edu) thì dùng [Azure for Students](https://azure.microso
 - Frontend (Vercel/Netlify → Environment Variables): `VITE_API_BASE_URL=https://ten-api-cua-ban.azurewebsites.net/api`
 - Backend (Azure App Service → Configuration): `CORS_ALLOWED_ORIGINS=https://ten-frontend-cua-ban.vercel.app` (nhiều origin cách nhau bởi dấu phẩy)
 
+Muốn gửi email thật (xác thực đăng ký, quên mật khẩu) khi deploy thì set thêm ở Backend: `Frontend__BaseUrl=https://ten-frontend-cua-ban.vercel.app` và `Smtp__Host`/`Smtp__Port`/`Smtp__Username`/`Smtp__Password`/`Smtp__FromEmail`/`Smtp__FromName` (xem `.env.example`) — không đặt thì tự động fallback về log console như cũ, không lỗi.
+
 ## Cấu trúc thư mục
 
 ```

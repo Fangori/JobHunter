@@ -11,12 +11,14 @@ public class AuthService : IAuthService
     private readonly JobHunterDbContext _db;
     private readonly IThamSoService _thamSo;
     private readonly IJwtService _jwt;
+    private readonly IEmailService _email;
 
-    public AuthService(JobHunterDbContext db, IThamSoService thamSo, IJwtService jwt)
+    public AuthService(JobHunterDbContext db, IThamSoService thamSo, IJwtService jwt, IEmailService email)
     {
         _db = db;
         _thamSo = thamSo;
         _jwt = jwt;
+        _email = email;
     }
 
     public async Task<DangKyResponse> DangKyUngVienAsync(DangKyUngVienRequest request)
@@ -184,9 +186,8 @@ public class AuthService : IAuthService
         _db.TokenXacThucs.Add(token);
         await _db.SaveChangesAsync();
 
-        Console.WriteLine($"[EMAIL MOCK] Gửi tới {taiKhoan.Email}: http://localhost:5173/reset-password?token={token.MaToken}-{Guid.NewGuid():N}");
-        // Luu y: token that nen la chuoi ngau nhien rieng, dung MaToken lam
-        // dinh danh don gian cho demo (xem GhiChu o LayTokenHopLeAsync)
+        var chuKy = _jwt.KyTokenMucDich(token.MaToken, "DatLaiMatKhau", token.ThoiHanHetHan);
+        await _email.GuiDatLaiMatKhauAsync(taiKhoan.Email, $"{token.MaToken}.{chuKy}");
     }
 
     public async Task ResetPasswordAsync(string token, string matKhauMoi, string xacNhanMatKhauMoi)
@@ -232,20 +233,26 @@ public class AuthService : IAuthService
         _db.TokenXacThucs.Add(token);
         await _db.SaveChangesAsync();
 
-        Console.WriteLine($"[EMAIL MOCK] Gửi tới {taiKhoan.Email}: http://localhost:5173/verify-email?token={token.MaToken}");
+        var chuKy = _jwt.KyTokenMucDich(token.MaToken, "XacThucEmail", token.ThoiHanHetHan);
+        await _email.GuiXacThucEmailAsync(taiKhoan.Email, $"{token.MaToken}.{chuKy}");
     }
 
-    // Ghi chu: dung thang MaToken (int, tu tang) lam gia tri token trong URL de
-    // don gian hoa demo (khong nham lan voi token that dang bao mat cao hon
-    // dang chuoi ngau nhien) - chap nhan duoc vi UC03/UC06 chi mock/log console
-    // hom nay, khong gui email that (xem quyet dinh da chot voi nguoi dung).
+    // Token = "{MaToken}.{chu ky HMAC}" - MaToken (INT tu tang) doan duoc,
+    // nhung khong the gia mao chu ky neu khong biet Jwt:Key (xem
+    // IJwtService.KyTokenMucDich/XacMinhTokenMucDich). Khong luu chu ky vao
+    // DB - tu tinh lai va so sanh moi lan verify.
     private async Task<TokenXacThuc> LayTokenHopLeAsync(string tokenValue, string loaiToken)
     {
-        if (!int.TryParse(tokenValue.Split('-')[0], out var maToken))
+        var parts = tokenValue.Split('.', 2);
+        if (parts.Length != 2 || !int.TryParse(parts[0], out var maToken))
             throw new BusinessRuleException(400, LayThongBaoTokenSai(loaiToken));
+        var chuKy = parts[1];
 
         var token = await _db.TokenXacThucs.FirstOrDefaultAsync(x => x.MaToken == maToken && x.LoaiToken == loaiToken);
         if (token is null || token.DaSuDung || token.ThoiHanHetHan < DateTime.UtcNow)
+            throw new BusinessRuleException(400, LayThongBaoTokenSai(loaiToken));
+
+        if (!_jwt.XacMinhTokenMucDich(chuKy, token.MaToken, token.LoaiToken, token.ThoiHanHetHan))
             throw new BusinessRuleException(400, LayThongBaoTokenSai(loaiToken));
 
         return token;
