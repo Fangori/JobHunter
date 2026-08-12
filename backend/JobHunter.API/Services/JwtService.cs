@@ -49,7 +49,15 @@ public class JwtService : IJwtService
     // docs/superpowers/specs/2026-08-12-smtp-email-design.md
     public string KyTokenMucDich(int maToken, string loaiToken, DateTime thoiHanHetHan)
     {
-        var data = $"{maToken}|{loaiToken}|{thoiHanHetHan:O}";
+        // SpecifyKind(Utc) truoc khi format ":O" - BAT BUOC, vi format "O"
+        // phu thuoc DateTimeKind (them hau to "Z" neu Kind=Utc, khong them
+        // gi neu Kind=Unspecified). Luc ky (object moi tao, DateTime.UtcNow)
+        // Kind=Utc, nhung luc verify (doc lai tu SQL Server qua EF Core)
+        // Kind luon la Unspecified - neu khong ep lai, 2 chuoi khac nhau ->
+        // chu ky khong bao gio khop du dung Jwt:Key. Bug that da gap
+        // 2026-08-12 (moi link xac thuc email/dat lai mat khau deu bao loi).
+        var utc = DateTime.SpecifyKind(thoiHanHetHan, DateTimeKind.Utc);
+        var data = $"{maToken}|{loaiToken}|{utc:O}";
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
         return Convert.ToBase64String(hash).Replace('+', '-').Replace('/', '_').TrimEnd('=');

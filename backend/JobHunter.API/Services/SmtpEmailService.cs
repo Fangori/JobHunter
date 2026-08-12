@@ -13,7 +13,19 @@ public class SmtpEmailService : IEmailService
         _config = config;
     }
 
-    private string FrontendBaseUrl => _config["Frontend:BaseUrl"] ?? "http://localhost:5173";
+    // Dung IsNullOrWhiteSpace thay vi "??" - "??" chi bat duoc null (bien
+    // moi truong CHUA set), khong bat duoc chuoi rong (bien DA set nhung
+    // rong, vd docker-compose truyen Frontend__BaseUrl: ${FRONTEND_BASE_URL}
+    // ma .env chua co dong do) -> link trong email bi thieu domain, bug
+    // that da gap 2026-08-12.
+    private string FrontendBaseUrl
+    {
+        get
+        {
+            var value = _config["Frontend:BaseUrl"];
+            return string.IsNullOrWhiteSpace(value) ? "http://localhost:5173" : value;
+        }
+    }
 
     public Task GuiXacThucEmailAsync(string toEmail, string tokenValue)
     {
@@ -69,8 +81,10 @@ public class SmtpEmailService : IEmailService
         try
         {
             var port = int.TryParse(_config["Smtp:Port"], out var p) ? p : 587;
-            var fromEmail = _config["Smtp:FromEmail"] ?? username;
-            var fromName = _config["Smtp:FromName"] ?? "JobHunter";
+            var fromEmailRaw = _config["Smtp:FromEmail"];
+            var fromEmail = string.IsNullOrWhiteSpace(fromEmailRaw) ? username : fromEmailRaw;
+            var fromNameRaw = _config["Smtp:FromName"];
+            var fromName = string.IsNullOrWhiteSpace(fromNameRaw) ? "JobHunter" : fromNameRaw;
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(fromName, fromEmail));

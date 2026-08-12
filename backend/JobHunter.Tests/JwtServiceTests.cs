@@ -70,4 +70,24 @@ public class JwtServiceTests
 
         Assert.False(jwt.XacMinhTokenMucDich("chuoi-qua-ngan", 42, "XacThucEmail", hanDung));
     }
+
+    // Regression test cho bug that gap 2026-08-12: ky luc DateTime con Kind=
+    // Utc (object moi tao trong bo nho), verify luc doc lai tu SQL Server
+    // qua EF Core (luon tra ve Kind=Unspecified, cung gio nhung khac Kind) -
+    // truoc khi vao JwtService.SpecifyKind, 2 truong hop nay cho chu ky khac
+    // nhau -> moi link xac thuc email/dat lai mat khau deu bi tu choi.
+    [Fact]
+    [Trait("Category", "Security")]
+    public void KyVoiKindUtc_VerifyVoiKindUnspecified_CungGio_VanKhop()
+    {
+        var jwt = NewService();
+        var hanDungUtc = DateTime.UtcNow.AddMinutes(15); // gia lap luc tao token (in-memory, Kind=Utc)
+        var chuKy = jwt.KyTokenMucDich(42, "XacThucEmail", hanDungUtc);
+
+        // Gia lap doc lai tu SQL Server qua EF Core: cung tick, nhung
+        // Kind=Unspecified (SQL Server datetime2 khong luu Kind).
+        var hanDungTuDb = DateTime.SpecifyKind(hanDungUtc, DateTimeKind.Unspecified);
+
+        Assert.True(jwt.XacMinhTokenMucDich(chuKy, 42, "XacThucEmail", hanDungTuDb));
+    }
 }
