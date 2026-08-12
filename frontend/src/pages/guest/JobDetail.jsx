@@ -50,7 +50,7 @@ export default function JobDetail() {
 
   if (!job) return <div className="page-container">Đang tải...</div>;
 
-  const banner = getCompanyBanner(job.maTkNtd);
+  const banner = getCompanyBanner(job.maTkNtd, job.anhBiaCongTy);
 
   return (
     <div className="page-container">
@@ -65,9 +65,11 @@ export default function JobDetail() {
           position: "relative",
         }}
       >
-        <span style={{ position: "absolute", right: 12, bottom: 8, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
-          Ảnh: {banner.credit}
-        </span>
+        {banner.credit && (
+          <span style={{ position: "absolute", right: 12, bottom: 8, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
+            Ảnh: {banner.credit}
+          </span>
+        )}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24, alignItems: "start" }}>
         <div className="card">

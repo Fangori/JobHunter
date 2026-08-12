@@ -135,6 +135,7 @@ public class JobService : IJobService
             MaTkNtd = tin.MaTK,
             TenCongTy = tin.NhaTuyenDung.TenCongTy,
             Logo = tin.NhaTuyenDung.Logo,
+            AnhBiaCongTy = tin.NhaTuyenDung.AnhBia,
             MaNganhNghe = tin.NhaTuyenDung.MaNganhNghe,
             DiaDiem = tin.DiaDiem,
             MucLuong = tin.MucLuong,

@@ -25,6 +25,7 @@ public class EmployerProfileDto
 {
     public string TenCongTy { get; set; } = null!;
     public string? Logo { get; set; }
+    public string? AnhBia { get; set; }
     public string? QuyMo { get; set; }
     public int? MaNganhNghe { get; set; }
     public string? DiaChi { get; set; }

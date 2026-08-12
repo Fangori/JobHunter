@@ -26,11 +26,11 @@ public class EmployersController : ControllerBase
 
     [HttpPut("me")]
     [Authorize(Roles = "NhaTuyenDung")]
-    public async Task<IActionResult> UpdateMe([FromForm] CapNhatEmployerProfileRequest request, IFormFile? logo)
+    public async Task<IActionResult> UpdateMe([FromForm] CapNhatEmployerProfileRequest request, IFormFile? logo, IFormFile? anhBia)
     {
         try
         {
-            var result = await _profileService.CapNhatHoSoAsync(CurrentMaTK, request, logo);
+            var result = await _profileService.CapNhatHoSoAsync(CurrentMaTK, request, logo, anhBia);
             return Ok(result);
         }
         catch (BusinessRuleException ex)

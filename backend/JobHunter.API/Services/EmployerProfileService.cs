@@ -27,7 +27,7 @@ public class EmployerProfileService : IEmployerProfileService
         return ToDto(ntd);
     }
 
-    public async Task<EmployerProfileDto> CapNhatHoSoAsync(int maTk, CapNhatEmployerProfileRequest request, IFormFile? logo)
+    public async Task<EmployerProfileDto> CapNhatHoSoAsync(int maTk, CapNhatEmployerProfileRequest request, IFormFile? logo, IFormFile? anhBia)
     {
         var ntd = await _db.NhaTuyenDungs.FirstAsync(x => x.MaTK == maTk);
 
@@ -38,6 +38,15 @@ public class EmployerProfileService : IEmployerProfileService
                 throw new BusinessRuleException(400, "Logo phải có định dạng .jpg, .png và dung lượng dưới 2MB."); // MS60
 
             ntd.Logo = await _cloudinary.UploadImageAsync(logo, $"jobhunter/logo/{maTk}");
+        }
+
+        if (anhBia is not null)
+        {
+            var extension = Path.GetExtension(anhBia.FileName).ToLowerInvariant();
+            if (!DinhDangAnhChoPhep.Contains(extension) || anhBia.Length > DungLuongAnhToiDaByte)
+                throw new BusinessRuleException(400, "Ảnh bìa phải có định dạng .jpg, .png và dung lượng dưới 2MB.");
+
+            ntd.AnhBia = await _cloudinary.UploadImageAsync(anhBia, $"jobhunter/banner/{maTk}");
         }
 
         ntd.TenCongTy = request.TenCongTy;
@@ -84,6 +93,7 @@ public class EmployerProfileService : IEmployerProfileService
         {
             TenCongTy = dto.TenCongTy,
             Logo = dto.Logo,
+            AnhBia = dto.AnhBia,
             QuyMo = dto.QuyMo,
             MaNganhNghe = dto.MaNganhNghe,
             DiaChi = dto.DiaChi,
@@ -97,6 +107,7 @@ public class EmployerProfileService : IEmployerProfileService
     {
         TenCongTy = ntd.TenCongTy,
         Logo = ntd.Logo,
+        AnhBia = ntd.AnhBia,
         QuyMo = ntd.QuyMo,
         MaNganhNghe = ntd.MaNganhNghe,
         DiaChi = ntd.DiaChi,

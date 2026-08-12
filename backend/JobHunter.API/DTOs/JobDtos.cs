@@ -53,6 +53,9 @@ public class TinTuyenDungSummaryDto
 
 public class TinTuyenDungDetailDto : TinTuyenDungSummaryDto
 {
+    // Anh bia cong ty NTD tu chon (UC08) - de trang Chi tiet viec lam hien
+    // dung banner NTD da chon thay vi luon roi vao mac dinh xoay theo MaTK.
+    public string? AnhBiaCongTy { get; set; }
     public string MoTaCongViec { get; set; } = null!;
     public string? YeuCauUngVien { get; set; }
     public string? QuyenLoi { get; set; }

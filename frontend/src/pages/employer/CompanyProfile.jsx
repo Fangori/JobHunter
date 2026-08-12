@@ -12,6 +12,8 @@ export default function CompanyProfile() {
   const [form, setForm] = useState({ tenCongTy: "", quyMo: "", maNganhNghe: "", diaChi: "", website: "", gioiThieuCongTy: "" });
   const [logo, setLogo] = useState(null);
   const [logoHienTai, setLogoHienTai] = useState(null);
+  const [anhBia, setAnhBia] = useState(null);
+  const [anhBiaHienTai, setAnhBiaHienTai] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,6 +30,7 @@ export default function CompanyProfile() {
             diaChi: data.diaChi || "", website: data.website || "", gioiThieuCongTy: data.gioiThieuCongTy || "",
           });
           setLogoHienTai(data.logo);
+          setAnhBiaHienTai(data.anhBia);
         }),
     ]).finally(() => setDangTai(false)); // chi hien form sau khi ca 2 fetch xong, tranh
     // rang buoc du lieu vua go bi de len (cung 1 bug da bat duoc o Profile.jsx)
@@ -44,6 +47,7 @@ export default function CompanyProfile() {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => fd.append(k, v ?? ""));
       if (logo) fd.append("logo", logo);
+      if (anhBia) fd.append("anhBia", anhBia);
       const res = await fetch(`${BASE_URL}/employers/me`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${auth.token}` },
@@ -52,6 +56,8 @@ export default function CompanyProfile() {
       const data = await res.json();
       if (!res.ok) throw new ApiError(data.message, res.status);
       setLogoHienTai(data.logo);
+      setAnhBiaHienTai(data.anhBia);
+      setAnhBia(null);
       setSuccess("Cập nhật hồ sơ công ty thành công."); // MS25
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Có lỗi xảy ra."); // MS60
@@ -66,24 +72,26 @@ export default function CompanyProfile() {
         <h2>Hồ sơ công ty</h2>
       </div>
 
-      {/* Banner trang tri - NHA_TUYEN_DUNG khong co cot anh bia rieng trong
-          schema da chot, nen gan co dinh 1 trong 5 anh theo MaTK (doc tu JWT)
-          de moi cong ty nhin co banner rieng biet ma khong doi DB. */}
-      <div
-        style={{
-          height: 180,
-          borderRadius: "var(--radius-lg)",
-          marginBottom: 24,
-          backgroundImage: `linear-gradient(to bottom, rgba(26,33,64,0.15), var(--navy)), url(${getCompanyBanner(decodeJwtMaTk(auth.token)).src})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          position: "relative",
-        }}
-      >
-        <span style={{ position: "absolute", right: 12, bottom: 8, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
-          Ảnh: {getCompanyBanner(decodeJwtMaTk(auth.token)).credit}
-        </span>
-      </div>
+      {/* Anh bia - NTD tu upload qua Cloudinary (UC08, cot AnhBia moi them
+          qua migration, cung co che voi Logo). Chua upload thi hien banner
+          mac dinh xoay vong theo MaTK nhu truoc (tuong thich nguoc). */}
+      {!dangTai && (
+        <div style={{ marginBottom: 24 }}>
+          <FileUpload
+            label="Ảnh bìa công ty"
+            accept=".jpg,.jpeg,.png"
+            variant="banner"
+            value={anhBia}
+            existingUrl={anhBiaHienTai || getCompanyBanner(decodeJwtMaTk(auth.token)).src}
+            onChange={setAnhBia}
+          />
+          {!anhBia && !anhBiaHienTai && (
+            <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "4px 0 0" }}>
+              Ảnh: {getCompanyBanner(decodeJwtMaTk(auth.token)).credit} (ảnh mặc định - chưa tải ảnh bìa riêng)
+            </p>
+          )}
+        </div>
+      )}
 
       {dangTai && <div className="card"><p>Đang tải...</p></div>}
 

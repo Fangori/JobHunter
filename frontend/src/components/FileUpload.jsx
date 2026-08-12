@@ -6,7 +6,7 @@ export default function FileUpload({ label, accept, value, onChange, variant = "
   const [previewUrl, setPreviewUrl] = useState(null);
 
   useEffect(() => {
-    if (variant !== "avatar" || !value) {
+    if ((variant !== "avatar" && variant !== "banner") || !value) {
       setPreviewUrl(null);
       return;
     }
@@ -21,6 +21,33 @@ export default function FileUpload({ label, accept, value, onChange, variant = "
   };
 
   const displayUrl = previewUrl || existingUrl;
+
+  if (variant === "banner") {
+    return (
+      <div className="field">
+        {label && <label>{label}</label>}
+        <div
+          style={{
+            position: "relative", height: 180, borderRadius: "var(--radius-lg)", overflow: "hidden",
+            background: displayUrl ? undefined : "var(--info-bg)",
+          }}
+        >
+          {displayUrl && (
+            <img src={displayUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          )}
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ position: "absolute", right: 12, bottom: 12, height: 36, background: "rgba(255,255,255,0.92)" }}
+            onClick={() => inputRef.current.click()}
+          >
+            {displayUrl ? "Đổi ảnh bìa" : "Tải ảnh bìa lên"}
+          </button>
+        </div>
+        <input ref={inputRef} type="file" accept={accept} onChange={handleChange} style={{ display: "none" }} />
+      </div>
+    );
+  }
 
   return (
     <div className="field">

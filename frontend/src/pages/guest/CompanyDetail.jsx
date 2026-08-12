@@ -42,7 +42,7 @@ export default function CompanyDetail() {
 
   if (!company) return <div className="page-container">Đang tải...</div>;
 
-  const banner = getCompanyBanner(id);
+  const banner = getCompanyBanner(id, company.anhBia);
 
   return (
     <div className="page-container">
@@ -57,9 +57,11 @@ export default function CompanyDetail() {
           position: "relative",
         }}
       >
-        <span style={{ position: "absolute", right: 12, bottom: 8, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
-          Ảnh: {banner.credit}
-        </span>
+        {banner.credit && (
+          <span style={{ position: "absolute", right: 12, bottom: 8, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
+            Ảnh: {banner.credit}
+          </span>
+        )}
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 24, alignItems: "start" }}>

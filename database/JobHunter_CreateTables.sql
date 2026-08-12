@@ -117,6 +117,7 @@ CREATE TABLE NHA_TUYEN_DUNG (
     TenCongTy           NVARCHAR(150) NOT NULL,
     MaSoThue            NVARCHAR(15) NULL,             -- 10 hoac 13 chu so; UNIQUE khai bao rieng ben duoi
     Logo                NVARCHAR(255) NULL,           -- URL Cloudinary
+    AnhBia              NVARCHAR(255) NULL,            -- URL Cloudinary (giong co che cua Logo) - NULL = chua upload, dung banner mac dinh
     MaNganhNghe         INT NULL,
     DiaChi              NVARCHAR(255) NULL,
     Website             NVARCHAR(150) NULL,
