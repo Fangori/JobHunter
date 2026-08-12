@@ -19,10 +19,12 @@
   --danger-bg: #fbe4e4;
   --success-bg: #e3f6ea;
   --info-bg: #e6eafc;
-  --radius: 8px;
-  --radius-lg: 14px;
+  --radius: 10px;
+  --radius-lg: 18px;
   --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.06), 0 6px 16px rgba(16, 24, 40, 0.08);
   --shadow-card-hover: 0 2px 6px rgba(16, 24, 40, 0.08), 0 12px 28px rgba(16, 24, 40, 0.12);
+  --gradient-primary: linear-gradient(135deg, var(--indigo) 0%, var(--logo-purple) 100%);
+  --shadow-primary-glow: 0 4px 12px rgba(57, 73, 198, 0.28), 0 2px 4px rgba(57, 73, 198, 0.18);
 
   /* Thang khoang cach dung chung - de chia nhom cac form dai (Dang tin,
      Quan ly CV...) thanh tung khoi ro rang thay vi 1 cot input lien tuc. */
@@ -78,15 +80,23 @@ h3 { font-size: 17px; }
 }
 
 .btn-primary {
-  background: var(--indigo);
+  background: var(--gradient-primary);
   color: white;
+  box-shadow: var(--shadow-primary-glow);
+  transition: box-shadow 0.15s, transform 0.15s;
 }
 .btn-primary:hover {
-  background: var(--indigo-dark);
+  box-shadow: 0 6px 18px rgba(57, 73, 198, 0.36), 0 3px 6px rgba(57, 73, 198, 0.22);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0);
 }
 .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 .btn-secondary {

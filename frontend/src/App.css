@@ -74,13 +74,15 @@
 }
 
 .dashboard-header-band {
-  /* diem 130% de vet cyan cua logo chi lo ra 1 chut o goc, khong lam
-     "banner cau vong" - chi la 1 diem nhan tinh te khop voi logo. */
-  background: linear-gradient(135deg, var(--navy) 0%, var(--indigo) 65%, var(--logo-cyan) 130%);
+  /* Dung ca 3 mau cua logo (navy la mau nen co dinh cua app, khong phai tu
+     logo) ro net hon han ban dau (truoc chi lo cyan mo o goc - qua tinh te
+     nen nhin "giong het cu"). */
+  background: linear-gradient(120deg, var(--navy) 0%, var(--indigo) 55%, var(--logo-purple) 85%, var(--logo-cyan) 130%);
   border-radius: var(--radius-lg);
-  padding: 24px 32px;
+  padding: 28px 32px;
   margin-bottom: 24px;
   color: white;
+  box-shadow: var(--shadow-primary-glow);
 }
 .dashboard-header-band h1,
 .dashboard-header-band h2 {

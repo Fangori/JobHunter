@@ -69,7 +69,7 @@ export default function PackagePlans() {
                   {goi.giaTien.toLocaleString("vi-VN")}đ <span style={{ fontSize: 14, fontWeight: 400, color: "var(--text-muted)" }}>/ {goi.thoiHan} ngày</span>
                 </p>
                 <p style={{ margin: "0 0 16px", color: "var(--text-muted)" }}>Giới hạn {goi.gioiHanTin} tin đăng đồng thời</p>
-                <Link to={`/employer/service-packages/${goi.maGoi}/checkout`} className="btn btn-primary" style={{ width: "100%", textAlign: "center", display: "block" }}>
+                <Link to={`/employer/service-packages/${goi.maGoi}/checkout`} className="btn btn-primary" style={{ width: "100%" }}>
                   Mua gói
                 </Link>
               </div>
