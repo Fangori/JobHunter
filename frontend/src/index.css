@@ -2,6 +2,11 @@
   --navy: #1a2140;
   --indigo: #3949c6;
   --indigo-dark: #2f3aa8;
+  /* 2 mau lay tu logo (JobHunter_Logo.png, da sample pixel that) - dung lam
+     diem nhan, KHONG thay the indigo chinh (indigo hien tai da cung ho mau
+     voi mau giua cua gradient logo #44619e). */
+  --logo-cyan: #22bad3;
+  --logo-purple: #4c4a90;
   --text: #1f2430;
   --text-muted: #6b7280;
   --bg: #f7f8fb;
@@ -16,7 +21,18 @@
   --info-bg: #e6eafc;
   --radius: 8px;
   --radius-lg: 14px;
-  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 12px rgba(16, 24, 40, 0.06);
+  --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.06), 0 6px 16px rgba(16, 24, 40, 0.08);
+  --shadow-card-hover: 0 2px 6px rgba(16, 24, 40, 0.08), 0 12px 28px rgba(16, 24, 40, 0.12);
+
+  /* Thang khoang cach dung chung - de chia nhom cac form dai (Dang tin,
+     Quan ly CV...) thanh tung khoi ro rang thay vi 1 cot input lien tuc. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
 
   font-family: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
   color: var(--text);
@@ -38,8 +54,12 @@ a {
 
 h1, h2, h3 {
   color: var(--navy);
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.25;
 }
+h1 { font-size: 32px; letter-spacing: -0.01em; }
+h2 { font-size: 22px; }
+h3 { font-size: 17px; }
 
 .btn {
   display: inline-flex;
@@ -75,6 +95,18 @@ h1, h2, h3 {
   border: 1px solid var(--indigo);
 }
 
+/* Cap do thu 3, nhe nhat - cho hanh dong phu (vd "Huy", "Xem them") de
+   khong phai cai gi cung la nut dac/vien nhu nhau. */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+}
+.btn-ghost:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
 input, select, textarea {
   height: 48px;
   border-radius: var(--radius);
@@ -83,6 +115,11 @@ input, select, textarea {
   font-size: 15px;
   font-family: inherit;
   width: 100%;
+  transition: border-color 0.15s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--indigo);
 }
 
 textarea {
@@ -103,12 +140,69 @@ label {
   text-align: left;
 }
 
+/* Checkbox/radio rieng, thay o vuong/tron mac dinh cua trinh duyet - truoc
+   do 2 ngon ngu thiet ke lan lon trong cung 1 form (input text duoc style
+   ky, checkbox thi de nguyen mac dinh OS). */
+input[type="checkbox"],
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  /* var(--border) qua nhat (#e2e4ea) tren nen trang - gan nhu vo hinh, phai
+     dung mau dam hon rieng cho o checkbox/radio de con nhin thay duoc. */
+  border: 1.5px solid #b6bac5;
+  background: var(--surface);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+input[type="checkbox"]:hover,
+input[type="radio"]:hover {
+  border-color: var(--indigo);
+}
+input[type="checkbox"] { border-radius: 5px; }
+input[type="radio"] { border-radius: 50%; }
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  background: var(--indigo);
+  border-color: var(--indigo);
+}
+input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+  transform: translate(-50%, -50%);
+}
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   padding: 24px;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
 }
 
 .badge {

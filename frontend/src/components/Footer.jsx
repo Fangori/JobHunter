@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Briefcase } from "lucide-react";
+import logoIcon from "../assets/logo-icon.png";
 
 export default function Footer() {
   return (
@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="page-container" style={{ display: "flex", flexWrap: "wrap", gap: 32, justifyContent: "space-between" }}>
         <div style={{ maxWidth: 320 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 18, fontWeight: 700, color: "var(--navy)", marginBottom: 8 }}>
-            <Briefcase size={20} /> JobHunter
+            <img src={logoIcon} alt="" width={24} height={24} style={{ display: "block" }} /> JobHunter
           </div>
           <p style={{ color: "var(--text-muted)", fontSize: 14, margin: 0 }}>
             Nền tảng kết nối ứng viên tài năng với nhà tuyển dụng hàng đầu.

@@ -225,7 +225,6 @@ export default function Home() {
               <label key={o.value} style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 400, fontSize: 14 }}>
                 <input
                   type="checkbox"
-                  style={{ height: "auto", width: "auto" }}
                   checked={hinhThucSelected.includes(o.value)}
                   onChange={() => toggleHinhThuc(o.value)}
                 />

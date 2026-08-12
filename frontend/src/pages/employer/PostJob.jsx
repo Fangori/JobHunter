@@ -101,64 +101,71 @@ export default function PostJob() {
       </div>
       <div className="card">
         <form onSubmit={handleSubmit}>
-          <div className="field">
-            <label>Tiêu đề tin</label>
-            <input value={form.tieuDe} onChange={set("tieuDe")} required />
-          </div>
-          <div className="field">
-            <label>Mô tả công việc</label>
-            <textarea rows={4} value={form.moTaCongViec} onChange={set("moTaCongViec")} required />
-          </div>
-          <div className="field">
-            <label>Yêu cầu ứng viên</label>
-            <textarea rows={3} value={form.yeuCauUngVien} onChange={set("yeuCauUngVien")} />
-          </div>
-          <div className="field">
-            <label>Quyền lợi</label>
-            <textarea rows={3} value={form.quyenLoi} onChange={set("quyenLoi")} />
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="form-section">
+            <h4 className="form-section-title">Thông tin công việc</h4>
             <div className="field">
-              <label>Lương tối thiểu (triệu)</label>
-              <input type="number" min="0" value={form.luongToiThieu} onChange={set("luongToiThieu")} placeholder="Để trống nếu thỏa thuận" />
+              <label>Tiêu đề tin</label>
+              <input value={form.tieuDe} onChange={set("tieuDe")} required />
             </div>
             <div className="field">
-              <label>Lương tối đa (triệu)</label>
-              <input type="number" min="0" value={form.luongToiDa} onChange={set("luongToiDa")} placeholder="Để trống nếu thỏa thuận" />
+              <label>Mô tả công việc</label>
+              <textarea rows={4} value={form.moTaCongViec} onChange={set("moTaCongViec")} required />
             </div>
             <div className="field">
-              <label>Số lượng tuyển</label>
-              <input type="number" min="1" value={form.soLuongTuyen} onChange={set("soLuongTuyen")} placeholder="VD: 2" />
+              <label>Yêu cầu ứng viên</label>
+              <textarea rows={3} value={form.yeuCauUngVien} onChange={set("yeuCauUngVien")} />
             </div>
             <div className="field">
-              <label>Số năm kinh nghiệm yêu cầu</label>
-              <input type="number" min="0" value={form.soNamKinhNghiemYeuCau} onChange={set("soNamKinhNghiemYeuCau")} />
-            </div>
-            <div className="field">
-              <label>Địa điểm làm việc</label>
-              <input value={form.diaDiem} onChange={set("diaDiem")} />
-            </div>
-            <div className="field">
-              <label>Hình thức làm việc</label>
-              <select value={form.hinhThucLamViec} onChange={set("hinhThucLamViec")}>
-                <option value="FullTime">Full-time</option>
-                <option value="PartTime">Part-time</option>
-                <option value="Remote">Remote</option>
-              </select>
-            </div>
-            <div className="field">
-              <label>Hạn nộp hồ sơ</label>
-              <input type="date" value={form.hanNopHoSo} onChange={set("hanNopHoSo")} required />
+              <label>Quyền lợi</label>
+              <textarea rows={3} value={form.quyenLoi} onChange={set("quyenLoi")} />
             </div>
           </div>
-          <div className="field">
-            <label>Danh sách kỹ năng yêu cầu</label>
+
+          <div className="form-section">
+            <h4 className="form-section-title">Lương &amp; tuyển dụng</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="field">
+                <label>Lương tối thiểu (triệu)</label>
+                <input type="number" min="0" value={form.luongToiThieu} onChange={set("luongToiThieu")} placeholder="Để trống nếu thỏa thuận" />
+              </div>
+              <div className="field">
+                <label>Lương tối đa (triệu)</label>
+                <input type="number" min="0" value={form.luongToiDa} onChange={set("luongToiDa")} placeholder="Để trống nếu thỏa thuận" />
+              </div>
+              <div className="field">
+                <label>Số lượng tuyển</label>
+                <input type="number" min="1" value={form.soLuongTuyen} onChange={set("soLuongTuyen")} placeholder="VD: 2" />
+              </div>
+              <div className="field">
+                <label>Số năm kinh nghiệm yêu cầu</label>
+                <input type="number" min="0" value={form.soNamKinhNghiemYeuCau} onChange={set("soNamKinhNghiemYeuCau")} />
+              </div>
+              <div className="field">
+                <label>Địa điểm làm việc</label>
+                <input value={form.diaDiem} onChange={set("diaDiem")} />
+              </div>
+              <div className="field">
+                <label>Hình thức làm việc</label>
+                <select value={form.hinhThucLamViec} onChange={set("hinhThucLamViec")}>
+                  <option value="FullTime">Full-time</option>
+                  <option value="PartTime">Part-time</option>
+                  <option value="Remote">Remote</option>
+                </select>
+              </div>
+              <div className="field">
+                <label>Hạn nộp hồ sơ</label>
+                <input type="date" value={form.hanNopHoSo} onChange={set("hanNopHoSo")} required />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h4 className="form-section-title">Kỹ năng yêu cầu</h4>
             <div className="card" style={{ maxHeight: 220, overflowY: "auto" }}>
               {skills.map((s) => (
                 <div key={s.maKyNang} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                   <input
                     type="checkbox"
-                    style={{ height: "auto", width: "auto" }}
                     checked={!!selectedSkills[s.maKyNang]}
                     onChange={() => toggleSkill(s.maKyNang)}
                   />

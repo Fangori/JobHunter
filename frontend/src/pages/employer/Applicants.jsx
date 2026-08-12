@@ -94,7 +94,7 @@ export default function Applicants() {
             <div style={{ maxHeight: 160, overflowY: "auto" }}>
               {skills.map((s) => (
                 <label key={s.maKyNang} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontWeight: 400 }}>
-                  <input type="checkbox" style={{ height: "auto", width: "auto" }}
+                  <input type="checkbox"
                     checked={selectedSkills.includes(s.maKyNang)} onChange={() => toggleSkill(s.maKyNang)} />
                   {s.tenKyNang}
                 </label>
@@ -111,7 +111,7 @@ export default function Applicants() {
             <label>Học vấn</label>
             {TRINH_DO_OPTIONS.map((t) => (
               <label key={t} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontWeight: 400 }}>
-                <input type="checkbox" style={{ height: "auto", width: "auto" }}
+                <input type="checkbox"
                   checked={selectedTrinhDo.includes(t)} onChange={() => toggleTrinhDo(t)} />
                 {TRINH_DO_LABEL[t]}
               </label>

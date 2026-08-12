@@ -233,39 +233,42 @@ export default function ManageCv() {
         <div className="card" style={{ flex: 1 }}>
           <h3>{editingCvId ? "Sửa CV" : "Tạo CV trực tuyến"}</h3>
           <form onSubmit={handleSubmit}>
-            <div className="field">
-              <label>Tên CV</label>
-              <input value={form.tenCv} onChange={set("tenCv")} placeholder="VD: CV Frontend Developer" required />
-            </div>
-            <div className="field">
-              <label>Vị trí mong muốn</label>
-              <input value={form.viTriMongMuon} onChange={set("viTriMongMuon")} placeholder="VD: Nhân viên Marketing" />
-            </div>
-            <div className="field">
-              <label>Mức lương mong muốn</label>
-              <input value={form.mucLuongMongMuon} onChange={set("mucLuongMongMuon")} placeholder="VD: 15-20 triệu hoặc Thỏa thuận" />
-            </div>
-            <div className="field">
-              <label>Trình độ học vấn</label>
-              <select value={form.trinhDoHocVan} onChange={set("trinhDoHocVan")}>
-                {TRINH_DO_OPTIONS.map((t) => <option key={t} value={t}>{TRINH_DO_LABEL[t]}</option>)}
-              </select>
+            <div className="form-section">
+              <h4 className="form-section-title">Thông tin cơ bản</h4>
+              <div className="field">
+                <label>Tên CV</label>
+                <input value={form.tenCv} onChange={set("tenCv")} placeholder="VD: CV Frontend Developer" required />
+              </div>
+              <div className="field">
+                <label>Vị trí mong muốn</label>
+                <input value={form.viTriMongMuon} onChange={set("viTriMongMuon")} placeholder="VD: Nhân viên Marketing" />
+              </div>
+              <div className="field">
+                <label>Mức lương mong muốn</label>
+                <input value={form.mucLuongMongMuon} onChange={set("mucLuongMongMuon")} placeholder="VD: 15-20 triệu hoặc Thỏa thuận" />
+              </div>
+              <div className="field">
+                <label>Trình độ học vấn</label>
+                <select value={form.trinhDoHocVan} onChange={set("trinhDoHocVan")}>
+                  {TRINH_DO_OPTIONS.map((t) => <option key={t} value={t}>{TRINH_DO_LABEL[t]}</option>)}
+                </select>
+              </div>
             </div>
 
-            <div className="field">
-              <label>Danh sách kỹ năng</label>
+            <div className="form-section">
+              <h4 className="form-section-title">Kỹ năng</h4>
               <div className="card" style={{ maxHeight: 180, overflowY: "auto" }}>
                 {skills.map((s) => (
                   <label key={s.maKyNang} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontWeight: 400 }}>
-                    <input type="checkbox" style={{ height: "auto", width: "auto" }} checked={!!selectedSkills[s.maKyNang]} onChange={() => toggleSkill(s.maKyNang)} />
+                    <input type="checkbox" checked={!!selectedSkills[s.maKyNang]} onChange={() => toggleSkill(s.maKyNang)} />
                     {s.tenKyNang}
                   </label>
                 ))}
               </div>
             </div>
 
-            <div className="field">
-              <label>Kinh nghiệm làm việc</label>
+            <div className="form-section">
+              <h4 className="form-section-title">Kinh nghiệm làm việc</h4>
               {kinhNghiem.map((k, i) => (
                 <div key={i} className="card" style={{ marginBottom: 8, position: "relative" }}>
                   <button
@@ -293,8 +296,8 @@ export default function ManageCv() {
               </button>
             </div>
 
-            <div className="field">
-              <label>Học vấn</label>
+            <div className="form-section">
+              <h4 className="form-section-title">Học vấn</h4>
               {hocVan.map((h, i) => (
                 <div key={i} className="card" style={{ marginBottom: 8, position: "relative" }}>
                   <button
@@ -334,18 +337,42 @@ export default function ManageCv() {
           </form>
         </div>
 
-        <div className="card" style={{ flex: 1, alignSelf: "flex-start", border: "1px solid var(--border)" }}>
-          <h3 style={{ color: "var(--text-muted)", fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5 }}>Xem trước</h3>
-          <h2 style={{ marginBottom: 0, fontSize: 24 }}>{(form.tenCv || "(Tên CV)").toUpperCase()}</h2>
-          <p style={{ color: "var(--text-muted)" }}>{form.viTriMongMuon || "Vị trí mong muốn"}</p>
-          <p>{form.mucLuongMongMuon}</p>
-          <p>Trình độ: {TRINH_DO_LABEL[form.trinhDoHocVan]}</p>
-          <h3>Kỹ năng</h3>
-          <p>{Object.keys(selectedSkills).map((id) => skillName(Number(id))).join(", ") || "(chưa chọn)"}</p>
-          <h3>Kinh nghiệm</h3>
-          {kinhNghiem.filter((k) => k.congTy).map((k, i) => <p key={i}>{k.viTri} tại {k.congTy}</p>)}
-          <h3>Học vấn</h3>
-          {hocVan.filter((h) => h.truong).map((h, i) => <p key={i}>{h.chuyenNganh} — {h.truong}</p>)}
+        <div className="card" style={{ flex: 1, alignSelf: "flex-start", padding: 0, overflow: "hidden" }}>
+          {/* Bang mau nhan o dinh cho giong 1 trang tai lieu that, thay vi
+              chi la 1 card trang gioi han nhu cac card khac - gop y designer
+              review ("khung Xem truoc nhin nhu wireframe chua xong"). */}
+          <div style={{ background: "linear-gradient(135deg, var(--navy), var(--indigo))", padding: "16px 24px" }}>
+            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6, margin: 0 }}>Xem trước CV</p>
+            <h2 style={{ color: "white", margin: "4px 0 0", fontSize: 22 }}>
+              {form.tenCv || <span style={{ opacity: 0.6, fontStyle: "italic" }}>Chưa đặt tên CV</span>}
+            </h2>
+          </div>
+          <div style={{ padding: "20px 24px" }}>
+            <p style={{ color: "var(--text-muted)", margin: "0 0 4px" }}>
+              {form.viTriMongMuon || <span style={{ fontStyle: "italic" }}>Chưa nhập vị trí mong muốn</span>}
+            </p>
+            {form.mucLuongMongMuon && <p style={{ margin: "0 0 4px" }}>{form.mucLuongMongMuon}</p>}
+            <p style={{ margin: 0 }}>Trình độ: {TRINH_DO_LABEL[form.trinhDoHocVan]}</p>
+
+            <h3 style={{ borderLeft: "3px solid var(--indigo)", paddingLeft: 8, marginTop: 20 }}>Kỹ năng</h3>
+            <p style={{ color: Object.keys(selectedSkills).length ? "var(--text)" : "var(--text-muted)", fontStyle: Object.keys(selectedSkills).length ? "normal" : "italic" }}>
+              {Object.keys(selectedSkills).map((id) => skillName(Number(id))).join(", ") || "Chưa chọn kỹ năng nào"}
+            </p>
+
+            {kinhNghiem.some((k) => k.congTy) && (
+              <>
+                <h3 style={{ borderLeft: "3px solid var(--indigo)", paddingLeft: 8, marginTop: 20 }}>Kinh nghiệm</h3>
+                {kinhNghiem.filter((k) => k.congTy).map((k, i) => <p key={i} style={{ margin: "0 0 4px" }}>{k.viTri} tại {k.congTy}</p>)}
+              </>
+            )}
+
+            {hocVan.some((h) => h.truong) && (
+              <>
+                <h3 style={{ borderLeft: "3px solid var(--indigo)", paddingLeft: 8, marginTop: 20 }}>Học vấn</h3>
+                {hocVan.filter((h) => h.truong).map((h, i) => <p key={i} style={{ margin: "0 0 4px" }}>{h.chuyenNganh} — {h.truong}</p>)}
+              </>
+            )}
+          </div>
         </div>
       </div>
 

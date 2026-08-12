@@ -74,7 +74,9 @@
 }
 
 .dashboard-header-band {
-  background: linear-gradient(135deg, var(--navy), var(--indigo));
+  /* diem 130% de vet cyan cua logo chi lo ra 1 chut o goc, khong lam
+     "banner cau vong" - chi la 1 diem nhan tinh te khop voi logo. */
+  background: linear-gradient(135deg, var(--navy) 0%, var(--indigo) 65%, var(--logo-cyan) 130%);
   border-radius: var(--radius-lg);
   padding: 24px 32px;
   margin-bottom: 24px;
@@ -110,4 +112,20 @@
 
 .hover-row:hover {
   background: var(--bg);
+}
+
+/* Chia nhom cac form dai (Dang tin, Quan ly CV...) thanh tung khoi ro rang
+   thay vi 1 cot input lien tuc khong phan biet - gop y designer review. */
+.form-section + .form-section {
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border);
+}
+.form-section-title {
+  margin: 0 0 var(--space-4);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--indigo);
 }

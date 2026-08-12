@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Mail, Briefcase } from "lucide-react";
+import { Mail } from "lucide-react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import PasswordInput from "../../components/PasswordInput";
+import logoIcon from "../../assets/logo-icon.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -53,7 +54,7 @@ export default function Login() {
   return (
     <div className="auth-split">
       <div className="auth-split-panel">
-        <Briefcase size={40} style={{ marginBottom: 16 }} />
+        <img src={logoIcon} alt="" width={56} height={56} style={{ marginBottom: 16, display: "block" }} />
         <h2>Chào mừng trở lại JobHunter</h2>
         <p>Tiếp tục hành trình tìm việc hoặc tìm ứng viên phù hợp ngay hôm nay.</p>
       </div>

@@ -85,7 +85,7 @@ export default function PackageManagement() {
           <input type="number" min="0" value={giaTien} onChange={(e) => setGiaTien(e.target.value)} required />
         </div>
         <label style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 400, marginBottom: 8 }}>
-          <input type="checkbox" style={{ height: "auto", width: "auto" }} checked={coNoiBat} onChange={(e) => setCoNoiBat(e.target.checked)} />
+          <input type="checkbox" checked={coNoiBat} onChange={(e) => setCoNoiBat(e.target.checked)} />
           Nổi bật
         </label>
         <button className="btn btn-primary" style={{ height: 36, padding: "0 16px" }} type="submit">

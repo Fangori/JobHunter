@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { User, Mail, Phone, Building2, MapPin, Briefcase, CheckCircle2 } from "lucide-react";
+import { User, Mail, Phone, Building2, MapPin, CheckCircle2 } from "lucide-react";
 import { api, ApiError } from "../../api/client";
+import logoIcon from "../../assets/logo-icon.png";
 import PasswordInput from "../../components/PasswordInput";
 
 const emptyCandidateForm = () => ({ hoTen: "", matKhau: "", email: "", xacNhanMatKhau: "", sdt: "" });
@@ -171,7 +172,7 @@ export default function Register() {
   return (
     <div className="auth-split">
       <div className="auth-split-panel">
-        <Briefcase size={40} style={{ marginBottom: 16 }} />
+        <img src={logoIcon} alt="" width={56} height={56} style={{ marginBottom: 16, display: "block" }} />
         <h2>Bắt đầu hành trình sự nghiệp</h2>
         <p>Tham gia nền tảng kết nối ứng viên và nhà tuyển dụng hàng đầu.</p>
       </div>

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, Briefcase, CircleUserRound, LogOut, ChevronDown } from "lucide-react";
+import { Bell, CircleUserRound, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { roleLabel } from "../utils/roleLabel";
+import logoIcon from "../assets/logo-icon.png";
 
 function NotificationBell() {
   const { auth } = useAuth();
@@ -170,7 +171,7 @@ export default function Header() {
   return (
     <header className="app-header">
       <Link to="/" className="brand" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Briefcase size={22} /> JobHunter
+        <img src={logoIcon} alt="" width={28} height={28} style={{ display: "block" }} /> JobHunter
       </Link>
       <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
         {!auth && <Link to="/login">Đăng nhập</Link>}
