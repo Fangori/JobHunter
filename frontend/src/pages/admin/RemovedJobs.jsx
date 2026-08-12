@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
+import JobDetailModal from "../../components/JobDetailModal";
 
 export default function RemovedJobs() {
   const { auth } = useAuth();
@@ -10,6 +11,7 @@ export default function RemovedJobs() {
   const [lyDo, setLyDo] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [viewingId, setViewingId] = useState(null); // ma tin dang xem chi tiet
 
   const load = async () => {
     setActiveJobs(await api.get("/jobs", auth.token));
@@ -61,11 +63,11 @@ export default function RemovedJobs() {
       {activeJobs.length === 0 && <p>Không có tin nào.</p>}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12, marginBottom: 24 }}>
         {activeJobs.map((job) => (
-          <div key={job.maTin} className="card">
+          <div key={job.maTin} className="card" style={{ cursor: "pointer" }} onClick={() => setViewingId(job.maTin)} title="Bấm để xem chi tiết tin">
             <span className="badge badge-success">Đang hiển thị</span>
             <p style={{ fontWeight: 600, margin: "10px 0 2px" }}>{job.tieuDe}</p>
             <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>{job.tenCongTy}</p>
-            <div style={{ marginTop: 12 }}>
+            <div style={{ marginTop: 12 }} onClick={(e) => e.stopPropagation()}>
               {removingId === job.maTin ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   <input placeholder="Lý do gỡ tin (bắt buộc)" value={lyDo} onChange={(e) => setLyDo(e.target.value)} />
@@ -86,14 +88,16 @@ export default function RemovedJobs() {
       {removedJobs.length === 0 && <p>Không có tin nào.</p>}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
         {removedJobs.map((job) => (
-          <div key={job.maTin} className="card">
+          <div key={job.maTin} className="card" style={{ cursor: "pointer" }} onClick={() => setViewingId(job.maTin)} title="Bấm để xem chi tiết tin">
             <span className="badge badge-danger">Đã gỡ</span>
             <p style={{ fontWeight: 600, margin: "10px 0 2px" }}>{job.tieuDe}</p>
             <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>{job.tenCongTy}</p>
-            <button className="btn btn-primary" style={{ height: 36, marginTop: 12 }} onClick={() => restore(job.maTin)}>Phục hồi</button>
+            <button className="btn btn-primary" style={{ height: 36, marginTop: 12 }} onClick={(e) => { e.stopPropagation(); restore(job.maTin); }}>Phục hồi</button>
           </div>
         ))}
       </div>
+
+      {viewingId && <JobDetailModal maTin={viewingId} onClose={() => setViewingId(null)} />}
     </div>
   );
 }

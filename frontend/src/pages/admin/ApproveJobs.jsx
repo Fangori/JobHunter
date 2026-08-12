@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
+import JobDetailModal from "../../components/JobDetailModal";
 
 export default function ApproveJobs() {
   const { auth } = useAuth();
@@ -9,6 +10,7 @@ export default function ApproveJobs() {
   const [rejectingId, setRejectingId] = useState(null);
   const [lyDo, setLyDo] = useState("");
   const [error, setError] = useState("");
+  const [viewingId, setViewingId] = useState(null); // ma tin dang xem chi tiet
 
   const load = async () => {
     setJobs(await api.get("/jobs/pending", auth.token));
@@ -62,16 +64,22 @@ export default function ApproveJobs() {
       {jobs.length === 0 && <p>Không có tin nào chờ duyệt.</p>}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
         {jobs.map((job) => (
-          <div key={job.maTin} className="card">
+          <div
+            key={job.maTin}
+            className="card"
+            style={{ cursor: "pointer" }}
+            onClick={() => setViewingId(job.maTin)}
+            title="Bấm để xem chi tiết tin"
+          >
             <span className="badge badge-warning">Chờ duyệt</span>
             <p style={{ fontWeight: 600, margin: "10px 0 2px" }}>{job.tieuDe}</p>
             <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 14 }}>{job.tenCongTy}</p>
-            <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+            <div style={{ marginTop: 12, display: "flex", gap: 8 }} onClick={(e) => e.stopPropagation()}>
               <button className="btn btn-primary" style={{ height: 36 }} onClick={() => approve(job.maTin)}>Duyệt</button>
               <button className="btn btn-secondary" style={{ height: 36 }} onClick={() => setRejectingId(job.maTin)}>Từ chối</button>
             </div>
             {rejectingId === job.maTin && (
-              <div style={{ marginTop: 8 }}>
+              <div style={{ marginTop: 8 }} onClick={(e) => e.stopPropagation()}>
                 <input placeholder="Lý do từ chối (bắt buộc)" value={lyDo} onChange={(e) => setLyDo(e.target.value)} />
                 <button className="btn btn-primary" style={{ height: 36, marginTop: 8 }} onClick={() => submitReject(job.maTin)}>
                   Xác nhận từ chối
@@ -81,6 +89,8 @@ export default function ApproveJobs() {
           </div>
         ))}
       </div>
+
+      {viewingId && <JobDetailModal maTin={viewingId} onClose={() => setViewingId(null)} />}
     </div>
   );
 }
